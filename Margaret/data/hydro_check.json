@@ -1,0 +1,375 @@
+{
+ "envelope": {
+  "open_edges": 2,
+  "volume_cm3": 229.6
+ },
+ "mass_g": {
+  "pla_on_board": 45.91,
+  "extras": 2.13,
+  "lead": 16.0,
+  "lead_balls": 100,
+  "total": 64.04,
+  "parts": {
+   "Upper_white": 21.71,
+   "Lower_blue": 10.27,
+   "Fin_cap": 2.95,
+   "Upper_teak": 2.67,
+   "Ballast_cup": 2.21,
+   "Mast": 1.87,
+   "Lower_ink": 1.02,
+   "Upper_ink": 1.0,
+   "Lower_white": 0.92,
+   "Boom": 0.42,
+   "Window_ink": 0.38,
+   "Rudder": 0.31,
+   "Wheel_Starboard": 0.05,
+   "Wheel_Port": 0.05,
+   "WheelSpokes_Port": 0.04,
+   "WheelSpokes_Starboard": 0.04,
+   "Rudder_ink": 0.0
+  }
+ },
+ "lead_needed_for_DWL_g": 15.84,
+ "cup_capacity_g_at_packing": 32.03,
+ "cup_capacity_balls": 200,
+ "packing": 0.6,
+ "pour_tilt_deg": 0.0,
+ "lead_fill_top_z": -49.33,
+ "lead_front_x": 11.81,
+ "lead_centroid": [
+  -9.16,
+  -0.0,
+  -51.56
+ ],
+ "pour_scan": [
+  {
+   "tilt_deg": 0,
+   "lead_x": -9.16,
+   "front_x": 11.81,
+   "top_z": -49.33,
+   "trim_deg_bow_down": 0.099
+  },
+  {
+   "tilt_deg": 10,
+   "lead_x": -14.54,
+   "front_x": 11.81,
+   "top_z": -45.58,
+   "trim_deg_bow_down": -0.231
+  },
+  {
+   "tilt_deg": 20,
+   "lead_x": -17.47,
+   "front_x": 4.31,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.406
+  },
+  {
+   "tilt_deg": 30,
+   "lead_x": -18.26,
+   "front_x": -0.44,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.452
+  },
+  {
+   "tilt_deg": 40,
+   "lead_x": -18.55,
+   "front_x": -2.94,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.469
+  },
+  {
+   "tilt_deg": 50,
+   "lead_x": -18.68,
+   "front_x": -4.69,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.477
+  },
+  {
+   "tilt_deg": 60,
+   "lead_x": -18.76,
+   "front_x": -5.94,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.482
+  },
+  {
+   "tilt_deg": 70,
+   "lead_x": -18.79,
+   "front_x": -6.94,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.484
+  },
+  {
+   "tilt_deg": 80,
+   "lead_x": -18.81,
+   "front_x": -7.94,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.485
+  },
+  {
+   "tilt_deg": 90,
+   "lead_x": -18.82,
+   "front_x": -8.69,
+   "top_z": -45.08,
+   "trim_deg_bow_down": -0.485
+  }
+ ],
+ "G": [
+  -3.61,
+  0.01,
+  -6.76
+ ],
+ "B_upright": [
+  -3.62,
+  -0.0,
+  -10.63
+ ],
+ "upright": {
+  "sinkage_below_DWL_mm": 0.04,
+  "trim_deg_bow_down": 0.099,
+  "waterline_shift_bow_mm": 0.21,
+  "waterline_shift_stern_mm": -0.13
+ },
+ "lead_x_for_zero_trim": -10.67,
+ "cavity_x_range": [
+  -31.4,
+  11.8
+ ],
+ "GM_mm_small_angle": 19.12,
+ "GZ_max": {
+  "phi": 85,
+  "GZ_mm": 14.023,
+  "trim_deg": 2.678,
+  "sink_mm": 9.014
+ },
+ "AVS_deg": 141.2,
+ "reserve_buoyancy_g": 165.1,
+ "immersion_heel_deg": {
+  "platform aft corner (wets, harmless)": 17.4,
+  "cockpit sill at the walk-through (water into cockpit)": 130.1,
+  "deck edge amidships": 31.2
+ },
+ "curve": [
+  {
+   "phi": 0,
+   "GZ_mm": 0.011,
+   "trim_deg": 0.099,
+   "sink_mm": -0.036
+  },
+  {
+   "phi": 5,
+   "GZ_mm": 1.666,
+   "trim_deg": 0.138,
+   "sink_mm": 0.028
+  },
+  {
+   "phi": 10,
+   "GZ_mm": 3.268,
+   "trim_deg": 0.254,
+   "sink_mm": 0.221
+  },
+  {
+   "phi": 15,
+   "GZ_mm": 4.764,
+   "trim_deg": 0.439,
+   "sink_mm": 0.552
+  },
+  {
+   "phi": 20,
+   "GZ_mm": 6.117,
+   "trim_deg": 0.67,
+   "sink_mm": 1.025
+  },
+  {
+   "phi": 25,
+   "GZ_mm": 7.322,
+   "trim_deg": 0.928,
+   "sink_mm": 1.641
+  },
+  {
+   "phi": 30,
+   "GZ_mm": 8.41,
+   "trim_deg": 1.204,
+   "sink_mm": 2.401
+  },
+  {
+   "phi": 35,
+   "GZ_mm": 9.377,
+   "trim_deg": 1.492,
+   "sink_mm": 3.284
+  },
+  {
+   "phi": 40,
+   "GZ_mm": 10.035,
+   "trim_deg": 1.781,
+   "sink_mm": 4.187
+  },
+  {
+   "phi": 45,
+   "GZ_mm": 10.394,
+   "trim_deg": 2.065,
+   "sink_mm": 5.071
+  },
+  {
+   "phi": 50,
+   "GZ_mm": 10.502,
+   "trim_deg": 2.335,
+   "sink_mm": 5.919
+  },
+  {
+   "phi": 55,
+   "GZ_mm": 10.412,
+   "trim_deg": 2.581,
+   "sink_mm": 6.716
+  },
+  {
+   "phi": 60,
+   "GZ_mm": 10.199,
+   "trim_deg": 2.806,
+   "sink_mm": 7.444
+  },
+  {
+   "phi": 65,
+   "GZ_mm": 9.872,
+   "trim_deg": 3.008,
+   "sink_mm": 8.116
+  },
+  {
+   "phi": 70,
+   "GZ_mm": 9.562,
+   "trim_deg": 3.161,
+   "sink_mm": 8.734
+  },
+  {
+   "phi": 75,
+   "GZ_mm": 10.859,
+   "trim_deg": 3.074,
+   "sink_mm": 8.941
+  },
+  {
+   "phi": 80,
+   "GZ_mm": 12.78,
+   "trim_deg": 2.839,
+   "sink_mm": 8.936
+  },
+  {
+   "phi": 85,
+   "GZ_mm": 14.023,
+   "trim_deg": 2.678,
+   "sink_mm": 9.014
+  },
+  {
+   "phi": 90,
+   "GZ_mm": 13.745,
+   "trim_deg": 2.635,
+   "sink_mm": 9.391
+  },
+  {
+   "phi": 95,
+   "GZ_mm": 12.632,
+   "trim_deg": 2.582,
+   "sink_mm": 9.887
+  },
+  {
+   "phi": 100,
+   "GZ_mm": 11.409,
+   "trim_deg": 2.468,
+   "sink_mm": 10.321
+  },
+  {
+   "phi": 105,
+   "GZ_mm": 10.097,
+   "trim_deg": 2.299,
+   "sink_mm": 10.693
+  },
+  {
+   "phi": 110,
+   "GZ_mm": 8.719,
+   "trim_deg": 2.064,
+   "sink_mm": 11.0
+  },
+  {
+   "phi": 115,
+   "GZ_mm": 7.296,
+   "trim_deg": 1.779,
+   "sink_mm": 11.248
+  },
+  {
+   "phi": 120,
+   "GZ_mm": 5.847,
+   "trim_deg": 1.467,
+   "sink_mm": 11.435
+  },
+  {
+   "phi": 125,
+   "GZ_mm": 4.39,
+   "trim_deg": 1.125,
+   "sink_mm": 11.56
+  },
+  {
+   "phi": 130,
+   "GZ_mm": 2.955,
+   "trim_deg": 0.764,
+   "sink_mm": 11.631
+  },
+  {
+   "phi": 135,
+   "GZ_mm": 1.571,
+   "trim_deg": 0.393,
+   "sink_mm": 11.654
+  },
+  {
+   "phi": 140,
+   "GZ_mm": 0.267,
+   "trim_deg": 0.012,
+   "sink_mm": 11.637
+  },
+  {
+   "phi": 145,
+   "GZ_mm": -0.893,
+   "trim_deg": -0.352,
+   "sink_mm": 11.599
+  },
+  {
+   "phi": 150,
+   "GZ_mm": -1.877,
+   "trim_deg": -0.722,
+   "sink_mm": 11.546
+  },
+  {
+   "phi": 155,
+   "GZ_mm": -2.699,
+   "trim_deg": -1.107,
+   "sink_mm": 11.46
+  },
+  {
+   "phi": 160,
+   "GZ_mm": -3.368,
+   "trim_deg": -1.456,
+   "sink_mm": 11.338
+  },
+  {
+   "phi": 165,
+   "GZ_mm": -3.606,
+   "trim_deg": -1.674,
+   "sink_mm": 11.269
+  },
+  {
+   "phi": 170,
+   "GZ_mm": -2.955,
+   "trim_deg": -1.761,
+   "sink_mm": 11.361
+  },
+  {
+   "phi": 175,
+   "GZ_mm": -1.502,
+   "trim_deg": -1.833,
+   "sink_mm": 11.545
+  },
+  {
+   "phi": 180,
+   "GZ_mm": -0.009,
+   "trim_deg": -1.851,
+   "sink_mm": 11.612
+  }
+ ]
+}

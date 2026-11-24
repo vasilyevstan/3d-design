@@ -1,0 +1,297 @@
+{
+ "parts": {
+  "Lower_blue": {
+   "verts": 34948,
+   "faces": 69896,
+   "nonmanifold": 0,
+   "vol_cm3": 8.733
+  },
+  "Lower_white": {
+   "verts": 6607,
+   "faces": 13230,
+   "nonmanifold": 0,
+   "vol_cm3": 0.752
+  },
+  "Lower_ink": {
+   "verts": 5206,
+   "faces": 10428,
+   "nonmanifold": 0,
+   "vol_cm3": 0.827
+  },
+  "Upper_white": {
+   "verts": 61467,
+   "faces": 122986,
+   "nonmanifold": 0,
+   "vol_cm3": 20.508
+  },
+  "Upper_ink": {
+   "verts": 37669,
+   "faces": 75014,
+   "nonmanifold": 0,
+   "vol_cm3": 0.827
+  },
+  "Upper_teak": {
+   "verts": 34505,
+   "faces": 68750,
+   "nonmanifold": 0,
+   "vol_cm3": 2.198
+  },
+  "Window_ink": {
+   "verts": 3533,
+   "faces": 7042,
+   "nonmanifold": 0,
+   "vol_cm3": 0.315
+  },
+  "Fin_cap": {
+   "verts": 3301,
+   "faces": 6598,
+   "nonmanifold": 0,
+   "vol_cm3": 3.189
+  },
+  "Ballast_cup": {
+   "verts": 6305,
+   "faces": 12606,
+   "nonmanifold": 0,
+   "vol_cm3": 2.189
+  },
+  "Mast": {
+   "verts": 1871,
+   "faces": 3762,
+   "nonmanifold": 0,
+   "vol_cm3": 1.654
+  },
+  "Boom": {
+   "verts": 1118,
+   "faces": 2252,
+   "nonmanifold": 0,
+   "vol_cm3": 0.349
+  },
+  "Rudder": {
+   "verts": 1334,
+   "faces": 2664,
+   "nonmanifold": 0,
+   "vol_cm3": 0.256
+  },
+  "Rudder_ink": {
+   "verts": 102,
+   "faces": 200,
+   "nonmanifold": 0,
+   "vol_cm3": 0.003
+  },
+  "Wheel_Port": {
+   "verts": 448,
+   "faces": 896,
+   "nonmanifold": 0,
+   "vol_cm3": 0.042
+  },
+  "Wheel_Starboard": {
+   "verts": 448,
+   "faces": 896,
+   "nonmanifold": 0,
+   "vol_cm3": 0.042
+  },
+  "WheelSpokes_Port": {
+   "verts": 234,
+   "faces": 464,
+   "nonmanifold": 0,
+   "vol_cm3": 0.032
+  },
+  "WheelSpokes_Starboard": {
+   "verts": 234,
+   "faces": 464,
+   "nonmanifold": 0,
+   "vol_cm3": 0.032
+  }
+ },
+ "canoe_cm3": 53.99061149661228,
+ "LCB": -2.491908452548555,
+ "x_scale": 1.0346611321389798,
+ "hull_length_mm": 197.51681170409884,
+ "overall_length_mm": 200.0,
+ "displacement_curve_cm3_at_z_mm": {
+  "0.0": 53.992,
+  "1.0": 61.872,
+  "2.0": 70.202,
+  "3.0": 78.845,
+  "4.0": 87.718,
+  "5.0": 96.775
+ },
+ "assembled_displacement_curve_cm3_at_z_mm": {
+  "-1.0": 56.57,
+  "0.0": 64.009,
+  "1.0": 71.89,
+  "2.0": 80.219,
+  "3.0": 88.864,
+  "4.0": 97.736,
+  "5.0": 106.648
+ },
+ "ballast_cavity_cm3": 4.70459959496114,
+ "lead_3mm_balls_64pct": 212,
+ "lead_mass_g_64pct": 33.92,
+ "total_parts_cm3": 41.948,
+ "lugs": [
+  [
+   50.543194726221564,
+   15.714955591243028
+  ],
+  [
+   50.543194726221564,
+   -15.714955591243028
+  ],
+  [
+   -50.853596223398455,
+   23.482573340826356
+  ],
+  [
+   -50.853596223398455,
+   -23.482573340826356
+  ]
+ ],
+ "bulb": {
+  "x_center": -16.709778862812122,
+  "cavity_x": [
+   -31.60889916561343,
+   11.92964127479484
+  ],
+  "posts_x": [
+   3.652352217683002,
+   -15.15778716460365
+  ],
+  "split_z": -45.0,
+  "post_r": 1.0,
+  "post_top_z": -44.0,
+  "length": 66.21831245689471,
+  "half_width": 8.6,
+  "half_height": 8.0,
+  "z_centre": -48.75,
+  "wall": 0.9,
+  "flat_z": -55.45,
+  "floor_z": -54.550000000000004
+ },
+ "rig": {
+  "mast_aft_x": 21.67614913954403,
+  "mast_heel_z": -3.0,
+  "mast_top_z": 240.0,
+  "gooseneck_z": 43.0,
+  "boom_top_z": 45.65,
+  "boom_holes_x": {
+   "gooseneck loop": 19.968958271514712,
+   "mainsheet": -20.84842339136804,
+   "clew start": -24.573203467068367,
+   "clew medium": -36.88567093952223,
+   "clew": -49.04293924215524
+  },
+  "masthead_hole_z": 237.8,
+  "hounds_z": 231.5,
+  "spreaders": [
+   [
+    95.0,
+    16.2
+   ],
+   [
+    155.0,
+    10.5
+   ]
+  ],
+  "padeye_holes": [
+   [
+    92.44697057785025,
+    0.0,
+    21.58578946215853
+   ],
+   [
+    19.50336076205217,
+    18.5,
+    18.78224683195573
+   ],
+   [
+    19.50336076205217,
+    -18.5,
+    18.78224683195573
+   ],
+   [
+    -88.82565977289902,
+    24.3,
+    17.793922531961062
+   ],
+   [
+    -88.82565977289902,
+    -24.3,
+    17.793922531961062
+   ]
+  ],
+  "sheet_eye": [
+   -20.84842339136804,
+   0.0,
+   25.512320739355918
+  ]
+ },
+ "wheel": {
+  "x": -73.87480641349076,
+  "y": 13.0,
+  "z": 22.5,
+  "r": 7.25
+ },
+ "rudder_x": -77.75478565901193,
+ "paper_sail_area_cm2": 66.4,
+ "sail": {
+  "luff_x": 21.469216913116238,
+  "tack_z": 46.05,
+  "head_z": 234.4,
+  "clew_x": -49.04293924215524,
+  "luff_mm": 188.35000000000002,
+  "foot_mm": 70.51215615527148
+ },
+ "sails": {
+  "full": {
+   "luff_mm": 188.35,
+   "foot_mm": 70.51,
+   "area_cm2": 66.4,
+   "head_z": 234.4,
+   "clew_hole_x": -49.04
+  },
+  "medium": {
+   "luff_mm": 110.75,
+   "foot_mm": 58.35,
+   "area_cm2": 32.31,
+   "head_z": 156.8,
+   "clew_hole_x": -36.89
+  },
+  "start": {
+   "luff_mm": 110.75,
+   "foot_mm": 46.04,
+   "area_cm2": 25.5,
+   "head_z": 156.8,
+   "clew_hole_x": -24.57
+  }
+ },
+ "luff_tie_z_avoid": [
+  [
+   93.7,
+   96.3
+  ],
+  [
+   153.7,
+   156.3
+  ]
+ ],
+ "furled_genoa": {
+  "start_mm_above_padeye": 8.0,
+  "length_mm": 184.7
+ },
+ "transom_name": {
+  "size": 3.9,
+  "y": [
+   9.07,
+   23.83
+  ],
+  "z": [
+   8.17,
+   10.93
+  ]
+ },
+ "anchor": {
+  "toe_u": -2.0,
+  "front_x_prescale": 99.78
+ }
+}

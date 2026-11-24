@@ -1,0 +1,239 @@
+{
+ "rudder": {
+  "blade_min_gap_mm": 0.679,
+  "nearest_part": "Lower_blue",
+  "at": [
+   -74.59,
+   -0.0,
+   -4.35
+  ],
+  "triangle_overlaps": {}
+ },
+ "Wheel_Port": {
+  "rim_min_gap_mm": 0.404,
+  "nearest_part": "Upper_white",
+  "triangle_overlaps": {}
+ },
+ "Wheel_Starboard": {
+  "rim_min_gap_mm": 0.404,
+  "nearest_part": "Upper_white",
+  "triangle_overlaps": {}
+ },
+ "WheelSpokes_Port": {
+  "triangle_overlaps": {}
+ },
+ "WheelSpokes_Starboard": {
+  "triangle_overlaps": {}
+ },
+ "Rudder_ink_overlaps": {},
+ "shroud_deflection": {
+  "port z95": {
+   "tip_hole_y": 15.05,
+   "straight_line_y": 12.18,
+   "deflection_mm": 2.87
+  },
+  "port z155": {
+   "tip_hole_y": 9.35,
+   "straight_line_y": 7.2,
+   "deflection_mm": 2.15
+  },
+  "stbd z95": {
+   "tip_hole_y": 15.05,
+   "straight_line_y": 12.18,
+   "deflection_mm": 2.87
+  },
+  "stbd z155": {
+   "tip_hole_y": 9.35,
+   "straight_line_y": 7.2,
+   "deflection_mm": 2.15
+  }
+ },
+ "islands": {
+  "Lower_ink": {
+   "components": 3,
+   "tiny": [],
+   "tiny_count": 0
+  },
+  "Upper_ink": {
+   "components": 98,
+   "tiny": [],
+   "tiny_count": 0
+  },
+  "Upper_teak": {
+   "components": 66,
+   "tiny": [],
+   "tiny_count": 0
+  },
+  "Window_ink": {
+   "components": 6,
+   "tiny": [],
+   "tiny_count": 0
+  },
+  "Lower_white": {
+   "components": 3,
+   "tiny": [],
+   "tiny_count": 0
+  },
+  "Rudder_ink": {
+   "components": 1,
+   "tiny": [],
+   "tiny_count": 0
+  },
+  "WheelSpokes_Port": {
+   "components": 1,
+   "tiny": [],
+   "tiny_count": 0
+  }
+ },
+ "boom_swing": {
+  "-45": {
+   "min_gap": 0.392,
+   "overlaps": {}
+  },
+  "-40": {
+   "min_gap": 0.388,
+   "overlaps": {}
+  },
+  "-35": {
+   "min_gap": 0.375,
+   "overlaps": {}
+  },
+  "-30": {
+   "min_gap": 0.372,
+   "overlaps": {}
+  },
+  "-25": {
+   "min_gap": 0.363,
+   "overlaps": {}
+  },
+  "-20": {
+   "min_gap": 0.361,
+   "overlaps": {}
+  },
+  "-15": {
+   "min_gap": 0.359,
+   "overlaps": {}
+  },
+  "-10": {
+   "min_gap": 0.357,
+   "overlaps": {}
+  },
+  "-5": {
+   "min_gap": 0.363,
+   "overlaps": {}
+  },
+  "0": {
+   "min_gap": 0.362,
+   "overlaps": {}
+  },
+  "5": {
+   "min_gap": 0.363,
+   "overlaps": {}
+  },
+  "10": {
+   "min_gap": 0.357,
+   "overlaps": {}
+  },
+  "15": {
+   "min_gap": 0.359,
+   "overlaps": {}
+  },
+  "20": {
+   "min_gap": 0.361,
+   "overlaps": {}
+  },
+  "25": {
+   "min_gap": 0.363,
+   "overlaps": {}
+  },
+  "30": {
+   "min_gap": 0.372,
+   "overlaps": {}
+  },
+  "35": {
+   "min_gap": 0.375,
+   "overlaps": {}
+  },
+  "40": {
+   "min_gap": 0.388,
+   "overlaps": {}
+  },
+  "45": {
+   "min_gap": 0.392,
+   "overlaps": {}
+  }
+ },
+ "boom_free_range_deg": [
+  -45,
+  45
+ ],
+ "mast_vs_hull_overlaps": {},
+ "mast_heel_min_gap": {
+  "gap": 0.149,
+  "part": "Lower_blue",
+  "at": [
+   24.32,
+   -1.28,
+   -2.65
+  ]
+ },
+ "cup_cap_overlaps": {
+  "total": 387,
+  "off_split_plane": 381,
+  "examples": [
+   [
+    [
+     -27.39,
+     4.91,
+     -45.0
+    ],
+    [
+     -27.39,
+     4.91,
+     -45.0
+    ]
+   ],
+   [
+    [
+     -29.38,
+     4.64,
+     -45.21
+    ],
+    [
+     -29.38,
+     4.44,
+     -45.0
+    ]
+   ],
+   [
+    [
+     -30.88,
+     2.55,
+     -45.0
+    ],
+    [
+     -29.38,
+     4.44,
+     -45.0
+    ]
+   ],
+   [
+    [
+     -31.61,
+     2.29,
+     -45.0
+    ],
+    [
+     -30.7,
+     4.11,
+     -45.0
+    ]
+   ]
+  ]
+ },
+ "cup_cap_intersection_mm3": 0.0,
+ "keel_vs_hull_overlaps": {
+  "Lower_blue": 185
+ },
+ "keel_hull_intersection_mm3": 0.0
+}

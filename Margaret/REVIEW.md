@@ -1,0 +1,471 @@
+# Margaret revision 2: review log
+
+Coordinates are model mm. The bow points +X, port is +Y, and the design waterline (DWL) is z = 0. The model is 200.0 mm long overall: the stern platform lip is at x = −100 and the tip of the bow roller is at x = +100.
+
+## Step 0: critiques of draft 1
+
+Three reviewers critiqued draft 1, each on a different model:
+
+| Reviewer | Model |
+|---|---|
+| Naval / look | Claude Opus 5.5 |
+| Printability | GPT-6.2 Sol |
+| Design | Grok 4.7 |
+
+All three agreed on these root causes:
+
+- **Faceted hull.** The hull was built from 7 waterline rings joined by flat strips, with 3 height rows in the topsides, so it creases at every row. Smooth shading hid this in renders, but the STL keeps the facets.
+- **Wrong proportions.** The sheer was flat at a freeboard of 10 mm, about half of scale. The sections were dish-shaped, flaring 29–34°. The stem was a knife edge.
+- **Stern.** The transom raked the conventional way, with a glued-on slab and raised teak tiles on it. This was the "weird platform".
+- **Deck joint.** The deck landing ring stuck out 0.2–0.37 mm through the topsides, and the deck sat 1.45 mm inside the hull edge, like a bathtub lid.
+- **Coachroof.** It was a 12-sided polygon with a flat roof. Each side had four separate window slabs standing proud, and the coamings were boxes.
+- **Keel.** The fin was flat-sided with a blunt trailing edge and a shoulder plate. The shoe was a bathtub shape with a 66° overhang.
+- **Rig.** The mast socket was 3.7 mm deep. The forestay went to the pulpit, the shrouds to cleats 29 mm aft of the mast, and a single backstay to the starboard cleat.
+- **Pipeline.** `model.py` silently reused MCP seed objects, so fixes could miss the STL.
+
+## Step 0 synthesis: decisions for revision 2, open to challenge
+
+### D1. Hull surface
+
+- **Method.** Parametric Bézier sections (`hullform.py`), with every parameter a C2 spline along x. Use 170 stations, packed closer at the ends, and 72 points per half-section spaced by arc length.
+- **Colour line.** An exact vertex row at the colour line.
+- **Inner skin.** A true section-normal offset.
+- **No smoothing modifiers.** No Subdivision Surface on the hull.
+- **Checks.** Measure the largest angle between adjacent faces and run a zebra-stripe render.
+
+### D2. Lines (`hull_params_v3.json`)
+
+These follow Opus and Grok, slightly fuller.
+
+- **Freeboard and sheer.** Freeboard is 18.5 at the bow, 14.5 amidships and 14.0–14.3 at the stern, against Opus 17/13.8/13.6 and Grok 18/14.5/13.6. The sheer rises 4.5 mm to the bow.
+- **Beam.** Maximum beam is 63.4 mm at x ≈ −15, and the transom is about 48 mm wide at the deck.
+- **Flare and bilge.** Topsides flare 11–13.5°. The bilge is firm amidships, and the aft sections are wide and flat.
+- **Stem.** Straight, raked 19°. The forefoot blends into the keel line through a tangent arc of R 9 mm, avoiding a knuckle. The stem face is 1.8 mm wide.
+- **Hydrostatics.**
+  - Canoe-body volume 52.1 cm³ (draft 1: 52.2).
+  - Waterline length 183.7 mm.
+  - Waterline beam 55.2 mm.
+  - Canoe-body draft 12.3 mm.
+- **Transom.** Reverse transom. The lower edge (knuckle) is at x −97.5, z +1.2. The deck edge is at x −92.5, z 14.3. That is about 21° of reverse rake.
+
+### D3. Print orientation and part split (my proposal; the critics didn't raise it)
+
+- **Hull upside down.** Draft 1 printed the hull upright, so the whole shallow blue bottom (deadrise 5–15°) needed supports and would have printed rough. Revision 2 prints the hull **upside down on its sheer rim**:
+  - The outer bottom and topsides then have no support contact at all.
+  - The supports needed under the bottom are inside the hull. They stand on the plate inside the open deck opening and are removed through it.
+- **Toe rail moves to the deck.** Because the hull rim is the build-plate face, the toe rail can't be the hull wall carried up, as Opus proposed.
+  - The deck part overlaps the full rim.
+  - A half-round rubbing strake on the deck edge, 0.35 mm proud, covers the seam on the sheer line.
+  - A deck skirt drops 2.0 mm inside the hull, giving alignment, glue area and a seal. The deck prints upright with hidden supports underneath.
+- **Rim deviation.** The sheer is not flat, so the hull is tilted to fit the plate best. The rim then deviates by up to about 1–1.5 mm, which needs short supports under parts of the rim. The rim is a hidden glue face.
+- **Outward-facing up surfaces.** Every up-facing outer surface of the hull would face down when inverted. The only ones are the stern steps, so they move to a small separate **step insert**:
+  - The insert prints upright with no supports and has teak inlays on the tread tops.
+  - It glues into a sealed rectangular **walk-through well** in the hull, 20 mm wide.
+  - The well floor is above the DWL, so the hull stays watertight on its own.
+- **Inside features.** Overhangs inside the hull get auto-supports, and they're hidden. The mast tube and rudder tube rise to the rim plane, so they start on the plate.
+
+### D4. Stern
+
+- **Layout.** A centre walk-through 20 mm wide (|y| ≤ 10). Platform at z 2.6 from x −100 to −92.5; it projects 2.5 mm aft of the knuckle and its lip sets the length overall. Steps at z 6.3 and 10.0. Deck level forward of x −85.5.
+- **Teak.** Flush tan tops, 2 layers thick.
+- **Transom.** No name on the transom; the name goes on the bow, as the owner asked.
+- **Wheels.** Twin wheels at x −80, y ±11, lined up with the walk-through.
+
+### D5. Keel and bulb (Opus geometry, GPT print rules)
+
+- **Fin.**
+  - NACA 0013 trapezoid.
+  - Root at z −12.3: chord 27, leading edge x +9, trailing edge x −18.
+  - Tip at z −41.5: chord 19.5, leading edge x +2.5, trailing edge x −17.
+  - Trailing edge 0.5 mm thick.
+  - A tenon 18 × 3.2 × 5 into an 18.4 × 3.6 hull socket, set in a small flat root boss blended into the hull. The fin is glued into the hull permanently.
+- **Bulb.**
+  - NACA-thickness radius law, thickest at 30–35% of length.
+  - 58 long, 15 wide, 12.5 high. Top at −41.5, widest line (the split) at −45, bottom at −54, so the draft is 54.
+  - Elliptical cross-sections: flat-topped, with a full belly.
+  - Nose at about x +15, tail at about −43. The position is fine-tuned by the hydrostatics script.
+- **Cap and fin.** The cap is the bulb above the split, solid and part of the fin. It prints mating face down with the fin vertical, so the foil sections print crisp.
+- **Cup.**
+  - The cup is the bulb below the split, the **detachable weight part**.
+  - Wall 1.1 mm, with solid nose and tail blocks.
+  - It prints rim down, with no outer overhang.
+  - The cavity is open to the plate, so any internal support comes out.
+- **Joint.**
+  - Full-rim glue face, plus two 1.75 mm filament dowels in Ø1.95 × 3.5 holes in the solid end blocks.
+  - Tape or a rubber band holds the cup during float trials.
+  - After trials, fix the lead with epoxy and epoxy the rim. Lead position inside the cup also trims the boat fore and aft.
+- **Fillets.** 2 mm at the fin–bulb join; 1.5 mm at the root boss.
+- **Estimated mass budget.**
+
+  | Item | Mass (g) |
+  |---|---|
+  | Hull | ~24.5 |
+  | Deck | ~15 |
+  | Fin and cap | ~4 |
+  | Cup | ~3 |
+  | Mast and boom | ~2.7 |
+  | Rudder | ~0.8 |
+  | Step insert | ~1 |
+  | Sail, thread and glue | ~1.5 |
+  | **Total** | **~53** |
+
+  Displacement is about 59, leaving **about 6–9 g of lead**: about 40–55 balls of 3 mm. The cavity holds 15 g or more, so there is margin. GM is about 15 mm, dominated by form stability. Recompute from the sliced masses.
+
+### D6. Coachroof and deck
+
+- **Coachroof.**
+  - A smooth spline wedge from x −38 to the front of the roof at +46. Half-width 18.5 from x −30 to −5, narrowing to 10 at +40.
+  - Roof at z ≈ 19.8 aft, 18.8 forward.
+  - Windscreen raked about 57°, roof camber 0.8, sides leaning in 12°.
+  - Edges softened by the dense loft, not by subdivision.
+- **Windows.** One flush ink band per side, 0.5 mm deep, from x −31 to +30. It is 2.2 tall aft and tapers to 1.3, with two white mullions. Three flush ink windscreen windows.
+- **Hatches.** Flush smoke-ink hatch tops with raised frames 0.3 mm high: one on the foredeck and two on the coachroof.
+- **Deck.** Camber 1.1 mm. The cockpit well has seats and a sole with teak tops.
+- **Coamings.** They run aft from the coachroof sides and step down to 2.5 above the deck by x −70. Two primary winches sit on the coamings and two on the coachroof.
+- **Cleats.** Bow, spring and stern cleats with overhanging horns.
+- **Toe rail.** A 0.8 × 0.7 rib along the deck edge.
+- **Wheels.** 11 mm diameter with thin rims, set in floor slots so their lower arcs are hidden and need no support.
+- **Left out.** Pulpit, pushpit, stanchions and lifelines are below printable size at 1:66 (the tube would be 0.4 mm), so they are omitted. That is stated in the README.
+- **Hull ports.** Two slim flush ink ports per side (8 × 1.8 mm) at x 5–35, sharing colour-change layers with the bow name.
+
+### D7. Bow name "Margaret"
+
+- **Placement.** Both sides, as a flush ink inlay 0.45 mm deep, behind which the hull wall is locally thickened inward to 1.5 mm. Port and starboard are built separately so neither reads backwards.
+- **Font.** Georgia Bold Italic, cap height about 3.8 mm. Upright strokes must be ≥ 0.6 mm; this is checked.
+- **Position.** It starts about 18 mm aft of the stem, with the baseline parallel to the sheer, about 7 mm below it.
+
+### D8. Rig: functional thread stays (answers the owner's question)
+
+- **Mast.**
+  - The mast stands by itself in a **blind, sealed tube** in the hull, rising from the floor to the rim, plus a collar through the coachroof. That gives about 30 mm of grip.
+  - The tube is a rounded rectangle, so the mast can't rotate.
+  - The mast prints lying on its leading face, so the spreaders lie flat.
+- **Stays.**
+  - Thread does real work: it keeps the mast straight and carries sail load to the hull.
+  - Use 0.15–0.25 mm braided polyethylene fishing line.
+  - Forestay to a stem fitting on the bow roller at x ≈ +97.
+  - Two shrouds over the spreaders (z ≈ 95, reaching y ±16, swept aft 12°) to chainplate eyes at x +4, y ±26.5.
+  - Split backstay to eyes at x −90, y ±18.
+  - The masthead crane is 4.4 mm wide with two Ø1.4 holes. Deck eyes have Ø1.4 holes with ≥ 1.0 mm of material around them.
+  - Tension: just taut.
+- **Sail.** Paper main with 8 mm of roach and panel lines, tied at head, tack and clew.
+- **Rudder.** NACA 0012, root chord 15, tip 10.5, elliptical tip, 8° sweep, 1.75 mm filament stock in a blind, sealed Ø1.95 hull tube.
+
+### D9. Colours and colour changes
+
+- **Four slots.** White, antifouling blue, ink (navy-black) and teak.
+- **Waterline.** Blue up to z +0.6, then an ink boot stripe from z 0.6 to 1.4.
+- **No cove stripe.** The rubbing strake defines the sheer.
+- **Change count.** Colour changes are inherent on a single mixed plate. Keep the extra ink and teak bands thin.
+
+### D10. Pipeline
+
+- `model.py` rebuilds everything from parameters; no reused seed objects.
+- Automated checks: manifold, minimum wall, largest angle between faces, volume and centre of buoyancy, length overall 200.0, colour line flat.
+
+## Step 0 challenge/defend: print (GPT-6.2-sol challenger)
+
+| # | Challenge | Verdict | Resulting change |
+|---|---|---|---|
+| 1 | Tilted sprung rim is not a reliable first layer (midships 1.8 mm off bed) | **Accept** | Planar hull/deck split at **z = 13.0** (horizontal, DWL parallel to bed). Hull prints inverted on a flat rim with a 6 mm brim. The lid carries the sprung sheer band (1.0–5.5 mm). |
+| 2 | Straight skirt jams on the flared hull | **Accept** (by removal) | No skirt. Flat-to-flat joint with a 1.8 mm glue land (both parts thicken inward at the seam) and 1.75 mm filament dowels in Ø2.15 holes in rim lugs, mast tube and keel box for registration. Seam gets 0.3 mm chamfers on both edges: a deliberate fine shadow line. |
+| 3 | One-plate not demonstrated for 8 parts | **Accept** | Delivery gate: reslice all parts on one plate, report model-only mass, swaps, first layer. |
+| 4 | Budget supports 6.5 g not 9 g | **Accept** | Target sealed empty mass ≤ 52 g; report ballast from the slice. |
+| 5 | Tilt widens the colour band | **Accept** | No tilt; colours as registered volumes. |
+| 6 | GM alone doesn't prove sailing | **Accept** | Sail template gets a ≤ 30 cm² light-air outline; README: start ≤ 1.5 m/s, check 20° recovery; stern well drains aft, hull stays sealed. |
+| 7 | Supports may trap around tubes / well floor | **Accept** | Cockpit + stern well floors are hull overhangs supported from the bed; their visible faces are covered by a separate **cockpit/stern insert** (teak sole, steps, platform, pedestals) printed upright and glued in, which hides the scars. All tubes/lugs grow from the bed (no hanging ends). Inspect removal lanes in slice. |
+| 8 | Cup cavity roof sags rim-down | **Accept** | Cavity roof ≥ 45°, final bridge ≤ 4 mm; verify ball count by packing. |
+| 9 | Dowel holes close at first layer | **Accept** | Ø2.15 bores, 0.4 mm chamfers, 5–6 mm pins; tape/wrap retention for float trials. |
+| 10 | Collar preload; forestay at roller peels | **Accept** | Two keyed bearing lands 20 mm apart in the hull tube; deck/coachroof hole floats 0.5 mm/side. Forestay eye 4 mm aft of roller tip on a backed stem fitting; 0.20–0.25 mm braided line; proof-pull 0.5 N. |
+| 11 | Fin root is a layer-adhesion test | **Accept** | ≥ 1.2 mm closed wall round the blind socket, solid tenon, README proof-load. |
+| 12 | Terraces on low-deadrise bottom | **Accept** | 0.12 mm layers for the plate. |
+
+Defended: inverted hull orientation itself (challenger agrees it is right once the rim is planar).
+
+## Step 0 challenge/defend: look (Grok challenger)
+
+| # | Challenge | Verdict | Resulting change |
+|---|---|---|---|
+| 1 | Stem too plumb/blunt for a 2001 Lombard hull; suggests ~16° rake | **Partly accept** | Rake 20° (see the Sonnet conflict below); stem deck point (97.6, 20.2). |
+| 2 | Transom should be reverse-raked with an open walk-through | **Accept** | Transom 15° reverse rake, central walk-through with rounded cutters, step down to an integral platform. |
+| 3 | Sheer too flat | **Accept** | More sheer spring: about 14.5 aft rising to 20.2 at the stem. |
+| 4 | Rig proportions | **Accept** | Mast x 26, masthead z 250, two V spreader pairs (z 118 ±14, z 172 ±8), chainplates x 8 y ±30, split backstay to x −85 y ±21, forestay eye on the stem fitting, 0.20–0.25 mm braided line. |
+| 5 | Deck detail | **Accept (next step)** | Twin Ø13.5 wheels x −66 y ±13.5 (printed separately, pin in the pedestal); pulpit/pushpit printed separately, stanchions about 0.9 mm, thread lifelines. |
+| 6 | Bulb shape | **Accept (bulb step)** | Bulb about 50–52 × 12.5–13 × 10, bottom about z −34, fin chord about 26. |
+
+## Seam pivot (designer, after the Step 0 print review)
+
+The z = 13 split put a horizontal seam line across the visible topsides. Moved the seam to **z = 2.5**, the top of the boot stripe, where the colour change already draws a line. The lower tray (blue, white, ink bands) prints inverted on its flat rim; the upper body prints upright on its flat z 2.5 bottom. The 1.8 mm glue land and Ø2.15 lug pins are kept. The trade-off: the seam is now wet at heel, so the README requires an epoxy seal and a leak test.
+
+## Step 1 challenge/defend: hull lines (Sonnet 5.5 challenger on v3)
+
+No blockers. Proposed refinements and verdicts:
+
+| # | Challenge | Verdict | Resulting change (v4) |
+|---|---|---|---|
+| 1 | Forefoot reads as a hook; curvature jumps | **Accept** | G2 clothoid-pair forefoot, R_min 11, solved tangent to the keel line: R ∞→194→51→…→11.8→…→85→straight. |
+| 2 | Aft buttock has an inflection | **Accept** | Keel (−95, 1.38), (−89, 0.62); buttock R −405→−128, monotone. |
+| 3 | Keel ridge too sharp amidships | **Accept** | Centreline round 1.5 mm amidships. |
+| 4 | Waterline shoulders slightly hollow | **Accept** | Half-beam (55, 24.5), (75, 15.3), (90, 5.4): convex waterline. |
+| 5 | Stem rake 24° from LWL/overhang data (conflicts with Grok's 16°) | **Compromise** | 20°: overhang and LWL stay within 1 mm of the reference, and the profile still reads modern. |
+| 6 | Hydro: Cp 0.60, LCB −4.3, GM about 17–20; all-up CG must sit within ±2 mm of the LCB | **Accept** | v4: canoe 52.0 cm³, LCB +0.47. Fin x gets re-solved in the bulb step. |
+
+Fairness gates (v4 outer): topsides max dihedral 3.82° (≤ 6), bottom 3.44° (≤ 8), centreline round 10.75° (tessellation of the 0.5–0.7 mm radius, not a crease). The slope-aware stem rounding fixed a 31.5° crease at x 95.5.
+
+## Step 2: v4 assembly build
+
+`build_v4.py` produces 7 manifold colour bodies: lower tray 10.27 cm³ and upper body 20.30 cm³, plus 0.25 cm³ of window panes, for 30.8 cm³ of PLA. Fixes made during the build:
+
+- **Collection-operand booleans** produced non-manifold cavities, so all booleans are now sequential.
+- **The cavity self-intersected at x 90**: the 1.8 mm glue-land inset is wider than the stem there. The cavity now ends at x 89, leaving the bow tip solid.
+- **Colour bodies** are cut from shared tool solids, not from each other.
+- **Lug holes** are placed adaptively, keeping at least 0.9 mm of outer skin.
+
+Zebra renders are continuous over the topsides and bow.
+
+## Step 2b — GPT-6.2-sol challenge of v4 (stern/cockpit) — defend/settle
+
+| # | Challenge | Verdict | Outcome |
+|---|---|---|---|
+| 1 | Platform reads as slab/diving board | ACCEPT | Integral scoop: tread x −96.2..−88.5 z 4.8, half-width 12.5→10, R3, 1.4 lip, cheeks, underside blended to seam; no hinge |
+| 2/3 | Cockpit = maze of rectangles | ACCEPT | yz-profile cutters: benches z 14.8, footwell 20 wide z 10.3, leaning backs, rolled shoulders, helm pocket, wheels (−67.5,±14,20) |
+| 4 | Vertical coachroof aft block | ACCEPT | Raked aft face −38.5→−34, crown 23.0, half-width 18.5, lean 10°, R2.2 shoulder |
+| 5a | Lift forefoot | DEFEND | G2 clothoid, R min 11.8 intended — conceded |
+| 5b | Lower bow sheer 0.9 | DEFEND | 1.33 m / 0.96 m freeboard matches reference spring — conceded |
+| 6 | Windows/ports/name proportions | ACCEPT | 3 panes, ports 7×1.8, name cap 3.2 x 54–74 |
+| 7 | Toe rail 0.3 proud | SETTLED | 0.8 wide × 0.48 proud (4 layers), tapered ends |
+| 8 | Teak overload | SETTLED | Teak only: 12 mm sole runner x −83..−40, bench tops, scoop tread; 0.8 inset; helm pocket white |
+| — | Mass | ACCEPT | wall 0.85, deck 0.8, glue land 1.8; target ≤27 cm³ |
+| — | LOA | ACCEPT | x-scale 194.4/192.6; bounds check 200.0 overall |
+| — | Stem | ACCEPT | stem round 0.9, half-beam 1.0 |
+| — | Rudder tube / mast blind bore / deck supports | DEFEND | already sealed/blind; supports through open bottom — conceded |
+| — | 0.85 wall = 2 Arachne paths? | OPEN→delivery | Verify in slice at stem and inlays; verify support removal |
+
+## Step 2c — independent v5 hull/cockpit challenge — defend/settle
+
+| # | Challenge | Verdict | Outcome |
+|---|---|---|---|
+| 1 | Agreed low rolled scoop cheeks were missing | ACCEPT | Added mirrored cheek returns; clipped them 0.15 mm inside the reverse-transom plane so they don't alter its rake or leave a coplanar cap. |
+| 2 | Rectangular coamings looked blocky and did not step aft | ACCEPT | Replaced them with swept profiles, 18.5 mm through the cockpit centre and smoothly stepped to 16.0 mm at both ends. |
+| 3 | Cavity/color boundary at the narrow bow created a bad triangulated edge | ACCEPT | Cavity now terminates at x=80 (the forward 17.6 mm is solid); this avoids the narrow-stem offset/cap intersection. Blue/white split remains flat at z=0.8 mm. |
+| 4 | In-memory manifold counts did not prove exported STL topology | ACCEPT | Triangulate before export, check all seven meshes, then reimport each actual STL: every file has zero non-manifold edges. |
+| 5 | 0.85 mm wall needs proof of continuous slicer paths; z=2.5 mm seam is wet when heeled | ACCEPT / delivery gate | Verify stem/inlay wall paths and removal access in Bambu Studio. Epoxy-seal the assembled seam and leak-test before any float trial. |
+| — | Hull size and mass | OPEN | Reference hull length is 194.4 mm, canoe displacement 52.95 cm³. Exported part volume is 31.49 cm³, above the 27 cm³ target; recalculate sliced mass and ballast allowance after keel/rig are designed. Bow fitting and scoop lip still need to set 200.0 mm overall. |
+
+Defended: retain the smooth v4-derived hull lines and the z=2.5 mm split. The split is printable after sealing, but is not claimed watertight until physically tested.
+
+## Step 3 — v5 detachable bulb challenge/defend
+
+The NACA fin and bulb now export with the hull as two additional manifold bodies. The fin reaches z −44 mm, overlapping the bulb's upper cap by 2.5 mm; its tenon enters the hull to z −7.3 mm. The bulb is about 53 × 13 × 12.5 mm, with a detachable lower cup split at z −45 mm. The measured cup cavity is 1.291 cm³ after length scaling, estimated to hold 58 3 mm lead spheres (about 9.28 g) at an assumed 64% packing fraction.
+
+| Challenge | Verdict | Outcome |
+|---|---|---|
+| Fin-to-bulb overlap was only 0.5 mm and concentrated stress at the junction | ACCEPT | Extend the NACA fin tip from z −42 to −44 mm, giving 2.5 mm of overlap into the bulb cap; re-exported fin/cap is manifold. This is a geometric overlap, not a separately modeled fillet. |
+| Ballast allowance may be short if the finished boat needs more than 9 g | OPEN | Keep the current cup provisionally. The assembled external displacement is 59.015 cm³ at z=0 and 66.835 cm³ at z=1 mm, including the immersed keel; compare with the complete sliced mass and loaded waterline before freezing the capacity. |
+| Pellet capacity assumes idealized uniform lead spheres and 64% packing | ACCEPT / physical gate | Treat 58 balls as a planning estimate only; verify with the actual 3 mm weights and leave room for adhesive. |
+| The cup must remain removable for tuning and then be positively attached | ACCEPT / physical gate | Two chamfered pin bores register the seam; use temporary tape for tank trials and epoxy on the final assembly. The pin fit and bond are not physically tested yet. |
+| Overall length was below the 200 mm target | ACCEPT | Scale the complete x-axis uniformly about its measured center; exported overall bounds are now 200.0 mm, while hull length is 197.21 mm (about 1.4% longer than the 194.4 mm reference-scaled target). |
+| The current shell may leave little ballast reserve after rig and sail are added | OPEN | Exported print-solid volume is 36.212 cm³ (about 44.9 g at 1.24 g/cm³, before mast, boom, rudder, thread, paper and adhesive). Revisit from the actual slicer mass and do not claim stable sailing from this calculation. |
+
+Defended: retain the streamlined bulb and the z −45 mm detachable seam for this iteration. Its 9.28 g estimate is in the earlier 6–9 g target range, and the assembled displacement curve shows room to load to the ink boot stripe; neither pellet packing nor loaded freeboard is proven until sliced and physically tested.
+
+## Step 4 — rig and deck-detail challenge/defend
+
+The current STL set has 14 manifold printable bodies: nine hull/keel colors, mast, boom, rudder and two helm wheels. Five deck stay eyes are fused to the hull; the mast has a head eye and two spreaders. The live Blender assembly also has a preview-only paper mainsail and five thread stays. The sail is 28.5 cm² with a 37 mm foot and 142 mm luff; thread and paper are post-print materials.
+
+| Challenge | Verdict | Outcome |
+|---|---|---|
+| An upright mast would exceed or nearly fill the 256 mm bed | ACCEPT / plate gate | Keep the 240 mm mast as a separate flat-print part; confirm clearance, brim and prime-tower fit in the actual one-plate slice. |
+| Rig lines could be cosmetic and leave the mast unsupported | DEFEND | Five preview stays run from the masthead/spreaders to the forestay, shroud and backstay eyes; specify real 0.20–0.25 mm thread after printing. Do not print the lines as STL. |
+| The mainsail area might overpower the small ballast budget | ACCEPT | Reduced the paper-sail outline from about 34 to 28.5 cm². The final template must match the boom and include three tie/punch marks; begin physical trials in controlled light wind. |
+| Rudder clearance and free adjustment are unproven | OPEN / fit gate | The printed 1.6 mm stock is paired with an approximately 1.85 mm blind tube and an accessible cockpit tiller. Verify stock fit and steering friction in the slice and dry assembly. |
+| Helm wheels, winches, cleats and hatches were missing | ACCEPT | Added twin wheel bodies, six low cleats, four winch drums, two hatch inlays and integrated deck stay eyes. All additions are included in manifold STL validation. |
+| Finished mass may leave little reserve at the color line | OPEN / hydro gate | All 14 current printable solids total 37.451 cm³ (about 46.4 g at 1.24 g/cm³, before paper, thread and adhesive). Combined hull-plus-keel displacement is 59.015 cm³ at z=0 and 66.835 cm³ at z=1 mm. Use the actual slicer mass and tank trim to set ballast; do not assume the nominal 9.28 g fill is the required load. |
+
+Defended: use physical thread for the stays rather than fragile printed rigging, and retain the reduced sail. The 200 mm hull, small gear and keel can plausibly share the P2S plate, but the plate layout, mast orientation and material mass are not accepted until a real slice is inspected.
+
+## Step 5 — v6 consultation on user feedback (wheels, mast/sail, teak, hatches)
+
+User (screenshot of live v5): wheels face the wrong way; mast weird, not really carrying a paper sail;
+shape good but lacks detail (teak flooring); hatch weird. Consulted independently:
+**GPT-6.2 (engineering/printability)** and **Grok-4.7 (likeness)**, both given the six v5 review renders.
+
+| # | Topic | GPT-6.2 | Grok-4.7 | Settlement (challenge → defend/accept) |
+|---|---|---|---|---|
+| 1 | Mast | 4.0×3.2 hollow box, thread lashings, no spreaders | 2.6×1.8 oval, truck z253, crane, swept spreaders z134/194 | **Compromise**: D-section 3.8×2.8 → 2.5×2.0 (stiff enough for paper + stays, near-scale look). Truck stays z231: a 256 mm spar does not fit the 256 mm bed with the plate. Flat aft face is the print face, so spreaders are unswept and there is no aft crane; masthead cap has a fore-aft thread hole. D-shaped heel keys the socket. |
+| 2 | Boom | z44, 37 mm, gooseneck pin | z45, x24→−46, 1.6×1.1 | **Accept** height (both). Boom x24→−46, 1.8×2.2 (thread holes need ≥0.5 mm walls); lashed loop gooseneck on a mast saddle at z43 → swings freely. |
+| 3 | Paper sail | 20–28 cm² triangles, lashings | ~70 cm² scale triangle, lashings, trial template | **Both agree lashings** through punched luff holes around the spar. Three templates (full/trial/breeze); render shows full; stability check chooses the recommended start sail. No jib (forestay only; optional rolled paper strip as furled genoa). |
+| 4 | Wheels | X axis, 14.5 mm, binnacles in well | X axis, 14 mm, tilted, consoles on helm seats | **Accept X axis, 14 mm, navy, 3 spokes, printed flat with axle stub.** **Defend** binnacles in the wheel well tied to the bench ends: seat consoles put the rim 1 mm above the seat. No tilt keeps the axle bore horizontal-printable. |
+| 5 | Teak | grooves only, no navy | navy caulk, sole/benches/helm/platform, white margin | **Accept Grok**: navy flush caulk 0.5 mm. Defend vs GPT purge concern: ink is already printed on those layers (names, ports, rail stripe, windows). v5 bench teak was buried under the deck → benches now real flat seats. Side decks stay white (both). |
+| 6 | Hatches | framed 0.48 raised, lens −0.16, slider + garage + washboard | framed 0.7 raised, lens −0.4, delete x−15 sticker, companionway hood | **Framed hatches** raised 0.64 / lens −0.32 (between both). Keep foredeck, forward-roof and saloon hatch (defend: SO43 has saloon hatches; they are framed now). Companionway: smoked slider between rails, garage, navy washboards on the bulkhead. |
+| 7 | Rudder trim | slotted stock under cover | delete rod; round tip | **Accept both**: tiller rod removed; Ø2 slotted stock in a navy deck-plate counterbore (friction trim); rudder tip rounded. |
+| 8 | Extras | table, coachroof traveller, bow roller, winches; skip rails | non-skid border, genoa tracks, pulpit, 3 ports, cockpit traveller, no table | **Accept** bow roller, visible winches + clutches, genoa tracks, 3 oval ports, name at x≈72. **Defend** coachroof traveller and teak-top table (mid-boom sheet does not cross the cockpit). **Reject** printed pulpit/pushpit (0.9 mm rails snap in handling). |
+| 9 | Bulb | refine mesh | "upswept tail looks like a clog" | **Bug found**: v5 NACA bulb was reversed (blunt end aft). Flip, droop ends to the section centre, finer mesh, larger shot cavity. |
+| 10 | Fittings | forward fittings outside sheer | — | **Bug found**: v5 bow cleats at y±20 were outside the 15.3 mm half-beam; coaming winches were buried; stay-eye holes were blocked by their pads. All fixed (threadable teardrop padeyes). |
+
+## Step 6 — v6 challenge/defend: engineering (GPT-6.2) and likeness (Opus), then verification
+
+Both reviewers saw the eight v6 review renders, the generator and the exported meshes.
+
+### GPT-6.2 engineering challenge
+
+| # | Finding | Decision |
+|---|---|---|
+| 1 | Rudder blade crown intersects the hull bottom; Ø2 stock has no friction | **Accept.** Crown follows the hull underside with a 0.7 mm gap (checked 0.678 mm); bore Ø2.1 for friction trim. |
+| 2 | Boom jaw binds at ~10° swing | **Accept.** Jaw replaced by a rounded tongue and gooseneck loop on a mast saddle; boom checked clear through ±45° (min gap 0.355 mm). Mainsheet hole gets a flat-sided boss. |
+| 3 | Full 63 cm² main has little gust margin; ballast must come from sliced mass | **Accept.** Three paper mains (start 25 / medium 32 / full 63 cm²), start sail recommended; stability now uses the sliced on-board PLA mass. |
+| 4 | Mast is a stayed spar, tip holes thin | **Accept.** Ø1.0 holes in larger spreader tips; tension stays only until taut; luff ties kept off the spreader roots. |
+| 5 | Bulb posts index but do not retain; cup bottom is a small first layer | **Accept.** Tape for trials, epoxy the full land afterwards; cup printed opening-up, cap split-face down. |
+| 6 | One-plate support/purge plan unverified | **Accept.** Real slice done (below). |
+| 7 | Sub-line-width colour slivers (caulk ends, deck-plate ring, rail ink, bow flecks) | **Accept.** 0.65 mm white deck-plate ring, rail ink stripe reprofiled, tiny ink/teak islands removed (automated island check passes). |
+| 8 | Wheel rim 0.144 mm from binnacle; round bore | **Accept.** Wheels moved aft (gap 0.401 mm), teardrop bores. |
+
+### Opus likeness challenge
+
+| # | Finding | Decision |
+|---|---|---|
+| 1 | Spreader tips sit inboard of the straight shroud line, so they brace nothing | **Accept.** Padeyes moved inboard to y ±18.5; spreaders now deflect the shrouds outward 3.15 / 2.65 mm; lower shrouds added. |
+| 2 | 3-spoke wheels read as a car badge; blocky pedestals | **Accept.** Navy rim + white 6-spoke hub (two colours, printed flat); slim binnacles with navy instrument pods. |
+| 3 | No headsail | **Accept (cosmetic).** Optional rolled paper furled genoa on the forestay; no working jib (would add lee helm). |
+| 4 | Bare decks | **Accept.** 0.2 mm recessed non-skid panels with smooth margins, teak coachroof handrails, 8 mm teak-top table. |
+| 5 | Rectangular rudder | **Accept.** Tapered spade 12 → 7.5 mm chord, 7° swept leading edge, R3 tip. |
+| 6 | Blue rudder stock dot in the teak sole | **Accept.** Navy stock cap with a cross slot. |
+| 7 | Renders lighter than the print colours | **Accept.** Render materials now equal the four print colours. |
+| 8 | Pulpit/pushpit/lifelines | **Defend.** Not printed (0.7–0.9 mm rails snap in handling); documented as an optional wire/thread add-on. |
+
+### Verification and physical-feasibility findings
+
+- Independent verifier (Claude rubber-duck) re-checked all fixes on the v6c renders and exported meshes: **no material issues**.
+- Slicing the real one-plate P2S job and the "on-board" mono plate (no support/purge) replaced estimated PLA with sliced mass.
+- The first stability run showed the boat **stern-down**: the bulb moved forward (X_BULB −4.0 → −0.6); level-trim lead position now within 0.5 mm of the fill centroid.
+- **Discrete packing finding:** a greedy lowest-first sphere deposition of 3 mm balls in the actual cup mesh showed the old cup held only **69–70 balls (≈11.2 g)** below the glue plane — the 62 % continuum estimate (18 g) was wrong for a narrow, tapered cup — while 13.1 g was needed. **Bulb enlarged** (L/half-width/half-height 58/7.5/7.2 → 64/8.6/8.0 mm, centre 1 mm lower). New result: needs **14.6 g = 92 balls**, holds **113 balls (18.1 g)**, ≈23 % spare.
+- Final clearance checks: rudder gap 0.678 mm, cup∩cap 0 mm³, keel and mast clear of the hull, boom ≥0.355 mm through ±45°, wheel rim 0.401 mm, shroud deflection 3.15 / 2.65 mm, no tiny colour islands, all parts manifold.
+- Final slice (P2S 0.4, 4 AMS colours): 12 h 26 min, 196.95 g incl. purge/support (white 84.9, blue 43.1, navy 53.0, teak 16.0 g), 297 colour changes, nothing outside the bed. On-board printed mass 46.06 g.
+- **Bulb-enlargement challenge** (same verifier, scoped re-review): **no material issues** — bulb still proportionate to fin and hull; 113 vs 92 balls (21 spare ≈ 3.4 g); the 0.5 mm ballast-centroid offset moves the whole-boat CG only ~0.12 mm; 0.9 mm walls/floor intact, zero cup–cap interference; slice confirmed. Packing remains a simulation until a physical fill test.
+
+## Step 7 — v7 consultation on user feedback (keel gap, float, paper sail, open stern, proportions, teak)
+
+User questions: why is there a gap between keel and bulb; is the weight distribution right and will she float; how does a
+paper sail go on and still float; open the swim platform properly or close it ("the step into the sea is weird"); check
+proportions; is the deck-plan shape right; teak on the side decks and foredeck.
+
+v7 changes: the fin runs down to the split plane with a fading root/tip contour; the bulb tail is rounded; the stern is open
+with a full-width integral teak bathing platform, one tread step and a folding ladder in relief; the planform is fuller
+forward with a blunter coachroof nose and a bow roller; sprung teak with king and margin planks on the side decks and
+foredeck; one-piece 240 mm mast; an independent numpy hydrostatics check on the exported STLs (`hydro_check.py`). That
+check found the v6 stability script had an inverted heel bisection and understated stability — corrected.
+
+### Challenge verdicts
+
+| User point | GPT-6.2-sol | Opus 5.5 |
+|---|---|---|
+| Keel–bulb gap | YES | YES |
+| Float / weight distribution | PARTLY — label predictions vs tests; trim 0.7° bow-down with a level pour | PARTLY — move the bulb aft; tilted pours spill and coated balls don't roll |
+| Paper sail | PARTLY — needs a rigging view | NO — needs a sheet; full sail only ≤ 1.5 m/s |
+| Platform | PARTLY — ladder hinge pads | PARTLY — lost the reverse transom rake; ladder should lie fore-aft |
+| Proportions | PARTLY — show the table | — |
+| Deck plan | YES | YES |
+| Teak | YES — tidy seam tails | YES — nib the bow planks |
+
+### Decisions
+
+| Proposal | Decision |
+|---|---|
+| Move the bulb aft so a level pour trims | **Accept.** X_BULB −0.6 → −13.0 (12.4 mm aft). |
+| Tilted-pour instruction | **Reject.** Replaced by the bulb move; pour level. |
+| Mainsheet + rigging diagram; start sail first, full only < 1.5 m/s | **Accept.** Annotated rigging sheet and PDF text. |
+| Label calculation vs physical test; verify the slice | **Accept.** Afloat sheet marked "calculated"; real slice + per-object G-code mass. |
+| Reverse transom rake | **Accept.** ~8° (1.6 mm over 11.5 mm), padeyes kept on deck. |
+| Folding ladder fore-aft with hinge pads | **Accept.** |
+| Nibbed bow planks / seam tails | **Accept.** Seams stop 1.2 mm short and close square; runs < 4 mm dropped. |
+| Reframe views (masthead cut) | **Accept.** |
+| Flat bulb bottom, rudder gap | **Skip** (both reviewers). |
+| Widen the transom walk-through; real-boat collage | **Skip.** Collage showed a different model; walk-through already clears. |
+
+### v7b implementation findings
+
+- `upper ∩ (teak − seams)` returned **empty** from the exact boolean solver (teak volume 0 cm³). Fixed by
+  `(upper ∩ teak) − seams` with a kept seam tool, non-coplanar nib seams and a teak-volume assert (now 2.20 cm³).
+- Two 0.003 mm ink slivers at the coachroof nose → export-time crumb remover (components < 0.05 × 0.1 mm); checks clean.
+- Re-slice (P2S 0.16 mm): 12 h 58 min, 235 layers, 320 colour changes; on-board PLA from per-object G-code **45.83 g**.
+- Hydro (sliced masses, level pour): all-up 63.97 g with **100 × 3 mm balls (16.0 g)**; trim **0.10° bow-down**
+  (was 0.70°); GM 19.0 mm; AVS 141°; deck edge immerses at 31°, cockpit sill at 130°; reserve buoyancy 165 g.
+- Stability: CE ahead of CLR 4.0 mm (full) / 12.2 mm (start); heel at 1.5 m/s 6.8° (full) / 2.1° (start).
+
+## Step 7b — defend round on v7b (GPT-6.2-sol and Opus 5.5), fixes shipped as v7c
+
+| Reviewer | Verdict | Fix applied in v7c |
+|---|---|---|
+| GPT-6.2-sol | Accept keel joint, trim, platform, proportions, deck plan | — |
+| GPT-6.2-sol | FIX: teak nib returns spur past the curved coachroof margin seam | `td_lim(x)` follows the true curved margin-seam centreline; nibs end 0.05 mm inside it (spurs gone in the foredeck close-up). |
+| GPT-6.2-sol | FIX: rigging sheet must label FULL and explain start/medium; "cockpit eye" is wrong | "FULL SAIL SHOWN" heading, HEAD callout for full vs start/medium, "coachroof eye". |
+| GPT-6.2-sol | FIX (blocking): afloat claims overstated | "Sealed hull self-rights to 141° (AVS); a flooded cockpit past 130° is not modelled"; 165 g is labelled full-submersion reserve; caption says the hull sits 0.03 mm deeper; tub leak check added to the physical test. |
+| Opus 5.5 | Accept all; paper sail and platform now YES | — |
+| Opus 5.5 | FIX: "cockpit eye" → coachroof/traveller eye; header v7 → v7b | Applied. |
+| Opus 5.5 | FIX: stability used stale part masses | `stability_v7.py` reads per-object G-code masses via `SLICE_MASS`. |
+
+v7c verification: checks unchanged (no tiny islands, all gaps OK), slice identical (on-board PLA 45.83 g), hydro unchanged
+(trim 0.10°, GM 19 mm, AVS 141°), heel slightly lower with corrected masses (full sail 6.7° at 1.5 m/s).
+
+## Step 7d — anchor, transom name and display stand (user requests), challenge round
+
+User asked for an anchor on the bow, the name repeated on the port transom face, and a minimalist table stand.
+v7d added a navy delta anchor stowed on the bow roller (printed in the white upper hull, no glue, no new supports:
+G-code support moves identical to v7c), "Margaret" inlaid 0.4 mm into the port transom face, and a one-colour stand
+(base plank + two cradles whose notches are cut from the real hull sections, 0.3 mm clearance, bulb 3 mm clear of the base).
+
+| Reviewer | Finding | Decision |
+|---|---|---|
+| GPT-6.2-sol | BLOCKER: the transom name slices into scattered navy | Accepted → Steps 7e/7f |
+| GPT-6.2-sol | Chamfer the cradle notch rims 0.4 mm | Accepted (v7e stand) |
+| Opus 5.5 | Same transom blocker; strokes 0.32–0.44 mm; gate: no zero-navy layer, ≥1.5 mm navy per layer; fallback 0.8 mm depth | Accepted; gate adopted and tightened |
+| Opus 5.5 | Anchor prints well (navy continuous bed z 12.2–19.9) and reads as an anchor | Accepted |
+| Opus 5.5 | Stand tips at 30.9° but the boat rolls out of the cradle first; don't widen the base, tell the owner to rig off the stand | Accepted (sheet + README note) |
+
+## Step 7e — first name fix failed the per-layer gate
+
+v7e enlarged the name (cap 3.3 → 3.9) and deepened it to 0.6 mm. Checks and LOA unchanged, but the per-layer navy scan
+of the real slice still FAILED: zero-navy layers at bed z 6.28 and 8.36, median 1.09 mm of navy per layer (bow control:
+12.87 mm, no zeros). The per-glyph gate missed M 20/34, r 8/11 and g 13/20 strokes, with runs up to 8 layers.
+
+Measured strokes: transom 0.5–0.6 mm wide × 0.62 mm deep; bow 0.6 × 0.45. A ray-cast ruled out ink/white overlap.
+
+## Step 7f — coupon diagnosis, fix, challenge/defend, G-code gates
+
+**Coupon experiment** (same P2S profile, 1.06 mm white wall with the inlaid name, sliced in < 2 s each):
+
+| Variant | Zero-navy layers | Median navy/layer | Result |
+|---|---:|---:|---|
+| A: 0.6 mm (v7e) | 3 | 1.0 mm | Illegible, reproduces the bug |
+| E: A, face rotated 90° | — | same as A | Orientation is not the cause |
+| B: 0.8 mm deep | 0 | 6.9 mm | Legible |
+| C: through-wall | 0 | 9.5 mm | Legible |
+| D/F: Blender text offset bolding | — | — | Corrupts glyphs, rejected |
+| G: 0.8 mm + 1.66 mm wall | 0 | 6.9 mm | Same as B |
+
+**Diagnosis:** strokes about as deep as they are wide give Arachne a near-square cross-section per layer and its
+medial-axis beads collapse. Depth ≥ 0.8 mm fixes it; wall thickness behind does not matter.
+
+**Fix (v7f):** inlay 0.8 mm, plus a white backing pad unioned inside the transom (0.6 mm beyond the inner face,
+chamfered underside so it prints without support). Through-wall was rejected: it would put a navy/white seam through a
+wall that the port transom corner dips ~5 mm under at 30° heel. As built: ink depth 0.828 mm, white behind the ink
+0.848 mm everywhere, ≥ 5.73 mm void behind; `Upper_white` stays one shell; all other checks identical to v7e.
+
+| Reviewer | Challenge | Defence / decision |
+|---|---|---|
+| GPT-6.2-sol | Ship after fixes; the pad chamfer may eat the backing under the lowest letters | Refuted: the ramp runs name_min−1.5 → name_min−0.5; measured white behind the ink is 0.848 mm everywhere |
+| Opus 5.5 | Ship after fixes; the pad might be coplanar with the wall | Already handled: the pad starts 0.12 mm inside the wall; union is manifold, one shell |
+| Both | Add G-code gates: per-glyph stroke continuity (no glyph missing strokes > 2 consecutive layers) and continuous white behind the ink (gaps < 0.1 mm) | Accepted: `coupon/transom_gates.py`, `coupon/namecheck.py` |
+| Opus 5.5 | Small counters (a, e, g) may fill in | Accepted as cosmetic; the preview reads cleanly |
+
+**Gate results on the real v7f plate slice:**
+- `transom_gates.py`: **PASS**. All 8 glyphs (M a r g a r e t), 0 missed strokes, max run 0; white-behind gap 0.00 mm in
+  all 17 layers. (v7e on the same gate: FAIL.) The white gate measures across the letters' own extent, not the whole
+  pad, which first produced false 0.39 mm "gaps" beyond the last letter.
+- `namecheck.py`: transom 17/17 layers with navy, no zero layers, median 6.49 mm; bow 19/19, median 12.87 mm.
+  The face-on G-code preview reads "Margaret".
+
+**Stand (v7f):** 0.4 mm rim chamfer, 0 non-manifold edges, 35.69 cm³, min hull clearance 0.28 mm, 55 min 5 s / 30.87 g.
+
+**v7f pipeline:** slice 13 h 3 m 7 s model time (235 layers, 207.8 g total), on-board PLA 45.91 g (+0.05 g pad),
+all-up 64.0 g with 100 balls, trim 0.10° bow-down, GM 19.1 mm, AVS 141°, heel unchanged.

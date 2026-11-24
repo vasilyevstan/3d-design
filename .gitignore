@@ -1,0 +1,6 @@
+.DS_Store
+*.blend1
+*.blend2
+__pycache__/
+# Node/Copilot CLI diagnostic crash reports
+report.*.json

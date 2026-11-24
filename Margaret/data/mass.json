@@ -1,0 +1,75 @@
+{
+ "objects": {
+  "Hull_lower": {
+   "total_g": 12.21,
+   "by_tool": {
+    "1": 0.75,
+    "2": 10.45,
+    "3": 1.01
+   }
+  },
+  "Hull_upper": {
+   "total_g": 25.76,
+   "by_tool": {
+    "1": 21.69,
+    "3": 1.32,
+    "4": 2.75
+   }
+  },
+  "Mast": {
+   "total_g": 1.87,
+   "by_tool": {
+    "1": 1.87
+   }
+  },
+  "Boom": {
+   "total_g": 0.42,
+   "by_tool": {
+    "1": 0.42
+   }
+  },
+  "Fin_cap": {
+   "total_g": 2.95,
+   "by_tool": {
+    "1": 0.14,
+    "2": 2.81
+   }
+  },
+  "Ballast_cup": {
+   "total_g": 2.21,
+   "by_tool": {
+    "1": 0.06,
+    "2": 2.16
+   }
+  },
+  "Rudder": {
+   "total_g": 0.31,
+   "by_tool": {
+    "1": 0.03,
+    "2": 0.27,
+    "3": 0.0
+   }
+  },
+  "Wheel_Port": {
+   "total_g": 0.09,
+   "by_tool": {
+    "1": 0.04,
+    "3": 0.05
+   }
+  },
+  "Wheel_Starboard": {
+   "total_g": 0.09,
+   "by_tool": {
+    "1": 0.04,
+    "3": 0.05
+   }
+  }
+ },
+ "off_board": {
+  "Support interface": 5.33,
+  "Support": 34.03,
+  "Support transition": 1.6,
+  "Prime tower": 16.36
+ },
+ "on_board_g": 45.9
+}

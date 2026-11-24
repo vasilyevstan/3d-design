@@ -1,0 +1,55 @@
+{
+ "cradles": [
+  {
+   "x": 40.0,
+   "hull_bottom_z": -11.59,
+   "notch_top_half_width": 19.58,
+   "arm_outer_half_width": 22.78,
+   "arm_top_z": -3.0,
+   "min_clearance_mm": 0.288,
+   "at": [
+    38.4,
+    3.41,
+    -11.24
+   ],
+   "rim_chamfer_mm": 0.4
+  },
+  {
+   "x": -62.0,
+   "hull_bottom_z": -6.96,
+   "notch_top_half_width": 21.74,
+   "arm_outer_half_width": 24.94,
+   "arm_top_z": -3.0,
+   "min_clearance_mm": 0.283,
+   "at": [
+    -60.4,
+    17.67,
+    -4.71
+   ],
+   "rim_chamfer_mm": 0.4
+  }
+ ],
+ "nonmanifold_edges": 0,
+ "volume_cm3": 35.69,
+ "size_mm": [
+  120.0,
+  50.0,
+  59.5
+ ],
+ "base_top_z": -58.45,
+ "bulb_gap_mm": 3.0,
+ "plate_thickness_mm": 3.2,
+ "clearance_mm": 0.3,
+ "assembled_bbox": [
+  [
+   -71.0,
+   -25.0,
+   -62.45
+  ],
+  [
+   49.0,
+   25.0,
+   -3.0
+  ]
+ ]
+}

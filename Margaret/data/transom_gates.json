@@ -1,0 +1,185 @@
+{
+ "glyphs": {
+  "M": {
+   "y": [
+    21.59,
+    23.79
+   ],
+   "design_layers": 13,
+   "strokes": 34,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  },
+  "a1": {
+   "y": [
+    19.55,
+    21.15
+   ],
+   "design_layers": 10,
+   "strokes": 14,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  },
+  "r1": {
+   "y": [
+    17.91,
+    19.03
+   ],
+   "design_layers": 10,
+   "strokes": 11,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  },
+  "g": {
+   "y": [
+    16.03,
+    17.67
+   ],
+   "design_layers": 14,
+   "strokes": 20,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  },
+  "a2": {
+   "y": [
+    14.03,
+    15.63
+   ],
+   "design_layers": 10,
+   "strokes": 14,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  },
+  "r2": {
+   "y": [
+    12.39,
+    13.51
+   ],
+   "design_layers": 10,
+   "strokes": 11,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  },
+  "e": {
+   "y": [
+    10.51,
+    12.15
+   ],
+   "design_layers": 10,
+   "strokes": 13,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  },
+  "t": {
+   "y": [
+    9.07,
+    10.27
+   ],
+   "design_layers": 13,
+   "strokes": 13,
+   "missed_strokes": 0,
+   "layers_with_miss": [],
+   "max_run": 0
+  }
+ },
+ "white": {
+  "5.8": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "5.96": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "6.12": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "6.28": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "6.44": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "6.6": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "6.76": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "6.92": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "7.08": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "7.24": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "7.4": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "7.56": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "7.72": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "7.88": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "8.04": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "8.2": {
+   "max_gap": 0.0,
+   "gaps": []
+  },
+  "8.36": {
+   "max_gap": 0.0,
+   "gaps": []
+  }
+ },
+ "strokes": 130,
+ "missed_strokes": 0,
+ "pass": true,
+ "n_glyphs": 8,
+ "layers": [
+  5.8,
+  5.96,
+  6.12,
+  6.28,
+  6.44,
+  6.6,
+  6.76,
+  6.92,
+  7.08,
+  7.24,
+  7.4,
+  7.56,
+  7.72,
+  7.88,
+  8.04,
+  8.2,
+  8.36
+ ]
+}
