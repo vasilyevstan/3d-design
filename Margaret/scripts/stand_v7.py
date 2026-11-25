@@ -1,10 +1,14 @@
 """Minimal one-wall display stand for Margaret.  She stands on her keel like a yacht ashore: the printed flat under the
-ballast bulb sits in a shallow locating pocket in the base, and ONE upright wall just forward of the bulb nose holds her
-upright.  The wall notch is the vertical-sweep hull-section envelope over the wall thickness, grown by a 0.3 mm disc, with
-a 0.4 mm chamfer on both rims; the pocket is the bulb section at base-top height grown by 0.4 mm, rim chamfered.  The bulb
-flat spans the centre of gravity for every load case, so the keel carries the weight (compression on the bulb joint) and
-the wall only stops roll and nose-down pitch.  One navy piece, printed upright as-is, no supports.
-Run: MARGARET_OUT=<v7 build dir> STAND_OUT=<dir> blender -b --factory-startup -P stand_v7.py
+ballast bulb sits in a shallow locating pocket in the base, and ONE wall just forward of the bulb nose holds her upright.
+The wall leans STAND_RAKE_DEG (default 11.1 deg, top toward the bow) so it runs parallel to the fin's leading edge,
+5 mm ahead of the fin and bulb at every height.  The wall notch is the vertical-sweep hull+fin+bulb section envelope over
+the inclined slab (sampled across the wall thickness at each height), grown by a 0.3 mm disc, with a 0.4 mm chamfer on
+both rims, so the boat lowers and lifts straight down/up (checked: hull/appendage vertices raised 0-30 mm never enter the
+wall).  The pocket is the bulb section at base-top height grown by 0.4 mm, rim chamfered.  The bulb flat spans the centre
+of gravity for every load case, so the keel carries the weight (compression on the bulb joint) and the wall only stops
+roll and nose-down pitch; the plank runs under the whole wall, foot and top.  One navy piece, printed upright as-is, no
+supports.
+Run: MARGARET_OUT=<v7 build dir> STAND_OUT=<dir> [STAND_RAKE_DEG=11.1] blender -b --factory-startup -P stand_v7.py
 Writes Stand.stl (assembled boat coordinates, mm), Stand-bed.stl (placed on a 256 mm bed) and stand.json."""
 import os, json, math, struct, bpy, bmesh
 from mathutils import Vector
@@ -17,11 +21,15 @@ APPENDAGES = ["Fin_cap", "Ballast_cup", "Rudder", "Rudder_ink"]
 PLATE_T, CLEAR, ARM, Z_TOP = 4.0, 0.3, 3.2, -3.0
 CHAMFER, NRS = 0.4, 2000
 WALL_GAP = 5.0                  # wall rear face to the bulb nose
-BASE_T, BASE_W_MIN, BASE_R, BASE_CH, BASE_MARGIN = 4.0, 50.0, 10.0, 0.8, 6.0
+BASE_T, BASE_W_MIN, BASE_R, BASE_CH, BASE_MARGIN = 4.0, 56.0, 10.0, 0.8, 6.0
+FRONT_MARGIN = 3.0              # plank lead ahead of the wall top's forward face (round-2 review: 6 -> 3 mm)
 POCKET_D, POCKET_CLEAR, POCKET_VGAP = 0.8, 0.4, 0.6   # VGAP: bulb tail/nose height over the base top
 FOOT_HW = 13.0
 FLOOR_DROP, FLOOR_HW = 1.0, 8.0  # notch floor relief: hull never lands on the wall, the keel flat carries the weight
 TAIL_MARGIN = 2.0               # base runs aft past the bulb tail so a nose-up rock lands the tail on the plank
+RAKE_DEG = float(os.environ.get("STAND_RAKE_DEG", "11.1"))   # wall lean in side view: + = top toward the bow
+TAN = math.tan(math.radians(RAKE_DEG))
+T_H = PLATE_T/math.cos(math.radians(RAKE_DEG))            # horizontal wall thickness (PLATE_T measured square to the faces)
 PLA_STAND_G_PER_CM3 = 0.865     # sliced grams / solid cm3 of the v7f stand (15 % infill, 3 walls)
 
 
@@ -55,7 +63,18 @@ bulb_av = [v for v in av if v.x > -60.0]             # fin cap + cup (rudder exc
 APP_NOSE_X = max(v.x for v in bulb_av)
 BULB_TAIL_X = min(v.x for v in cv)
 TAIL = min(cv, key=lambda v: v.x)                    # bulb tail tip: the nose-up pivot once it lands on the plank
-WALL_X = APP_NOSE_X+WALL_GAP+PLATE_T/2
+# wall rear face at height z = X_REAR + (z - Z_BASE)*TAN, kept WALL_GAP ahead of the fin and bulb at every height
+X_REAR = max(v.x+WALL_GAP-(v.z-Z_BASE)*TAN for v in bulb_av if v.z <= Z_TOP+5.0)
+WALL_X = X_REAR+T_H/2                                # wall centre at the base top
+
+
+def xc(z):
+    """Wall centre x at height z (the wall is a slab sheared along x by the rake)."""
+    return WALL_X+(z-Z_BASE)*TAN
+
+
+def slab_xs(z):
+    return [xc(z)+T_H*(k/8-0.5) for k in range(9)]
 
 
 def half_breadth(x, z):
@@ -72,14 +91,14 @@ def keel_z(x):
     return hit[0].z
 
 
-def notch_profile(x0, clear=CLEAR):
-    xs = [x0+PLATE_T*(k/8-0.5) for k in range(9)]
-    zk = min(keel_z(x) for x in xs)
+def notch_profile(clear=CLEAR):
+    """Notch half-width per height: hull half-breadth envelope over the (raked) slab at that height, grown by a disc."""
+    zk = min(keel_z(x) for x in slab_xs(keel_z(xc(-12.0))))
     dz = 0.05
     zs = [zk+dz*i for i in range(int((Z_TOP+CLEAR+CHAMFER+1.5-zk)/dz)+1)]
     b = []
     for z in zs:
-        hb = [h for h in (half_breadth(x, z) for x in xs) if h is not None]
+        hb = [h for h in (half_breadth(x, z) for x in slab_xs(z)) if h is not None]
         b.append(max(hb) if hb else 0.0)
     nk = int(round(clear/dz))
     prof = []
@@ -149,6 +168,13 @@ def prism_x(name, poly_yz, x0, x1):
     return rings_solid(name, [[(x, y, z) for y, z in poly_yz] for x in (x0, x1)])
 
 
+def shear(ob):
+    """Lean a wall-local solid by the rake: x += (z - Z_BASE)*TAN (horizontal sections keep their shape)."""
+    for v in ob.data.vertices:
+        v.co.x += (v.co.z-Z_BASE)*TAN
+    ob.data.update()
+
+
 def rrect(x0, x1, y0, y1, r, seg=10):
     pts = []
     for cx, cy, a0 in ((x1-r, y0+r, -90), (x1-r, y1-r, 0), (x0+r, y1-r, 90), (x0+r, y0+r, 180)):
@@ -194,13 +220,14 @@ pk_in = bulb_section(Z_BASE+POCKET_VGAP, POCKET_CLEAR)
 pk_out = bulb_section(Z_BASE+POCKET_VGAP, POCKET_CLEAR+CHAMFER)
 PK_X = (min(p[0] for p in pk_out), max(p[0] for p in pk_out))
 PK_HY = max(abs(p[1]) for p in pk_out)
-zk, prof = notch_profile(WALL_X)
-_, prof_c = notch_profile(WALL_X, CLEAR+CHAMFER)
+zk, prof = notch_profile()
+_, prof_c = notch_profile(CLEAR+CHAMFER)
 prof, prof_c = deepen(prof, FLOOR_HW), deepen(prof_c, FLOOR_HW+CHAMFER)
 top_b = max(y for y, z in prof if z <= Z_TOP+1e-6)
 arm_out = top_b+ARM
 BASE_W = max(BASE_W_MIN, 2*round(arm_out+2.0, 0))
-x_lo, x_hi = min(PK_X[0]-BASE_MARGIN, BULB_TAIL_X-TAIL_MARGIN), WALL_X+PLATE_T/2+BASE_MARGIN
+x_lo = min(PK_X[0]-BASE_MARGIN, BULB_TAIL_X-TAIL_MARGIN)
+x_hi = max(xc(Z_BASE)+T_H/2+BASE_MARGIN, xc(Z_TOP)+T_H/2+FRONT_MARGIN)      # the plank reaches under the whole wall, foot and top
 base = rings_solid("Stand", [[(x, y, Z_BASE-BASE_T) for x, y in rrect(x_lo, x_hi, -BASE_W/2, BASE_W/2, BASE_R)],
                              [(x, y, Z_BASE-BASE_CH) for x, y in rrect(x_lo, x_hi, -BASE_W/2, BASE_W/2, BASE_R)],
                              [(x, y, Z_BASE) for x, y in rrect(x_lo+BASE_CH, x_hi-BASE_CH, -BASE_W/2+BASE_CH,
@@ -216,32 +243,71 @@ r = 1.6
 outline = [(-FOOT_HW, Z_BASE-1.0), (FOOT_HW, Z_BASE-1.0)]
 outline += [(arm_out-r+r*math.cos(math.radians(a)), Z_TOP-r+r*math.sin(math.radians(a))) for a in range(0, 91, 10)]
 outline += [(-(arm_out-r)-r*math.cos(math.radians(a)), Z_TOP-r+r*math.sin(math.radians(a))) for a in range(90, -1, -10)]
-plate = prism_x("Wall", outline, x0-PLATE_T/2, x0+PLATE_T/2)
+plate = prism_x("Wall", outline, x0-T_H/2, x0+T_H/2)
 z_cap = Z_TOP+CLEAR+1.0
 inner = resample(notch_poly(prof, z_cap), NRS)
 outer = resample(notch_poly(prof_c, z_cap+CHAMFER), NRS)
-h = PLATE_T/2
+h = T_H/2
 cut = rings_solid("Notch", [[(x0+sx, y, z) for y, z in ring] for sx, ring in
                            ((-h-1.0, outer), (-h-e, outer), (-h+CHAMFER-e, inner), (h-CHAMFER+e, inner),
                             (h+e, outer), (h+1.0, outer))])
+shear(plate); shear(cut)
 boolean(plate, cut, "DIFFERENCE")
+wm = plate.data
+wall_tree = BVHTree.FromPolygons([v.co.copy() for v in wm.vertices], [tuple(p.vertices) for p in wm.polygons])
 boolean(base, plate, "UNION")
 # clearance audits: wall notch to hull/appendages, pocket wall to the bulb
-mind, worst = 99.0, None
+mind, worst, face_gap = 99.0, None, {"aft": 0.0, "fore": 0.0}
 for y, z in [q for q in prof if q[1] <= Z_TOP][::2]:
     for sy in (1, -1):
-        for x in (x0-PLATE_T/2, x0, x0+PLATE_T/2):
+        for face, x in (("aft", xc(z)-T_H/2), ("mid", xc(z)), ("fore", xc(z)+T_H/2)):
             p = Vector((x, sy*y, z))
-            for tree in (hull, app):
-                n = tree.find_nearest(p)
-                if n[0] is not None and n[3] < mind:
-                    mind, worst = n[3], (round(x, 1), round(sy*y, 2), round(z, 2))
-wall_gap = (x0-PLATE_T/2)-APP_NOSE_X
-report["cradles"].append({"x": round(x0, 2), "hull_bottom_z": round(zk, 2), "notch_top_half_width": round(top_b, 2),
+            d = min(tree.find_nearest(p)[3] or 99.0 for tree in (hull, app))
+            if d < mind:
+                mind, worst = d, (round(x, 1), round(sy*y, 2), round(z, 2))
+            if face != "mid" and y > FLOOR_HW+1.0:
+                face_gap[face] = max(face_gap[face], d)
+# true gap from the whole wall to the fin and bulb (they must never touch it)
+wgap, wworst = 99.0, None
+for v in bulb_av:
+    if v.z > Z_BASE+0.5:
+        n = wall_tree.find_nearest(v)
+        if n[0] is not None and n[3] < wgap:
+            wgap, wworst = n[3], (round(v.x, 2), round(v.y, 2), round(v.z, 2))
+# lift-off path: hull and appendage vertices raised straight up must never be inside the wall
+
+
+PAR_D = Vector((0.123, 0.981, 0.149)).normalized()
+
+
+def inside_wall(p):
+    """Ray-parity point-in-solid test against the wall, prefiltered to the wall's slab."""
+    if abs(p.x-xc(p.z)) > T_H/2 or not (Z_BASE-1.5 <= p.z <= Z_TOP+0.5):
+        return False
+    o, k = p.copy(), 0
+    while True:
+        hit = wall_tree.ray_cast(o, PAR_D)
+        if hit[0] is None:
+            return k % 2 == 1
+        k += 1; o = hit[0]+PAR_D*1e-4
+
+
+near = [v for v in hv+av if v.z <= Z_TOP+1.0 and abs(v.x-xc(v.z)) < T_H/2+30.0 and abs(v.y) < arm_out+1.0]
+lift_hits = {t: sum(1 for v in near if inside_wall(v+Vector((0, 0, t)))) for t in (0.0, 0.5, 1, 2, 4, 6, 8, 10, 15, 20, 30)}
+EXPLORE = os.environ.get("STAND_EXPLORE") == "1"
+if any(lift_hits.values()) and not EXPLORE:
+    raise RuntimeError("lift-off path blocked %s" % lift_hits)
+if wgap < 2.0 and not EXPLORE:
+    raise RuntimeError("wall %.2f mm from the fin/bulb" % wgap)
+wall_gap = min(xc(v.z)-T_H/2-v.x for v in bulb_av if v.z > Z_BASE+0.5)   # horizontal, at each height
+report["cradles"].append({"x": round(xc(zk), 2), "hull_bottom_z": round(zk, 2), "notch_top_half_width": round(top_b, 2),
                           "arm_outer_half_width": round(arm_out, 2), "arm_top_z": Z_TOP,
                           "min_clearance_mm": round(mind, 3), "at": worst, "rim_chamfer_mm": CHAMFER,
                           "floor_gap_to_keel_mm": round(zk-prof[0][1], 2), "floor_relief_half_width_mm": FLOOR_HW})
 report["wall"] = {"x": round(x0, 2), "thickness_mm": PLATE_T, "gap_to_bulb_nose_mm": round(wall_gap, 2),
+                  "rake_deg": RAKE_DEG, "x_at_base": round(xc(Z_BASE), 2), "x_at_top": round(xc(Z_TOP), 2),
+                  "min_gap_to_fin_bulb_mm": round(wgap, 2), "at": wworst, "max_visible_face_gap_mm": {k: round(v, 2) for k, v in face_gap.items()},
+                  "lift_off_hits": {str(k): v for k, v in lift_hits.items()}, "lift_off_vertices_checked": len(near),
                   "width_at_top_mm": round(2*arm_out, 1), "height_mm": round(Z_TOP-(Z_BASE-BASE_T), 1)}
 report["pocket"] = {"depth_mm": POCKET_D, "clearance_mm": POCKET_CLEAR, "outline_height_over_base_top_mm": POCKET_VGAP, "rim_chamfer_mm": CHAMFER,
                     "floor_z": round(z_flat, 2), "x": [round(v, 2) for v in PK_X], "half_width": round(PK_HY, 2)}
@@ -328,7 +394,7 @@ for k, (m, g) in cases.items():
         "G_margin_to_flat_aft_mm": round(g.x-FLAT_X[0], 2), "G_margin_to_flat_fore_mm": round(FLAT_X[1]-g.x, 2),
         "nose_up_rock_until_tail_lands_deg": round(tail_land, 1),
         "nose_up_tip_deg": round(math.degrees(math.atan2(g.x-TAIL.x, g.z-TAIL.z)), 1),
-        "nose_down": "blocked by the wall (%.1f mm ahead of the flat)" % (x0-FLAT_X[1]),
+        "nose_down": "blocked by the wall (%.1f mm ahead of the flat)" % (xc(zk)-T_H/2-FLAT_X[1]),
         "assembly_tip_deg": {"sideways": round(math.degrees(math.atan2(BASE_W/2-abs(tot.y), H)), 1),
                              "forward": round(math.degrees(math.atan2(x_hi-tot.x, H)), 1),
                              "aft": round(math.degrees(math.atan2(tot.x-x_lo, H)), 1)}}

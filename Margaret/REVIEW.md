@@ -497,3 +497,49 @@ and cut GM 19.1 → ≈ 12 mm: display only.
 1.3 mm below the keel, pocket gap ≥ 0.72 mm, slice 43 m 37 s / 20.13 g (two-cradle stand: 55 m / 30.9 g).
 Tipping (full lead / no lead / display sail): nose-up 47.8 / 40.3 / 43.6°, assembly sideways 33.8 / 29.3 / 30.5°,
 forward 39.4 / 33.3 / 35.8°, aft 49.5 / 45.2 / 45.8°.
+
+## Step 9 — raked-wall stand: deliberation across three models, then built and re-challenged
+
+User: "I was thinking of the stand that has a wall with an angle — deliberate with different models and decide which
+stand would suit here better and if you decide — you can revert to the original design." Read as one wall leaning
+fore-and-aft in side view (other readings, e.g. diagonal in plan, were put to the judges too). Options: A = original
+two-cradle stand (120 × 50 mm), B = upright one-wall stand (Step 8), C1 = one wall raked top-forward, C2 = raked aft,
+C3 = diagonal in plan. Three independent judges on different models got the same brief, renders and measurements
+(fin leading edge sweeps 11.1°, rudder 8.2°, bulb nose x 16.4).
+
+**Round 1 — pick one option**
+
+| Judge | Pick | Main argument | Borrow |
+|---|---|---|---|
+| GPT-6.2-sol | C1 at 11.1° | Repeats the fin rake in profile; A's aft cradle hides the rudder, B reads as a bracket; 20–25° grows the plank toward A | A's smooth saddle rim (0.4 mm chamfered lead-ins) — already in B/C |
+| Opus 5.5 | C1 at 11.1° | Exactly parallel to the fin reads as deliberate (a third blade); C2 implies a buttress and pinches the fin root; C3 skews the notch | A's "nothing overhangs the base": run the plank under the wall top |
+| Grok 4.7 | C1 at 15° | 11° might still look vertical; keep B's keel-bears-weight load path | Appendages are not landing gear: check the rudder on a nose-up rock |
+
+Not revert to A: all three judged two cradles heavier, longer (120 mm) and hiding the rudder. C2 was also killed by
+measurement: a −15° prototype put the bulb through the wall on lift-off (226 / 694 vertex hits at 20 / 30 mm).
+
+**Built.** `stand_v7.py` gained `STAND_RAKE_DEG`: the wall is a sheared slab (4 mm square to its faces), the notch is the
+vertical-sweep hull + fin + bulb envelope sampled across the inclined slab at every height, and two new gates stop the
+build: (1) 13.5k hull / fin / bulb / rudder vertices raised straight up 0–30 mm must never be inside the wall (ray-parity
+point-in-solid; a first nearest-normal test gave false hits), (2) the wall must stay ≥ 2 mm from the fin and bulb.
+Prototypes 0 / 11 / 11.1 / 15 / 20 / −15° were built and rendered (new port-profile render `stand-5`).
+
+**Round 2 — challenge/defend on the built result**
+
+| Reviewer | Challenge | Defence / decision |
+|---|---|---|
+| GPT-6.2-sol | Plank 54 mm wide (rounding) costs sideways margin; the bow lead past the wall top is conspicuous | Accepted: width back to 56 mm (`BASE_W_MIN`), lead past the wall top 6 → 3 mm (`FRONT_MARGIN`): 92.3 → 89.3 mm |
+| GPT-6.2-sol | Tail-pivot tip angles are calculations, not measured table-tilt margins | Accepted: sheet and README now say "calculated", with a tilted-board check after printing |
+| GPT-6.2-sol / Opus 5.5 | Fore-face gap 0.94 mm (B 0.81): cut each face to its own envelope? | Kept: +0.13 mm on B, near FDM tolerance; per-face lofting undercuts the curved hull and would need the lift-off audit redone |
+| Opus 5.5 | Rake nearly vanishes in the 3/4 view | Accepted as a presentation point: the sheet adds the port profile as a full-width panel |
+| Opus 5.5 | 1.5 mm root fillet against knocks | Declined: the keel carries the load, the wall only stops roll; root is 26 mm wide × 4 mm on a 4 mm plank |
+| Grok 4.7 | 15° instead of 11.1° | Built both. 15° opens a diverging 5 → 8 mm V to the fin and has 1 vertex inside the wall at rest (gate fails); 11.1° keeps 5.0 mm at every height and 0 hits. Grok conceded: "Ship 11.1°" |
+| Grok 4.7 | Rudder must not land on a nose-up rock | Checked: at the 12.3° tail landing the rudder tip is still ≈ 21 mm above the table |
+
+**Decision: C1, one wall raked 11.1° forward, parallel to the fin leading edge (3 / 3 judges).**
+
+**Stand as built:** 89.3 × 56 × 55.7 mm, 26.09 cm³, 0 non-manifold edges; wall foot x 22.35, top x 32.48; horizontal
+gap to the fin and bulb 5.0 mm at every height (3D minimum 4.91 mm); min notch clearance 0.286 mm, visible face gap
+0.42 aft / 0.94 fore; notch floor 1.3 mm below the keel; lift-off 0 hits at every step; slice 44 m 47 s / 20.84 g,
+no supports. Calculated tipping (full lead / no lead / display sail): nose-up 47.8 / 40.3 / 43.6°, assembly sideways
+34.1 / 29.6 / 30.7°, forward 43.8 / 37.7 / 40.1° (upright wall: 39.4 / 33.3 / 35.8°), aft 50.1 / 46.0 / 46.5°.

@@ -2,7 +2,7 @@
 
 A printable model in the style of a **Jeanneau Sun Odyssey 43**: a likeness, not a copy. She has a blue underwater hull, white topsides and deck, a navy boot stripe and trim, and caulked teak on the cockpit, side decks and foredeck. **Margaret** is on both bows and repeated on the port transom face, and a navy delta anchor sits stowed on the bow roller.
 
-The model prints as **one Bambu P2S plate in four colours**. It has a detachable, fillable ballast bulb, a keyed mast stayed with thread, and three interchangeable paper mainsails. A separate one-wall table stand prints in one colour, and an optional printed display sail is for the shelf.
+The model prints as **one Bambu P2S plate in four colours**. It has a detachable, fillable ballast bulb, a keyed mast stayed with thread, and three interchangeable paper mainsails. A separate table stand with one raked wall prints in one colour, and an optional printed display sail is for the shelf.
 
 ![Design views](Margaret-views.png)
 
@@ -18,7 +18,7 @@ The model prints as **one Bambu P2S plate in four colours**. It has a detachable
 | `Margaret-paper-sails.pdf` | 1:1 templates: **start / medium / full** mainsails, an optional furled-genoa strip, rigging and trim notes. |
 | `Margaret-afloat.png` | The exported model floated at its calculated waterline, upright and at 15° heel. |
 | `Margaret-sail-rigging.png` | Where the paper sail is tied: head, luff, tack, clew and mainsheet. |
-| `Margaret-stand.png` | The one-wall display stand: boat on the stand, close-up, the stand alone and the printed display sail, with print settings. |
+| `Margaret-stand.png` | The display stand with one raked wall: boat on the stand, close-up, the stand alone, port profile and the printed display sail, with print settings. |
 | `Margaret-stand.3mf` | Bambu Studio project for the stand, **already sliced**: one navy part, no supports. |
 | `Margaret-display-sail.3mf` | Optional printed display mainsail, **already sliced**: one white part laid flat, with three snip-off mouse ears. Display only. |
 | `Margaret.blend` | Editable assembled model (1 unit = 1 mm). Collections for each print group and for the thread/paper preview, plus seven cameras. The display stand and the printed display sail each have their own collection (the display sail is hidden in renders by default). |
@@ -171,12 +171,12 @@ The bulb splits at a horizontal glue plane. The **upper half (fin cap)** is part
 
 ## Display stand (separate print)
 
-The simplest stand that still holds her safely: an 83 × 56 × 4 mm base plank and **one** 4 mm upright wall, 83.2 × 56 × 55.7 mm overall.
+The simplest stand that still holds her safely: an 89 × 56 × 4 mm base plank and **one** 4 mm wall, 89.3 × 56 × 55.7 mm overall. The wall **leans 11.1° forward, parallel to the fin's leading edge**, so in profile it reads as a third blade beside the fin and rudder rather than a bracket. Three reviewers on different models compared the original two-cradle stand, the upright wall and a raked wall; all three picked the raked wall (see `REVIEW.md`, Step 9).
 
 - **She stands on her keel.** The flat on the bottom of the bulb sits in a 0.8 mm deep locating pocket in the plank (0.4 mm clearance), so the keel carries her weight.
-- **The wall** stands 5 mm ahead of the bulb nose. Its notch is cut from the actual hull section there (minimum 0.29 mm clearance, 0.4 mm chamfered rim). The notch floor sits 1.3 mm below the keel, so the wall never takes weight: it only stops her rolling and tipping nose-down. The pocket's forward rim stops her sliding aft.
-- **Tipping angles** (full lead / no lead / printed display sail): nose-up 48° / 40° / 44°, whole stand sideways 34° / 29° / 30°. The plank runs under the whole bulb tail, so a nose-up rock lands on it after 12°.
-- **Print:** open `Margaret-stand.3mf` and print as sliced. One piece, upright, navy PLA, 15 % infill, 3 walls, no supports. About 44 min (51 min with heating and calibration), 20.1 g.
+- **The wall** stays 5.0 mm ahead of the fin and bulb at every height. Its notch is cut from the actual hull section along the leaning wall (minimum 0.29 mm clearance, 0.4 mm chamfered rim), and a check that lifts 13,500 points of the boat straight up 0–30 mm confirms that she lowers and lifts without touching it. The notch floor sits 1.3 mm below the keel, so the wall never takes weight: it only stops her rolling and tipping nose-down. The pocket's forward rim stops her sliding aft.
+- **Tipping angles, calculated** (full lead / no lead / printed display sail): she rocks off nose-up only past 48° / 40° / 44°; the whole stand tips sideways at 34° / 30° / 31° and forward at 44° / 38° / 40°. The plank runs under the whole bulb tail, so a nose-up rock lands on it after 12°, and 3 mm past the top of the wall at the front. Check these on a tilted board after printing.
+- **Print:** open `Margaret-stand.3mf` and print as sliced. One piece, upright, navy PLA, 15 % infill, 3 walls, no supports. About 45 min (52 min with heating and calibration), 20.8 g.
 - **Use:** tape or glue the bulb on first; with the cup off she cannot stand on it. Lower her straight down, bulb into the pocket, and lift straight up to take her sailing. Optional felt pads under the base protect the table.
 - **Rig and tune the sail off the stand.** Don't tension stays or tie the sail while she sits on it.
 - The stand touches only the bulb flat and, lightly, the hull at the wall. It does not touch the rudder or the stays.
@@ -191,7 +191,7 @@ All scripts are in `scripts/` and expect Blender 5.2 and Bambu Studio on macOS. 
 4. `SLICE_MASS=build/plate/mass.json MARGARET_OUT=build python3 hydro_check.py` (float, trim, righting curve), and `stability_v7.py` in Blender with the same variables (sails, heel, CE/CLR).
 5. `present_v7.py`, `float_v7.py`, `closeups.py` (renders), then `presentation_v7.py` (sheets and PDF).
 6. Display sail: `MARGARET_OUT=build SAIL_OUT=build/dsail blender -b --factory-startup -P display_sail.py`, then `./stand_slice.sh <abs path to build/dsail> Display_sail-bed.stl Margaret-display-sail.3mf 1 "Margaret display sail"`.
-   Stand: `MARGARET_OUT=build STAND_OUT=build/stand DISPLAY_SAIL_JSON=build/dsail/display_sail.json blender -b --factory-startup -P stand_v7.py`, then `./stand_slice.sh <abs path to build/stand>`, and run `stand_v7.py` once more so it uses the sliced mass. Finally `STAND_DIR=… SAIL_DIR=… blender -b Margaret.blend -P stand_show.py` adds both to the blend and renders them.
+   Stand: `MARGARET_OUT=build STAND_OUT=build/stand DISPLAY_SAIL_JSON=build/dsail/display_sail.json blender -b --factory-startup -P stand_v7.py` (wall rake `STAND_RAKE_DEG`, default 11.1; 0 gives the upright wall; the build stops if any lift-off or clearance check fails), then `./stand_slice.sh <abs path to build/stand>`, and run `stand_v7.py` once more so it uses the sliced mass. Finally `STAND_DIR=… SAIL_DIR=… blender -b Margaret.blend -P stand_show.py` adds both to the blend and renders them.
 
 7. Name gates on the sliced plate: `python3 coupon/transom_gates.py build` (must print PASS) and `python3 coupon/namecheck.py build preview.png`.
 

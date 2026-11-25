@@ -438,19 +438,27 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     DJ = json.load(open(DS / "display_sail.json")) if (DS / "display_sail.json").exists() else None
     ds_slice = slice_info(DS / "slice-Display_sail" / "times.txt")
     has4 = DJ is not None and (W / "stand-4.png").exists()
-    PH, RH = 1000, (440 if has4 else 0)
-    SH = HEAD + 20 + PH + 20 + (RH + 20 if has4 else 0) + 196
+    has5 = (W / "stand-5.png").exists()
+    rake = SJ["wall"].get("rake_deg", 0.0)
+    wall_word = ("ONE WALL RAKED %.0f DEG" % rake) if rake else "ONE-WALL"
+    PH, RH, R5 = 1000, (440 if has4 else 0), (600 if has5 else 0)
+    FOOT = 230 if has4 else 196
+    SH = HEAD + 20 + PH + 20 + (R5 + 20 if has5 else 0) + (RH + 20 if has4 else 0) + FOOT
     ss = Image.new("RGB", (1800, SH), "#edf1ee")
     sd = ImageDraw.Draw(ss)
     sd.rectangle((0, 0, 1800, HEAD), fill=navy)
     sd.text((38, 19), "Margaret", font=font(55, True), fill="#f5f4e9")
-    sd.text((42, 89), "ONE-WALL TABLE STAND  /  SEPARATE ONE-COLOUR PRINT  /  NO GLUE, NO SUPPORTS"
+    sd.text((42, 89), wall_word + " TABLE STAND  /  SEPARATE ONE-COLOUR PRINT  /  NO GLUE, NO SUPPORTS"
             + ("  /  OPTIONAL PRINTED DISPLAY SAIL" if has4 else ""), font=font(19), fill="#c5d5d7")
     sd.text((1760, 57), "DISPLAY STAND  /  " + TAG, anchor="rm", font=font(20, True), fill=sand)
-    y2 = HEAD + 20 + PH + 20
+    y5 = HEAD + 20 + PH + 20
+    y2 = y5 + (R5 + 20 if has5 else 0)
     panels = [("On the stand" + (" (printed display sail)" if has4 else ""), "stand-1.png", (27, HEAD + 20, 27 + 700, HEAD + 20 + PH)),
               ("One wall holds the hull; the keel stands in a shallow pocket", "stand-2.png", (747, HEAD + 20, 1773, HEAD + 20 + 490)),
-              ("Stand alone: base plank + one wall", "stand-3.png", (747, HEAD + 20 + 510, 1773, HEAD + 20 + PH))]
+              ("Stand alone: base plank + one %swall" % ("raked " if rake else ""), "stand-3.png", (747, HEAD + 20 + 510, 1773, HEAD + 20 + PH))]
+    if has5:
+        panels.append(("Port profile: the wall leans %.0f deg forward, parallel to the fin's leading edge; nothing touches the fin or bulb" % rake
+                       if rake else "Port profile: the wall stands just ahead of the bulb nose", "stand-5.png", (27, y5, 1773, y5 + R5)))
     if has4:
         panels.append(("Optional printed display sail: tabling, cross-cut seams, battens, corner patches (relief on one face)",
                        "stand-4.png", (27, y2, 1773, y2 + RH)))
@@ -466,15 +474,19 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     sx, sy, sz = SJ["size_mm"]
     tip = lambda k: "/".join("%.0f" % q[k] for q in (full, nol) + ((dsc,) if dsc else ()))
     lines = [
-        "Stand %.0f x %.0f x %.1f mm  /  base plank + ONE %.0f mm wall  /  navy PLA, upright, 15%% infill, 3 walls, no supports"
-        % (sx, sy, sz, wl["thickness_mm"]) + ("  /  slice %s, %.1f g" % st_slice if st_slice else ""),
+        "Stand %.0f x %.0f x %.1f mm  /  base plank + ONE %.0f mm wall%s  /  navy PLA, upright, 15%% infill, 3 walls, no supports"
+        % (sx, sy, sz, wl["thickness_mm"], (" raked %.1f deg" % rake) if rake else "") + ("  /  slice %s, %.1f g" % st_slice if st_slice else ""),
         "She stands on her keel: the bulb's printed flat sits in a %.1f mm deep locating pocket (%.1f mm clearance)."
         % (pk["depth_mm"], pk["clearance_mm"]),
         "The wall notch follows the hull section (min %.2f mm) and its floor is %.1f mm below the keel, so the keel carries the weight"
-        " and the wall only stops roll and nose-down." % (c["min_clearance_mm"], c.get("floor_gap_to_keel_mm", 0.0)),
-        "Tipping angles (full lead / no lead%s): nose-up %s deg, whole stand sideways %s deg. Lower her straight down, bulb into the pocket;"
-        " lift straight up. Tape or glue the bulb on first." % (" / display sail" if dsc else "", tip("nose_up_tip_deg"),
-                                                                "/".join("%.0f" % q["assembly_tip_deg"]["sideways"] for q in (full, nol) + ((dsc,) if dsc else ()))),
+        " and the wall only stops roll and nose-down%s." % (c["min_clearance_mm"], c.get("floor_gap_to_keel_mm", 0.0),
+                                                     (" (it stays %.1f mm ahead of the fin and bulb)" % wl["gap_to_bulb_nose_mm"]) if rake else ""),
+        "Calculated, not yet measured (full lead / no lead%s): she rocks off nose-up only past %s deg; the whole stand tips sideways at %s deg"
+        " and forward at %s deg." % (" / display sail" if dsc else "", tip("nose_up_tip_deg"),
+                                     "/".join("%.0f" % q["assembly_tip_deg"]["sideways"] for q in (full, nol) + ((dsc,) if dsc else ())),
+                                     "/".join("%.0f" % q["assembly_tip_deg"]["forward"] for q in (full, nol) + ((dsc,) if dsc else ()))),
+        "Lower her straight down, bulb into the pocket; lift straight up. Tape or glue the bulb on first. After printing, check the angles"
+        " on a tilted board.",
     ]
     if has4:
         lines.append("Display sail: white PLA %.2f mm + %.2f/%.2f mm relief, %.1f g%s, same outline and holes as the FULL paper sail, ties on with the same"
@@ -482,6 +494,6 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
                      % (DJ["thickness_mm"], DJ["relief_mm"], DJ["batten_relief_mm"], DJ["mass_g"],
                         (", slice %s" % ds_slice[0]) if ds_slice else ""))
     for k, t in enumerate(lines):
-        sd.text((28, SH - 196 + 22 + k * 34), t, font=font(19 if k == 0 else 17, k == 0), fill=navy if k == 0 else muted)
+        sd.text((28, SH - FOOT + 22 + k * 34), t, font=font(19 if k == 0 else 17, k == 0), fill=navy if k == 0 else muted)
     ss.save(D / "Margaret-stand.png", optimize=True)
     print("STAND SHEET OK")
