@@ -469,3 +469,31 @@ wall that the port transom corner dips ~5 mm under at 30° heel. As built: ink d
 
 **v7f pipeline:** slice 13 h 3 m 7 s model time (235 layers, 207.8 g total), on-board PLA 45.91 g (+0.05 g pad),
 all-up 64.0 g with 100 balls, trim 0.10° bow-down, GM 19.1 mm, AVS 141°, heel unchanged.
+
+## Step 8 — one-wall stand, rig/sail purpose, optional printed display sail
+
+User: "can the stand be even more simple? with one wall?" and "print the rigging and the sail? alternatively … water
+worthy and can sail under wind". Proposal: replace the two-cradle stand with a base plank and ONE wall; keep thread
+stays and paper sails for sailing; add an optional printed display mainsail. Two independent challengers.
+
+| Reviewer | Challenge | Defence / decision |
+|---|---|---|
+| GPT-6.2-sol | One wall cannot hold a boat; where does the weight go? | Redesigned: she stands on her keel. The bulb's printed flat sits in a 0.8 mm locating pocket (0.4 mm offset); the wall (x 23.4, 4 mm) only stops roll and nose-down |
+| GPT-6.2-sol | Standing on the bulb loads the glue joint in tension | Refuted from `build_v7.py`: posts stop 0.3 mm short of the hole bottoms, 0.2 mm radial clearance, so the cup rim and split face bear the load in compression. Tape/glue the cup before standing her |
+| GPT-6.2-sol | Rocking on a narrow keel flat | Accepted: G margins 18.4 mm aft / 11.3 mm fore of the flat; nose-down blocked by the wall |
+| Opus 5.5 | A nose-up rock tips over the plank's aft edge | Accepted: plank extended under the whole bulb tail (+2 mm); the tail lands after 12.3°; nose-up tip now computed about the tail tip: 47.8° full lead / 40.3° no lead |
+| Opus 5.5 | Hull might land on the notch floor instead of the keel carrying it | Accepted: notch floor relieved 1 mm over \|y\| ≤ 8 with a compact smooth-max blend (a plain one widened the notch 0.15 mm); floor now 1.3 mm below the keel |
+| Opus 5.5 | Drop the pocket for simplicity? | Kept: its forward rim catches the bulb nose slope and is the only aft stop |
+| Opus 5.5 | Paper template: labels inside the cut line; plain sail looks toy-like | Accepted: labels moved below the foot; grey cloth detail (seams, battens, tabling, patches); matte tape |
+| Opus 5.5 | Printed sail: 0.6 mm sheet is thick, corners curl | Accepted as display-only: 0.52 mm + 0.16/0.32 mm relief, Ø10 × 0.2 mm mouse ears at head/tack/clew on the bed copy only, peel when cool |
+| Both | Printed stays or genoa | Rejected: ≥ 1 mm = 66 mm wire at scale, can't be tensioned, fragile |
+| Both | Explain the rig plainly | Accepted: README leads with "printed spars; thread = wire, holds the mast; paper sails 0.5 g so she sails; printed sail 4.5 g = display only" |
+
+**Display sail as built:** 0 non-manifold edges (6 found first: patches/battens now clipped to an inset outline, hole
+polygons rotated half a step), 66.9 cm², 4.5 g (slice 4.51 g, 9 m 8 s), ears 0.04 g. Afloat it would raise G ≈ 6.9 mm
+and cut GM 19.1 → ≈ 12 mm: display only.
+
+**Stand as built:** 83.2 × 56 × 55.7 mm, 24.85 cm³, 0 non-manifold edges, min notch clearance 0.288 mm, notch floor
+1.3 mm below the keel, pocket gap ≥ 0.72 mm, slice 43 m 37 s / 20.13 g (two-cradle stand: 55 m / 30.9 g).
+Tipping (full lead / no lead / display sail): nose-up 47.8 / 40.3 / 43.6°, assembly sideways 33.8 / 29.3 / 30.5°,
+forward 39.4 / 33.3 / 35.8°, aft 49.5 / 45.2 / 45.8°.

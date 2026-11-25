@@ -1,0 +1,115 @@
+{
+ "nonmanifold_edges": 0,
+ "volume_cm3": 3.628,
+ "mass_g": 4.5,
+ "replaces_paper_g": 0.5,
+ "centroid": [
+  -1.92,
+  -0.01,
+  110.13
+ ],
+ "area_cm2": 66.9,
+ "luff_mm": 188.35,
+ "foot_mm": 70.51,
+ "thickness_mm": 0.52,
+ "relief_mm": 0.16,
+ "batten_relief_mm": 0.32,
+ "relief_face": "starboard",
+ "seams": 7,
+ "battens": [
+  18.0,
+  14.1,
+  9.9,
+  8.0
+ ],
+ "holes": [
+  {
+   "name": "head",
+   "u": 2.2,
+   "v": 190.85,
+   "d": 1.2
+  },
+  {
+   "name": "tack",
+   "u": 2.2,
+   "v": 3.0,
+   "d": 1.2
+  },
+  {
+   "name": "clew",
+   "u": 66.51,
+   "v": 2.5,
+   "d": 1.2
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 14.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 34.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 54.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 74.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 94.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 114.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 134.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 154.0,
+   "d": 1.0
+  },
+  {
+   "name": "luff",
+   "u": 2.0,
+   "v": 174.0,
+   "d": 1.0
+  }
+ ],
+ "bed_size_mm": [
+  80.51,
+  203.35,
+  0.84
+ ],
+ "mouse_ears": {
+  "d_mm": 10.0,
+  "t_mm": 0.2,
+  "at": [
+   "tack",
+   "clew",
+   "head"
+  ],
+  "print_only": true,
+  "mass_g": 0.04
+ }
+}
