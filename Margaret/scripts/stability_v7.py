@@ -9,7 +9,7 @@ from mathutils.bvhtree import BVHTree
 
 OUT = os.environ["MARGARET_OUT"]
 ST = json.load(open(os.path.join(OUT, "stats.json")))
-PARTS = list(ST["parts"].keys())
+PARTS = [k for k in ST["parts"] if k not in ST.get("display_only_parts", [])]   # furler stays ashore
 RHO_PLA, RHO_W, RHO_AIR, G0 = 1.24, 0.998, 1.2, 9.81
 
 
@@ -46,6 +46,7 @@ SLICE = os.environ.get("SLICE_MASS")            # mass.json from gcode_mass.py: 
 if SLICE:
     GROUPS = {"Hull_lower": ["Lower_blue", "Lower_white", "Lower_ink"],
               "Hull_upper": ["Upper_white", "Upper_ink", "Upper_teak", "Window_ink"],
+              "Mast": ["Mast", "Shrouds"], "Furler": ["Furler", "Furler_ink"],
               "Rudder": ["Rudder", "Rudder_ink"], "Wheel_Port": ["Wheel_Port", "WheelSpokes_Port"],
               "Wheel_Starboard": ["Wheel_Starboard", "WheelSpokes_Starboard"]}
     for obj, d in json.load(open(SLICE))["objects"].items():
@@ -67,10 +68,9 @@ def sail_geom(luff, foot):
 extras = []
 area_full, ce_full = sail_geom(*SAILS["full"])
 extras.append(("paper sail 80 g/m2 (full)", area_full*0.008, ce_full))
-extras.append(("thread rig + lashings", 0.25, Vector((10.0, 0.0, 110.0))))
+extras.append(("sail ties (printed rig, paper main)", 0.05, Vector((-15.0, 0.0, 110.0))))
 extras.append(("deck seam CA/epoxy", 0.8, Vector((-5.0, 0.0, 2.5))))
 extras.append(("bulb joint + shot glue", 0.4, Vector((ST["bulb"]["x_center"], 0.0, -47.0))))
-extras.append(("furled genoa paper roll", 0.15, Vector((60.0, 0.0, 90.0))))
 
 env = load("_HydroEnvelope")
 bmesh.ops.triangulate(env, faces=list(env.faces))

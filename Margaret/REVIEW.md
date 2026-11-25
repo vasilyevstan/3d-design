@@ -543,3 +543,49 @@ gap to the fin and bulb 5.0 mm at every height (3D minimum 4.91 mm); min notch c
 0.42 aft / 0.94 fore; notch floor 1.3 mm below the keel; lift-off 0 hits at every step; slice 44 m 47 s / 20.84 g,
 no supports. Calculated tipping (full lead / no lead / display sail): nose-up 47.8 / 40.3 / 43.6°, assembly sideways
 34.1 / 29.6 / 30.7°, forward 43.8 / 37.7 / 40.1° (upright wall: 39.4 / 33.3 / 35.8°), aft 50.1 / 46.0 / 46.5°.
+
+## Step 10 — swan-neck stand, printed rig, sail markings, separate-looking anchor (v7g)
+
+User: "I was thinking of that kind of a stand [an airplane-model stand: low base, one curved neck] but without a pin
+that would go into the model, it should still hold it and the stand must be way lighter and simpler. If we have sails
+that we print they should look like real sails and have markings — numbers and codes? Anchor looks like it is a part
+of the body of a boat. It should be part of it but look like it is a separate entity. What about the rigging? If we
+have it — it should be printable or not to have it at all."
+
+The same three reviewers (GPT-6.2-sol, Opus 5.5, Grok 4.7) got one brief covering all four topics. Their decisions were
+synthesised, built as v7g, and the built result went back to all three for a second, challenge/defend round.
+
+**Round 1 — design decisions**
+
+| Topic | Decision | Rejected / why |
+|---|---|---|
+| Stand | One neck rising **ahead** of the bulb, a fork under the hull: two pads follow the hull bottom either side of the fin and carry her; the fin sits in the slot with 0.4 mm per side; a low saddle under the bulb tail stops her sliding aft; thin bevelled oval base | Grok's aft neck (as in the reference photo): it must arc ~50 mm forward over the bulb while rising ~45 mm, a > 60° overhang. Friction-only hold (all three). GPT's separate keeper (an extra part). A sill on the cheek tops (it would cut into the hull) |
+| Rig | Print it: mast + spreaders + cap and lower shrouds as one flat frame, navy, feet dropping into funnel pockets in deck chainplate blocks. A printed furled genoa (display only) hooks over the masthead and drops into a stemhead pocket. Thread holes removed | Backstay (all three): a split Y does not fit the plate, and the masthead is too thin for a clip. A thread rig (the user asked for printable or none) |
+| Markings | Sail number **MGT 43** (code for Margaret, not a country), 6.8 mm capitals = RRS 450 mm at 1:66, one set per face, starboard higher; a symmetric two-wave insignia at the head; two reef rows. Same marks on the paper PDF. `SAIL_CODE` / `SAIL_NO` override | Grok's full-thickness number in one place (reads backwards from one side). Telltales, draft stripes, sailmaker logo (clutter at 1:66). A display genoa (the furler is the genoa) |
+| Anchor | Real daylight: a 1.0 mm shank between the cheeks with 0.65 mm each side; it touches only the roller and a deck chock via a D-ring shackle; the delta fluke hangs off the stem with a shadow gap and touches only at a toe pad (which starts its print); the crown stands proud | A chain (below the feature floor, and it would collide with the furler foot) |
+
+**Built (v7g).**
+- `stand_neck.py` (new) builds the stand from the boat's own geometry and stops if any gate fails: fin-slot and saddle clearances, a lift-off path checked at 615,839 vertex positions, and overhangs ≤ 50°.
+- `build_v7.py` adds the shroud frame (1.0 × 0.6 mm strips on the mast's aft print face, one part with the mast), the chainplate blocks and pockets, the stemhead block, the furler and the new anchor. `check_v7.py` measures the furler hook, the drum tab and the shroud feet.
+- `sail_marks.py` (new) is shared by `display_sail.py` (navy inlay on the port bed face, 0.16 mm navy relief on starboard, full-thickness insignia) and `presentation_v7.py` (paper PDF).
+- Hydro and stability re-run with the frame on board and the furler ashore.
+
+**Round 2 — challenge/defend on the built result**
+
+| Reviewer | Challenge | Defence / decision |
+|---|---|---|
+| All three | Furler hook clearance 0.126 mm measured (0.15 nominal) between two separately printed flat parts is an interference fit; the 1.0 mm hook stock would crack | **Accepted (must-fix).** Targets: GPT/Opus ≥ 0.25–0.30, Grok ≈ 0.35 and ≤ 0.45 so it still stays on. `HOOK_CLR` 0.15 → 0.375: **0.358 mm measured** |
+| Opus 5.5 | Shroud foot to chainplate pocket only 0.155 mm | Accepted: pocket seat +0.1 mm in x, **0.207 mm measured** |
+| Grok 4.7 (must-fix), GPT / Opus (nice) | Cut the fork cheeks back so ~8 mm of the fin's leading edge shows below the hull | Challenged by measurement: from the pad lip (x −9.0, z −13.4) to the fin leading edge (x ≈ +5, z ≈ −20) is a **65° overhang** against the 50° rule (stand max 48°). Options put back: (a) keep, (b) a 50° taper that gains ~2 mm and spends the last 2° of margin, (c) shorter pads with G behind them and a zero-gap seat on the glued bulb. **Opus and Grok both chose (a) and withdrew the item**: the hidden fin root is the price of a support-free stand |
+| Opus 5.5 / GPT-6.2-sol | A white seam runs through the starboard "43" | Accepted: seams and relief stop 0.6 mm short of each number line (a seam-free panel like a sail-number patch) |
+| Opus 5.5 | The views show a blank paper main, so the markings are invisible on the main sheet | Accepted: the paper-sail preview carries the marks (render-only, not printed) |
+| Grok 4.7 | The 0.16 mm starboard relief may print faint | Deferred to the proof print: go to 0.24 mm (one more layer) if it is faint; noted in the README |
+| GPT-6.2-sol | Check the first anchor-fluke layers in the slice | Defended on geometry: the fluke starts on its toe pad on the stem; Opus and Grok judged it printable |
+| All three | Stand load path, neck stress (≈ 0.6–2 MPa against ≥ 15 MPa for PLA), base thickness, saddle (not a pin), marking layout, anchor separation | Defended, no change. The round-1 T3 note had the paper's mirrored side the wrong way round; the build (port lower and normal, starboard higher and mirrored on the paper) is the one all three confirmed |
+
+**As built (v7g).**
+- **Boat plate:** 10 parts, 19 colour volumes; 13 h 06 min model time; 209.0 g filament (80.7 / 43.4 / 55.9 / 29.0 g).
+- **Mass and float:** 47.0 g printed, 46.4 g on board (the 0.6 g furler stays ashore); 98 balls (15.7 g), all-up 63.9 g. GM 18.7 mm (v7f 19.1); GZ 3.2 / 6.0 / 8.2 mm at 10 / 20 / 30°; AVS 140°.
+- **Fits:** furler hook 0.358 mm, shroud feet 0.207 mm, furler drum tab 0.2 mm; no overlaps.
+- **Stand:** 74 × 60 × 48 mm, 8.67 cm³, no supports (max overhang 48°); 29 m 28 s, 10.1 g (the raked-wall stand was 44 m 47 s, 20.84 g). G is 5.3 / 7.1 / 5.4 mm inside the aft end of the pads; the assembly tips sideways at 32 / 27 / 29° and forward at 36 / 29 / 32° (full lead / no lead / display sail).
+- **Display sail:** 4.53 g, 0 non-manifold edges, 0 mm³ white/navy overlap; 20 m 5 s.

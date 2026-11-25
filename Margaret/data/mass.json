@@ -9,17 +9,25 @@
    }
   },
   "Hull_upper": {
-   "total_g": 25.76,
+   "total_g": 25.85,
    "by_tool": {
-    "1": 21.69,
+    "1": 21.78,
     "3": 1.32,
     "4": 2.75
    }
   },
   "Mast": {
-   "total_g": 1.87,
+   "total_g": 2.31,
    "by_tool": {
-    "1": 1.87
+    "1": 1.85,
+    "3": 0.46
+   }
+  },
+  "Furler": {
+   "total_g": 0.58,
+   "by_tool": {
+    "1": 0.57,
+    "3": 0.01
    }
   },
   "Boom": {
@@ -39,7 +47,7 @@
    "total_g": 2.21,
    "by_tool": {
     "1": 0.06,
-    "2": 2.16
+    "2": 2.15
    }
   },
   "Rudder": {
@@ -66,10 +74,10 @@
   }
  },
  "off_board": {
-  "Support interface": 5.33,
-  "Support": 34.03,
-  "Support transition": 1.6,
+  "Support interface": 5.36,
+  "Support": 34.09,
+  "Support transition": 1.61,
   "Prime tower": 16.36
  },
- "on_board_g": 45.9
+ "on_board_g": 47.02
 }

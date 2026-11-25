@@ -1,6 +1,6 @@
 """Margaret v7: views sheet, afloat sheet, paper-sail rigging sheet (PNGs) and 1:1 paper-sail templates (PDF)."""
 from pathlib import Path
-import json, math, os
+import json, math, os, sys
 from PIL import Image, ImageDraw, ImageFont
 
 W = Path(os.environ["MARGARET_WORK"])        # present_v7 renders (+ float/ subdir from float_v7)
@@ -56,7 +56,7 @@ spec = ("LOA 200.0 mm  /  beam 63.4 mm  /  draft 55.5 mm  /  masthead %.0f mm ab
         % (ST["rig"]["mast_top_z"], sails["full"]["area_cm2"], sails["medium"]["area_cm2"], sails["start"]["area_cm2"],
            HY["mass_g"]["lead"], HY["mass_g"]["lead_balls"], SB["lead_capacity_balls_discrete"], HY["mass_g"]["total"]))
 d.text((28, H - 76), spec, font=font(18), fill=navy)
-foot = "Blue underwater hull  /  white topsides and deck  /  navy trim  /  teak decks  /  thread rig and paper sails are not printed"
+foot = "Blue underwater hull  /  white topsides and deck  /  navy trim  /  teak decks  /  printed shroud frame  /  paper sails to sail"
 if SLICE:
     foot += "  /  slice %s, %.0f g PLA" % (SLICE["time"], SLICE["grams"])
 d.text((28, H - 42), foot, font=font(16), fill=muted)
@@ -82,6 +82,22 @@ def label(x, y, s, sz=9, bold=False):
     s = s.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
     assert all(ord(c) < 128 for c in s), s
     cmd.append("BT /%s %g Tf %.4f %.4f Td (%s) Tj ET" % ("B" if bold else "R", sz, x * PT, (297 - y) * PT, s))
+NAVY_RGB = "0.08 0.18 0.26"
+
+
+def fill(pts, rgb=NAVY_RGB):
+    cmd.append("q %s rg %s h f Q" % (rgb, " ".join("%.4f %.4f %s" % (x * PT, (297 - y) * PT, "m" if i == 0 else "l")
+                                                   for i, (x, y) in enumerate(pts))))
+
+
+def ntext(x, y, s, cap, mirror=False, rgb=NAVY_RGB):
+    """Helvetica-Bold, cap height `cap` mm, centred on x, baseline y (mm, top-left origin); mirrored reads right-to-left."""
+    sz = cap / sail_marks.FONT_CAP_EM * PT
+    w = sail_marks.text_width(s, cap)
+    x0 = x + w / 2 if mirror else x - w / 2
+    cmd.append("q %s rg BT /B 1 Tf %.4f 0 0 %.4f %.4f %.4f Tm (%s) Tj ET Q" % (rgb, -sz if mirror else sz, sz, x0 * PT, (297 - y) * PT, s))
+
+
 def circle(x, y, r=0.6, w=0.18):
     p = [(x + r * math.cos(t * math.tau / 28), y + r * math.sin(t * math.tau / 28)) for t in range(28)]
     poly(p, w)
@@ -98,6 +114,8 @@ AVOID = ST["luff_tie_z_avoid"]
 HOUNDS_Z = ST["rig"]["hounds_z"]
 TAB_W, TAB_H = 4.5, 5.0
 TABLING, SEAM_STEP = 1.2, 24.0          # same cloth layout as the printed display sail (display_sail.py)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sail_marks                       # same number / insignia / reef layout as the printed display sail
 
 
 def inset2(poly, d):
@@ -174,6 +192,25 @@ def cloth(x0, y0, L, F):
     gline(*P((pl, 0.0)), *P((0.0, pl)))
     gline(*P((F - pl, 0.0)), *P((F + dl[0] * pl, dl[1] * pl)))
     gline(*P((TAB_W, zl - 2.0)), *P((0.0, L - 14.0)))
+    # markings: port set reads normally on this (port) face; the starboard set is printed mirrored and higher so it reads
+    # correctly through the laminated paper from starboard, like the two number sets on a real main
+    mk = sail_marks.layout(L, F)
+    for n in mk["numbers"]:
+        for s, vb in n["lines"]:
+            ntext(x0 + n["uc"], y0 - vb, s, n["cap"], n["mirror"])
+    for b in mk["insignia"]["bands"]:
+        fill([P(q) for q in b])
+    for r in mk["reefs"]:
+        for c in (r["luff"], r["leech"]):
+            ring = sail_marks.circle(c, r["patch_r"], 48)
+            for a, b in zip(ring, ring[1:] + ring[:1]):
+                for p, q in clip_seg(a, b, tab):
+                    gline(*P(p), *P(q), 0.14)
+        for c in r["points"]:
+            ring = sail_marks.circle(c, r["point_r"], 16)
+            for a, b in zip(ring, ring[1:] + ring[:1]):
+                gline(*P(a), *P(b), 0.12)
+    return mk
 
 
 def sail(x0, y0, key, title, clew_note, sub=None):
@@ -182,7 +219,7 @@ def sail(x0, y0, key, title, clew_note, sub=None):
     L, F = s["luff_mm"], s["foot_mm"]
     zl = L * (1 - TAB_W / F)
     pts = [(x0, y0), (x0 + F, y0), (x0 + TAB_W, y0 - zl), (x0 + TAB_W, y0 - L - TAB_H), (x0, y0 - L - TAB_H)]
-    cloth(x0, y0, L, F)
+    mk = cloth(x0, y0, L, F)
     poly(pts, 0.3)
     line(x0, y0 - L, x0 + TAB_W, y0 - L, 0.12, dash=(0.8, 0.8))
     circle(x0 + 2.2, y0 - L - 2.5)                       # head (headboard tab)
@@ -206,7 +243,7 @@ def sail(x0, y0, key, title, clew_note, sub=None):
             label(x0 - 8.5, ya - 1.2, "spreader", 5)
     # labels sit BELOW the foot, outside the cut line, so the cut sail carries only the grey cloth detail
     label(x0 - 0.5, y0 + 14, "%s  %.1f cm2" % (title, s["area_cm2"]) + ("  -  " + sub if sub else ""), 9, True)
-    label(x0 - 0.5, y0 + 18.5, "luff %.1f mm  /  foot %.1f mm  /  grey lines = cloth detail, cut on the black line" % (L, F), 6.5)
+    label(x0 - 0.5, y0 + 18.5, "luff %.1f mm  /  foot %.1f mm  /  grey and navy = sail detail, cut on the black line" % (L, F), 6.5)
     label(x0 + TAB_W + 1.2, y0 - L - 2.0, "HEAD", 6, True)
     label(x0 - 0.5, y0 + 4.5, "TACK", 6, True)
     label(x0 + F - 9, y0 + 4.5, "CLEW", 6, True)
@@ -233,7 +270,10 @@ fit = ["1. Laminate with MATTE clear tape on both faces (keeps the grey seams)."
        "6. Clew: tie down to the matching boom hole; snug, not tight.",
        "7. Sheet: tie a thread to the boom sheet hole, run it down through",
        "    the coachroof sheet eye, set the boom ~15 deg off centre, tie off.",
-       "Never use the paper to hold the mast up - the thread stays do that."]
+       "The printed shroud frame holds the mast; the paper only drives.",
+       "",
+       "Markings: %s %s reads from port; the mirrored, higher set reads" % (sail_marks.CODE, sail_marks.NUMBER),
+       "    from starboard through the taped paper, as on a real main."]
 for i, t in enumerate(fit):
     label(tx, 51 + 5.2 * i, t, 7.2)
 scale_bar(287)
@@ -242,15 +282,18 @@ new_page()
 label(14, 16, "Margaret", 22, True)
 label(14, 23.5, "PAPER MAINSAILS  /  1:1 CUTTING TEMPLATE  /  PAGE 2 OF 2", 9, True)
 ties_med = sail(22, 168, "medium", "MEDIUM", "clew -> 2nd hole from the boom end (58 mm aft of mast)")
-# Optional furled-genoa strip (cosmetic), rolled round the forestay thread.
-gl = ST["furled_genoa"]["length_mm"]
-gx, gy = 178, 40
-poly([(gx, gy), (gx + 3.0, gy), (gx + 18.0, gy + gl), (gx, gy + gl)], 0.25)
-label(112, gy + 6, "FURLED GENOA (cosmetic, optional)", 7, True)
-for i, t in enumerate(["Roll tightly round the forestay thread,", "starting at the straight edge; glue the",
-                       "last turn. Bottom (wide) end starts 8 mm", "above the bow padeye. Not a working sail.", "Strip shown at right ->"]):
-    label(112, gy + 11 + 4.2 * i, t, 6.5)
-label(gx + 1, gy - 2, "TOP", 6, True); label(gx + 1, gy + gl + 5, "BOTTOM", 6, True)
+gy = 40
+label(100, gy + 6, "Sail markings (same as the printed display sail)", 9, True)
+for i, t in enumerate(["%s %s  -  sail number: code over number, 6.8 mm capitals on the FULL" % (sail_marks.CODE, sail_marks.NUMBER),
+                       "    sail (450 mm at 1:66), scaled down on START and MEDIUM.",
+                       "Port set lower and reading normally; starboard set higher and printed",
+                       "    mirrored, so each reads correctly from its own side.",
+                       "Two waves near the head  -  Margaret's insignia, symmetric.",
+                       "Grey circles  -  two reef rows: cringle patches at luff and leech,",
+                       "    reef points between. Cosmetic: the paper is not reefed.",
+                       "Rig: the printed shroud frame and mast socket hold the mast; the",
+                       "    printed furled genoa is a display piece - leave it off to sail."]):
+    label(100, gy + 12 + 4.6 * i, t, 7)
 label(14, 196, "Which sail?", 11, True)
 st = SB["sails"]
 rows = [("START", "start", "first trials and any breeze you can feel on your face"),
@@ -329,7 +372,7 @@ fd.rectangle((27, yb, fw - 27, fh - 24), fill="#ffffff")
 u = HY["upright"]; c15 = next(c for c in HY["curve"] if c["phi"] == 15)
 rows = [
     ("Upright, sail up, %d x 3 mm lead (%.1f g)" % (HY["mass_g"]["lead_balls"], HY["mass_g"]["lead"]),
-     "all-up %.1f g = %.1f g printed PLA (sliced) + %.1f g thread/paper/glue + lead.  Waterline sits on the boot stripe:"
+     "all-up %.1f g = %.1f g printed PLA (sliced) + %.1f g paper/ties/glue + lead.  Waterline sits on the boot stripe:"
      % (HY["mass_g"]["total"], HY["mass_g"]["pla_on_board"], HY["mass_g"]["extras"])),
     ("", "the hull sits %.2f mm deeper than designed, trim %.1f deg bow-down (bow %.1f mm deeper) with the lead poured level."
      % (u["sinkage_below_DWL_mm"], u["trim_deg_bow_down"], u["waterline_shift_bow_mm"])),
@@ -408,11 +451,11 @@ for (p, h, t), y in zip(callouts, ys):
     cd.text((tx, y), h, font=font(26, True), fill=navy)
     cd.text((tx, y + 36), t, font=font(21), fill=muted)
 cd.rectangle((tx - 10, 1230, 1870, 1470), fill="#ffffff")
-notes = ["The mast is held up by the THREAD stays (forestay, backstay, shrouds),",
+notes = ["The mast is held up by its socket and the printed shroud frame,",
          "never by the paper. Laminate the paper with clear tape on both faces.",
          "Start with the START sail (%.0f cm2); FULL (%.0f cm2) only below ~1.5 m/s." % (
              sails["start"]["area_cm2"], sails["full"]["area_cm2"]),
-         "The sail (%.1f g) and rig thread are included in the %.0f g float budget." % (
+         "The sail (%.1f g) and its ties are included in the %.0f g float budget." % (
              SB["extras_g"]["paper sail 80 g/m2 (full)"], HY["mass_g"]["total"])]
 for i, t in enumerate(notes):
     cd.text((tx + 8, 1248 + 52 * i), t, font=font(20), fill=navy)
@@ -439,8 +482,7 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     ds_slice = slice_info(DS / "slice-Display_sail" / "times.txt")
     has4 = DJ is not None and (W / "stand-4.png").exists()
     has5 = (W / "stand-5.png").exists()
-    rake = SJ["wall"].get("rake_deg", 0.0)
-    wall_word = ("ONE WALL RAKED %.0f DEG" % rake) if rake else "ONE-WALL"
+    bs, nk, fk, ck, lo = SJ["base"], SJ["neck"], SJ["fork"], SJ["chock"], SJ["lift_off"]
     PH, RH, R5 = 1000, (440 if has4 else 0), (600 if has5 else 0)
     FOOT = 230 if has4 else 196
     SH = HEAD + 20 + PH + 20 + (R5 + 20 if has5 else 0) + (RH + 20 if has4 else 0) + FOOT
@@ -448,19 +490,23 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     sd = ImageDraw.Draw(ss)
     sd.rectangle((0, 0, 1800, HEAD), fill=navy)
     sd.text((38, 19), "Margaret", font=font(55, True), fill="#f5f4e9")
-    sd.text((42, 89), wall_word + " TABLE STAND  /  SEPARATE ONE-COLOUR PRINT  /  NO GLUE, NO SUPPORTS"
-            + ("  /  OPTIONAL PRINTED DISPLAY SAIL" if has4 else ""), font=font(19), fill="#c5d5d7")
+    sd.text((42, 89), "SWAN-NECK TABLE STAND  /  SEPARATE ONE-COLOUR PRINT  /  NO PINS, NO GLUE, NO SUPPORTS"
+            + ("  /  OPTIONAL TWO-COLOUR DISPLAY SAIL" if has4 else ""), font=font(19), fill="#c5d5d7")
     sd.text((1760, 57), "DISPLAY STAND  /  " + TAG, anchor="rm", font=font(20, True), fill=sand)
     y5 = HEAD + 20 + PH + 20
     y2 = y5 + (R5 + 20 if has5 else 0)
     panels = [("On the stand" + (" (printed display sail)" if has4 else ""), "stand-1.png", (27, HEAD + 20, 27 + 700, HEAD + 20 + PH)),
-              ("One wall holds the hull; the keel stands in a shallow pocket", "stand-2.png", (747, HEAD + 20, 1773, HEAD + 20 + 490)),
-              ("Stand alone: base plank + one %swall" % ("raked " if rake else ""), "stand-3.png", (747, HEAD + 20 + 510, 1773, HEAD + 20 + PH))]
+              ("Fork pads under the hull either side of the keel; saddle under the bulb tail", "stand-2.png",
+               (747, HEAD + 20, 1773, HEAD + 20 + 490)),
+              ("Stand alone: thin oval base + one swan neck, nothing enters the model", "stand-3.png",
+               (747, HEAD + 20 + 510, 1773, HEAD + 20 + PH))]
     if has5:
-        panels.append(("Port profile: the wall leans %.0f deg forward, parallel to the fin's leading edge; nothing touches the fin or bulb" % rake
-                       if rake else "Port profile: the wall stands just ahead of the bulb nose", "stand-5.png", (27, y5, 1773, y5 + R5)))
+        panels.append(("Port profile: the neck leans %.0f deg up to the fork and stays %.1f mm clear of the bulb nose"
+                       % (nk["lean_deg"], nk["gap_to_bulb_nose_mm"]), "stand-5.png", (27, y5, 1773, y5 + R5)))
     if has4:
-        panels.append(("Optional printed display sail: tabling, cross-cut seams, battens, corner patches (relief on one face)",
+        panels.append(("Printed display sail: sail number %s %s, wave insignia, reef points, seams, battens (navy second colour)"
+                       % (DJ["markings"]["code"], DJ["markings"]["number"]) if DJ.get("markings") else
+                       "Optional printed display sail: tabling, cross-cut seams, battens, corner patches (relief on one face)",
                        "stand-4.png", (27, y2, 1773, y2 + RH)))
     for i, (title, fn, (x, y, r, b)) in enumerate(panels):
         sd.rectangle((x, y, r, b), fill="#ffffff")
@@ -468,30 +514,33 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
         sd.rectangle((x, b - 54, r, b), fill=paper)
         sd.text((x + 15, b - 41), "0%d" % (i + 1), font=font(18, True), fill=muted)
         sd.text((x + 58, b - 46), title, font=font(24, True), fill=navy)
-    c, wl, pk, cs = SJ["cradles"][0], SJ["wall"], SJ["pocket"], SJ["stability"]["cases"]
+    cs = SJ["stability"]["cases"]
     full = cs["sailing trim (full lead, paper sail)"]; nol = cs["no lead"]
     dsc = cs.get("full lead, printed display sail")
     sx, sy, sz = SJ["size_mm"]
-    tip = lambda k: "/".join("%.0f" % q[k] for q in (full, nol) + ((dsc,) if dsc else ()))
+    qs = (full, nol) + ((dsc,) if dsc else ())
+    tipj = lambda k: "/".join("%.0f" % q["assembly_tip_deg"][k] for q in qs)
     lines = [
-        "Stand %.0f x %.0f x %.1f mm  /  base plank + ONE %.0f mm wall%s  /  navy PLA, upright, 15%% infill, 3 walls, no supports"
-        % (sx, sy, sz, wl["thickness_mm"], (" raked %.1f deg" % rake) if rake else "") + ("  /  slice %s, %.1f g" % st_slice if st_slice else ""),
-        "She stands on her keel: the bulb's printed flat sits in a %.1f mm deep locating pocket (%.1f mm clearance)."
-        % (pk["depth_mm"], pk["clearance_mm"]),
-        "The wall notch follows the hull section (min %.2f mm) and its floor is %.1f mm below the keel, so the keel carries the weight"
-        " and the wall only stops roll and nose-down%s." % (c["min_clearance_mm"], c.get("floor_gap_to_keel_mm", 0.0),
-                                                     (" (it stays %.1f mm ahead of the fin and bulb)" % wl["gap_to_bulb_nose_mm"]) if rake else ""),
-        "Calculated, not yet measured (full lead / no lead%s): she rocks off nose-up only past %s deg; the whole stand tips sideways at %s deg"
-        " and forward at %s deg." % (" / display sail" if dsc else "", tip("nose_up_tip_deg"),
-                                     "/".join("%.0f" % q["assembly_tip_deg"]["sideways"] for q in (full, nol) + ((dsc,) if dsc else ())),
-                                     "/".join("%.0f" % q["assembly_tip_deg"]["forward"] for q in (full, nol) + ((dsc,) if dsc else ()))),
-        "Lower her straight down, bulb into the pocket; lift straight up. Tape or glue the bulb on first. After printing, check the angles"
-        " on a tilted board.",
+        "Stand %.0f x %.0f x %.0f mm  /  %.1f mm oval base + one swan neck + fork  /  navy PLA, upright, 15%% infill, 3 walls, no supports"
+        % (sx, sy, sz, bs["thickness_mm"]) + ("  /  slice %s, %.1f g" % st_slice if st_slice else ""),
+        "No pins, no glue: the fork's two pads follow the hull bottom either side of the keel (%.0f mm long, zero gap) and carry her;"
+        " the keel root sits in the fork slot with %.1f mm per side, so she cannot roll." % (fk["pads_x"][1] - fk["pads_x"][0],
+                                                                                         fk["slot_clearance_mm"]),
+        "A low saddle under the bulb tail (%.1f mm clear) stops her sliding aft; the fork's closed front stops her going forward."
+        % ck["clearance_mm"],
+        "To take her off: %s (checked: %d vertex positions, no contact). To put her on: the reverse."
+        % (lo["path"], lo["vertex_checks"]),
+        "Calculated, not yet measured (full lead / no lead%s): G is %s mm inside the pads; the whole assembly tips at %s deg sideways,"
+        " %s deg forward." % (" / display sail" if dsc else "", "/".join("%.0f" % q["G_margin_to_pads_aft_mm"] for q in qs),
+                              tipj("sideways"), tipj("forward")),
     ]
     if has4:
-        lines.append("Display sail: white PLA %.2f mm + %.2f/%.2f mm relief, %.1f g%s, same outline and holes as the FULL paper sail, ties on with the same"
-                     " thread. Display only (about 8x the paper sail): sail on the water with paper."
-                     % (DJ["thickness_mm"], DJ["relief_mm"], DJ["batten_relief_mm"], DJ["mass_g"],
+        mk = DJ.get("markings")
+        lines.append("Display sail: white PLA %.2f mm, %.1f g%s%s; same outline and holes as the FULL paper sail, tied on with the same thread."
+                     " Display only: sail on the water with paper."
+                     % (DJ["thickness_mm"], DJ["mass_g"],
+                        (", navy %s %s inlaid on port, relief on starboard" % (mk["code"], mk["number"])) if mk else
+                        (", %.2f/%.2f mm relief" % (DJ["relief_mm"], DJ["batten_relief_mm"])),
                         (", slice %s" % ds_slice[0]) if ds_slice else ""))
     for k, t in enumerate(lines):
         sd.text((28, SH - FOOT + 22 + k * 34), t, font=font(19 if k == 0 else 17, k == 0), fill=navy if k == 0 else muted)

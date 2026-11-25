@@ -17,7 +17,10 @@ COMPONENTS = {
     "Hull_lower": ([("Lower_blue", BLUE), ("Lower_white", WHITE), ("Lower_ink", INK)], R(180, "X"), (109.0, 42.0)),
     "Hull_upper": ([("Upper_white", WHITE), ("Upper_ink", INK), ("Window_ink", INK), ("Upper_teak", TEAK)],
                    Matrix.Identity(4), (109.0, 113.0)),
-    "Mast": ([("Mast", WHITE)], R(-90, "Y"), (128.0, 236.0)),
+    # mast prints on its flat aft face; the navy shroud frame lies on the bed in that same plane
+    "Mast": ([("Mast", WHITE), ("Shrouds", INK)], R(-90, "Y"), (128.0, 235.0)),
+    # display furler (stays ashore when sailing): flat face y=-0.6 down, turned along the free band
+    "Furler": ([("Furler", WHITE), ("Furler_ink", INK)], ("scanZ", R(90, "X"), 95.0, 118.0), (128.0, 154.0)),
     "Boom": ([("Boom", WHITE)], Matrix.Identity(4), (60.0, 204.0)),
     "Fin_cap": ([("Fin_cap", BLUE)], Matrix.Identity(4), (39.0, 172.0)),
     "Ballast_cup": ([("Ballast_cup", BLUE)], Matrix.Identity(4), (109.0, 172.0)),
@@ -41,11 +44,28 @@ def tris_of(name):
     return out
 
 
+def scan_z(tris, base, a0, a1):
+    """Turn about Z (after base) to the angle with the smallest y-extent: long display parts lie along x."""
+    pts = [base @ p for t in tris for p in t]
+    best = None
+    for k in range(int((a1-a0)*4)+1):
+        a = a0+k*0.25
+        m = R(a, "Z")
+        ys = [(m @ p).y for p in pts]
+        if best is None or max(ys)-min(ys) < best[0]:
+            best = (max(ys)-min(ys), a)
+    print("SCANZ angle", best[1], "y extent", round(best[0], 2))
+    return R(best[1], "Z") @ base
+
+
 recipe, layout = [], {}
 for idx, (comp, (members, rot, centre)) in enumerate(COMPONENTS.items(), 1):
     data = {}
-    for part, fil in members:
-        data.setdefault(fil, []).extend(tuple(rot @ p for p in t) for t in tris_of(part))
+    raw = [(fil, tris_of(part)) for part, fil in members]
+    if isinstance(rot, tuple):
+        rot = scan_z([t for _, ts in raw for t in ts], *rot[1:])
+    for fil, ts in raw:
+        data.setdefault(fil, []).extend(tuple(rot @ p for p in t) for t in ts)
     pts = [p for ts in data.values() for t in ts for p in t]
     lo = Vector([min(p[i] for p in pts) for i in range(3)])
     hi = Vector([max(p[i] for p in pts) for i in range(3)])

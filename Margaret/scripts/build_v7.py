@@ -856,27 +856,73 @@ for side in (1, -1):
 add.append(coachroof("CR_outer", 0.0, 2.5))
 roof_mast = pc(RT, X_MAST)
 add.append(prism("MastCollar", stadium(X_MAST, 0, 7.4, 6.0), "z", roof_mast-1.5, roof_mast+0.8))
-# threadable rig padeyes: forestay at the stemhead, shroud chainplates, split backstay
-PADEYES = [(92.5, 0.0, "x"), (22.0, 18.5, "y"), (22.0, -18.5, "y"),
-           (-82.7, 24.3, "x"), (-82.7, -24.3, "x")]
-PADEYE_HOLES = []
-for i, (x, y, al) in enumerate(PADEYES):
-    z = deck_z(x, y)
-    add.append(padeye("Padeye%d" % i, x, y, z, al))
-    PADEYE_HOLES.append((x, y, z+1.45))
 ZB = deck_z(94.0, 0.0)
+# printed rig (rev 10): no thread padeyes. Chainplate blocks with funnel pockets take the feet of the printed
+# mast + shroud frame; a stemhead block with a pocket on the stay axis takes the foot tab of the printed furler.
+CHAIN_Y, CHAIN_X = 17.6, MAST_XA+0.6           # frame-foot tab centre; the frame lies in x MAST_XA..MAST_XA+0.64
+TAB_W, TAB_L = 1.2, 2.4                        # frame-foot tab section (x and y) and length
+CHAIN_H, CHAIN_BOSS = 1.4, 1.4                 # block height above the deck; solid boss below the deck
+CHAIN_SEAT = (TAB_W+0.4, TAB_W+0.6)            # pocket seat x, y: 0.2 / 0.3 clearance per side (rev10 r2)
+CHAIN_DEPTH = TAB_L+0.1                        # pocket depth below the block top (tab bottom 0.5 above the floor)
+CHAINPLATES = []
+for s in (1, -1):
+    _y = s*CHAIN_Y
+    _z = deck_z(CHAIN_X, _y)
+    add.append(pad("Chainplate%d" % s, CHAIN_X-2.0, CHAIN_X+2.0, _y-2.0, _y+2.0, _z-0.5, _z+CHAIN_H, 0.9, 0.35))
+    CHAINPLATES.append((CHAIN_X, _y, _z, _z+CHAIN_H))
+SH_X, SH_TOP = 90.0, ZB+1.5                    # stemhead block: the furler axis meets its top at (SH_X, SH_TOP)
+add.append(pad("Stemhead", SH_X-1.6, SH_X+1.8, -1.7, 1.7, deck_z(SH_X, 0.0)-0.5, SH_TOP, 0.8, 0.3))
+_dt, _wt = mast_dw(MAST_TOP)
+CAP_TOP, CAP_XA, CAP_XF = MAST_TOP+0.6, MAST_XA, MAST_XA+_dt+0.45
+HOOK_STOCK, HOOK_CLR, HOOK_LEG = 1.0, 0.375, 1.2  # rev10 r2: measured min ~0.35 (reviewers: >=0.25, <=0.45)
+HOOK_B = (CAP_XF+HOOK_CLR+HOOK_STOCK/2, CAP_TOP-1.6)  # the furler's straight run ends here, in front of the cap
+FURL_A = (SH_X, SH_TOP)
+_d = (HOOK_B[0]-FURL_A[0], HOOK_B[1]-FURL_A[1])
+FURL_L = math.hypot(*_d)
+FURL_T = (_d[0]/FURL_L, _d[1]/FURL_L)          # unit axis, stemhead -> masthead
+FURL_N = (FURL_T[1], -FURL_T[0])               # in-plane normal (points forward)
+FURL_Y0 = -0.6                                 # flat (print-bed) face of the furler, y = const
+FTAB_A, FTAB_H, FURL_DRUM_S = 0.55, 1.1, 1.0   # foot tab half-width / thickness; drum bottom 1 mm above the block
+FPOCKET = (FTAB_A+0.2, FURL_Y0-0.2, FURL_Y0+FTAB_H+0.2, 4.0)   # seat half-width, y0, y1, depth along the axis
+
+
+def funnel(name, cx, cy, seat, mouth, z_floor, z_top, flare=0.6):
+    """Vertical pocket: seat (x, y) from the floor to z_top-flare, opening to `mouth` just above z_top."""
+    rings = []
+    for z_, (lx, ly) in ((z_floor, seat), (z_top-flare, seat), (z_top+0.3, mouth)):
+        rings.append([(px, py, z_) for px, py in rrect(cx-lx/2, cx+lx/2, cy-ly/2, cy+ly/2, 0.2, 4)])
+    return rings_solid(name, rings)
+
+
+def axis_solid(name, segs, A=FURL_A, t=FURL_T, n=FURL_N):
+    """Rectangular sections (s, half-width along n, y0, y1) swept along an inclined axis in the x-z plane."""
+    rings = []
+    for s_, a_, y0_, y1_ in segs:
+        cx, cz = A[0]+t[0]*s_, A[1]+t[1]*s_
+        rings.append([(cx+n[0]*u_, yy, cz+n[1]*u_) for u_, yy in ((-a_, y0_), (a_, y0_), (a_, y1_), (-a_, y1_))])
+    return rings_solid(name, rings)
+
+
 BOW_TIP = 99.6
-bow = prism("BowFitting", [(88.5, ZB-0.7), (95.6, ZB-0.7), (95.6, ZB-3.2), (96.3, ZB-3.2),
-                           (BOW_TIP, ZB+0.1), (BOW_TIP, ZB+0.55), (88.5, ZB+0.55)], "y", -1.2, 1.2)
+CHEEK_X1 = 98.3                                # cheeks stop ~1.5 mm aft of the anchor crown
+ROLLER = (97.4, ZB+0.9, 0.72)                  # x, z, r
+# fitting: plank + chin web (|y| <= 1.2), open slot under the roller, white cheeks at |y| 1.15-1.8
+bow = prism("BowFitting", [(88.5, ZB-0.7), (95.6, ZB-0.7), (95.6, ZB-3.2), (96.3, ZB-3.2), (CHEEK_X1, ZB-1.2),
+                           (CHEEK_X1, ZB-0.35), (96.95, ZB-0.35), (96.65, ZB+0.55), (88.5, ZB+0.55)], "y", -1.2, 1.2)
 G.boolean(bow, pad("BowFittingPad", 88.5, 95.0, -1.2, 1.2, ZB-0.7, ZB+0.55, 0.6, 0.3), "UNION")
+_cheek = [(94.0, ZB-0.7), (95.6, ZB-0.7), (95.6, ZB-3.2), (96.3, ZB-3.2), (CHEEK_X1, ZB-1.2)]
+_cheek += [(CHEEK_X1-0.6+0.6*math.cos(math.radians(a_)), ZB+1.0+0.6*math.sin(math.radians(a_))) for a_ in range(0, 91, 15)]
+_cheek += [(94.8, ZB+1.6), (94.0, ZB+0.8)]
 for s_ in (1, -1):
-    G.boolean(bow, prism("RollerCheek", [(96.6, ZB+0.3), (BOW_TIP+0.2, ZB+0.3), (BOW_TIP+0.2, ZB+1.6),
-                                          (97.6, ZB+1.6)], "y", *sorted((s_*0.6, s_*1.2))), "UNION")
-G.boolean(bow, rod_y("BowRoller", BOW_TIP-0.6, -0.6, 0.6, ZB+0.9, 0.6, 28), "UNION")
+    G.boolean(bow, prism("RollerCheek", _cheek, "y", *sorted((s_*1.15, s_*1.8))), "UNION")
+G.boolean(bow, rod_y("BowRoller", ROLLER[0], -1.3, 1.3, ROLLER[1], ROLLER[2], 28), "UNION")
+G.boolean(bow, pad("AnchorChock", 92.75, 93.85, -0.4, 0.4, ZB+0.3, ZB+0.75, 0.2, 0.1), "UNION")
 add.append(bow)
 
-# stowed delta anchor: shank over the roller between the cheeks, crown just ahead of the roller, fluke
-# tucked under the fitting's 45-degree chin with its toe buried in the stem (no loose island to print)
+# stowed delta anchor, a separate-looking navy object: 1.0 mm shank over the roller between the cheeks (0.65 mm
+# daylight each side), resting only on the roller (saddle) and, via its D-ring shackle, on a white deck chock;
+# 0.9 mm air under the shank. The fluke hangs ahead of the 45-degree chin with a shadow gap and touches the stem
+# only with its toe pad (which starts its print); the navy crown stands ~1.5 mm proud of the cheeks.
 from mathutils.bvhtree import BVHTree
 _bvh = BVHTree.FromPolygons([v.co.copy() for v in outer.data.vertices], [tuple(p.vertices) for p in outer.data.polygons])
 
@@ -887,8 +933,9 @@ def stem_x(z):
 
 
 R2 = math.sqrt(0.5)
-ANCHOR_FRONT = BOW_TIP+0.18
-FL_TOP, FL_BOT, FL_W = -0.1, 0.6, 2.5
+FL_OT, FL_OB, FL_RIDGE, FL_W, FL_DIH, FL_U1 = 0.75, 1.55, 0.45, 2.5, 0.3, 2.4
+ANCH_X1 = 99.82
+SHACKLE = (93.3, ZB+1.6, 0.7, 0.3)             # centre x, z, major and minor radius: OD 2.0, hole 0.8
 
 
 def fluke_pt(u, o, y):
@@ -896,38 +943,40 @@ def fluke_pt(u, o, y):
 
 
 ANCHOR_U0 = 0.0
-while ANCHOR_U0 > -4.0:
-    bx, _, bz = fluke_pt(ANCHOR_U0, FL_BOT, 0.0)
+while ANCHOR_U0 > -6.0:
+    bx, _, bz = fluke_pt(ANCHOR_U0, FL_OT, 0.0)
     sx = stem_x(bz)
-    if sx is not None and bx < sx-0.6:
+    if sx is not None and bx < sx-0.45:
         break
-    ANCHOR_U0 -= 0.1
-ANCHOR_U0 -= 0.3
-log("anchor toe u", round(ANCHOR_U0, 2), "stem x at toe", round(stem_x(fluke_pt(ANCHOR_U0, FL_BOT, 0)[2]) or -1, 2),
-    "stem x at fitting chin", round(stem_x(ZB-3.2) or -1, 2))
+    ANCHOR_U0 -= 0.05
+log("anchor toe u", round(ANCHOR_U0, 2), "stem x at toe", round(stem_x(fluke_pt(ANCHOR_U0, FL_OT, 0)[2]) or -1, 2),
+    "stem x at fitting chin", round(stem_x(ZB-3.2) or -1, 2), "fluke length mm", round((FL_U1-ANCHOR_U0)*math.sqrt(2), 2))
 
 
 def anchor(name, g=0.0):
-    sh = prism(name+"Shank", [(94.8-g, ZB+0.35-g), (98.3, ZB+0.35-g), (ANCHOR_FRONT+g, ZB-0.25-g),
-                              (ANCHOR_FRONT+g, ZB+1.9), (99.0, ZB+2.3+g), (97.0, ZB+2.0+g), (95.2, ZB+1.4+g),
-                              (94.8-g, ZB+1.15+g)], "y", -0.65-g, 0.65+g)
-    G.boolean(sh, rod_y(name+"Shackle", 94.8, -0.85-g, 0.85+g, ZB+0.8, 0.45+g, 20), "UNION")
-    u1 = 2.6
+    p_in, p_out = fluke_pt(FL_U1-0.4, FL_OT+0.15, 0.0), fluke_pt(FL_U1-0.4, FL_OB+0.1, 0.0)
+    sh = prism(name+"Shank", [(93.95-g, ZB+1.45-g), (98.5, ZB+1.45-g), (98.8-g, ZB+1.15), (p_in[0]-g, p_in[2]),
+                              (p_out[0], p_out[2]-g), (ANCH_X1+g, ZB+1.5), (99.6+g, ZB+2.1+g), (99.15, ZB+2.4+g),
+                              (96.0, ZB+2.3+g), (94.4, ZB+2.1+g), (93.95-g, ZB+1.8)], "y", -0.5-g, 0.5+g)
+    G.boolean(sh, torus_y(name+"Shackle", SHACKLE[0], 0.0, SHACKLE[1], SHACKLE[2], SHACKLE[3]+g, 32, 12), "UNION")
     rings = []
-    NR = 26
+    NR = 30
+    uM = FL_U1-0.8
     for k in range(NR+1):
-        u = ANCHOR_U0+(u1-ANCHOR_U0)*k/NR
-        w = 0.35+(FL_W-0.35)*(u-ANCHOR_U0)/(u1-ANCHOR_U0)+g
-        wi = min(1.3, 0.55*w)
-        dd = 0.45*max(0.0, w-wi)/(FL_W-1.3)
-        prof = [(-w, FL_TOP-g+dd), (-wi, FL_TOP-g), (wi, FL_TOP-g), (w, FL_TOP-g+dd),
-                (w, FL_BOT+g+dd), (wi, FL_BOT+g), (-wi, FL_BOT+g), (-w, FL_BOT+g+dd)]
-        if k == NR:
-            rings.append([fluke_pt(ANCHOR_FRONT-0.04+g-96.3-o*R2, o, y) for y, o in prof])
-        else:
-            rings.append([fluke_pt(u, o, y) for y, o in prof])
-    fl = rings_solid(name+"Fluke", rings)
-    G.boolean(sh, fl, "UNION")
+        u = ANCHOR_U0+(FL_U1-ANCHOR_U0)*k/NR
+        w = 0.5+(FL_W-0.5)*(u-ANCHOR_U0)/(uM-ANCHOR_U0) if u <= uM else FL_W-(FL_W-1.6)*((u-uM)/(FL_U1-uM))**2
+        w += g
+        t = (u-ANCHOR_U0)/(FL_U1-ANCHOR_U0)
+        rh = max(0.0, FL_RIDGE*min(1.0, t/0.3, (1.0-t)/0.25))
+        rw = min(0.55, 0.8*w)
+        dd = FL_DIH*w/FL_W
+        ot, ob = FL_OT-g, FL_OB+g
+        prof = [(-w, ot-dd), (0.0, ot), (w, ot-dd), (w, ob-dd), (rw, ob-dd*rw/w), (0.55*rw, ob+rh),
+                (-0.55*rw, ob+rh), (-rw, ob-dd*rw/w), (-w, ob-dd)]
+        # grow the end caps too, or the ink tool's caps are coplanar with the anchor's and leave a white skin
+        uu = u-g if k == 0 else (u+g if k == NR else u)
+        rings.append([fluke_pt(uu, o, y) for y, o in prof])
+    G.boolean(sh, rings_solid(name+"Fluke", rings), "UNION")
     sh.name = name
     return sh
 
@@ -1110,6 +1159,8 @@ for s in (1, -1):
     keep.append(rbox("BenchKeep%d" % s, -64.5, -38.9, *((8.7, 18.8) if s > 0 else (-18.8, -8.7)),
                      BENCH_Z-0.9, 80, 1.2))
 keep.append(prism("MastTube", mast_section(MAST_D0, MAST_W0, 1.15), "z", -30, 40))
+for cx_, cy_, cz_, ctop_ in CHAINPLATES:           # solid bosses under the chainplate pockets
+    keep.append(rbox("ChainBoss", cx_-2.2, cx_+2.2, cy_-2.2, cy_+2.2, ctop_-CHAIN_DEPTH-0.9, 80, 0.8))
 keep.append(rbox("KeelBox", X_FIN-10.4, X_FIN+10.4, -3.0, 3.0, -30, -5.6, 1.0))
 keep.append(lathe("RudTube", X_RUD, 0, [(1.925, -30), (1.925, 9.5)]))
 LUGS = []
@@ -1140,6 +1191,11 @@ for s in (1, -1):
 for lx, ly in LUGS:
     bores.append(lathe("LugHole", lx, ly, [(1.075, SEAM-3.5), (1.075, SEAM-0.4), (1.475, SEAM), (1.075, SEAM+0.4), (1.075, SEAM+3.5)], 32))
 bores += window_solids("WinCut", -0.8, 0.95)
+for cx_, cy_, cz_, ctop_ in CHAINPLATES:
+    bores.append(funnel("ChainPocket", cx_, cy_, CHAIN_SEAT, (2.2, 2.4), ctop_-CHAIN_DEPTH, ctop_))
+_fa, _fy0, _fy1, _fd = FPOCKET
+bores.append(axis_solid("FurlerPocket", [(-_fd, _fa, _fy0, _fy1), (-0.5, _fa, _fy0, _fy1),
+                                         (0.3, _fa+0.3, _fy0-0.2, _fy1+0.2)]))
 bool_many(shell, bores, "DIFFERENCE")
 stats(shell)
 
@@ -1296,9 +1352,8 @@ excl = [prism("TeakExclCR", cr_poly, "z", -10.0, 60.0),
         rbox("TeakExclHatch", HATCH_FD[0]-HATCH_FD[2]/2-0.6, HATCH_FD[0]+HATCH_FD[2]/2+0.6,
              -HATCH_FD[3]/2-0.6, HATCH_FD[3]/2+0.6, -10.0, 60.0, 1.8),
         rbox("TeakExclLid", LID[0]-0.6, LID[1]+0.6, LID[2]-0.6, LID[3]+0.6, -10.0, 60.0, 1.6)]
-for x, y, al in PADEYES[1:]:
-    hx, hy = (2.4, 1.85) if al == "x" else (1.85, 2.4)
-    excl.append(rbox("TeakExclPadeye", x-hx, x+hx, y-hy, y+hy, -10.0, 60.0, 0.9))
+for cx_, cy_, cz_, ctop_ in CHAINPLATES:
+    excl.append(rbox("TeakExclChain", cx_-2.4, cx_+2.4, cy_-2.4, cy_+2.4, -10.0, 60.0, 1.1))
 for x, y in CLEATS:
     excl.append(rbox("TeakExclCleat", x-2.6, x+2.6, y-1.4, y+1.4, -10.0, 60.0, 0.9))
 bool_many(deck_teak, excl, "DIFFERENCE")
@@ -1434,7 +1489,9 @@ teak = dup(upper, "Upper_teak"); G.boolean(teak, dup(ttool, "tq"), "INTERSECT")
 G.boolean(teak, seam_keep, "DIFFERENCE")
 assert G.mesh_stats(teak)["vol_cm3"] > 1.5, "teak boolean failed"
 white = upper; white.name = "Upper_white"
-G.boolean(white, tool, "DIFFERENCE"); G.boolean(white, ttool, "DIFFERENCE")
+# teak first: in v7g the tool-then-teak order came back as a 2.9 cm3 sliver from the exact solver
+G.boolean(white, ttool, "DIFFERENCE"); G.boolean(white, tool, "DIFFERENCE")
+assert G.mesh_stats(white)["vol_cm3"] > 15.0, "white boolean failed"
 panes = window_solids("Pane", 0.35, 0.95)
 ink_win = panes[0]; bool_many(ink_win, panes[1:], "UNION"); ink_win.name = "Window_ink"
 for o in (ink_up, teak, white, ink_win):
@@ -1501,22 +1558,114 @@ mast = rings_solid("MastSpar", mast_rings)
 dt, wt = mast_dw(MAST_TOP)
 G.boolean(mast, pad("MastCap", MAST_XA, MAST_XA+dt+0.45, -(wt/2+0.35), wt/2+0.35, MAST_TOP-5.0, MAST_TOP+0.6, 0.45, 0.35), "UNION")
 G.boolean(mast, rbox("Gooseneck", MAST_XA, MAST_XA+d43+0.8, -(w43/2+1.2), w43/2+1.2, GOOSE_Z-1.4, GOOSE_Z, 0.6), "UNION")
-SPREADERS = [(95.0, 16.2), (155.0, 10.5)]
-SPREADER_TIPS = []
-for i, (zsp, half) in enumerate(SPREADERS):
-    bar = prism_x("Spreader%d" % i, rrect(-half, half, zsp-0.55, zsp+0.55, 0.35), MAST_XA, MAST_XA+1.25)
-    for s in (1, -1):
-        G.boolean(bar, prism_x("SpreaderTip", rrect(min(s*(half-2.5), s*half), max(s*(half-2.5), s*half),
-                                                   zsp-1.3, zsp+1.3, 0.6), MAST_XA, MAST_XA+1.25), "UNION")
-        G.boolean(bar, rod_x("SpreaderHole", MAST_XA-1, MAST_XA+3, s*(half-1.15), zsp, 0.5, 20), "DIFFERENCE")
-        SPREADER_TIPS.append((MAST_XA+0.62, s*(half-1.15), zsp))
-    G.boolean(mast, bar, "UNION")
+spar_only = dup(mast, "SparOnly")
+# printed shroud frame (navy, part "Shrouds"): cap shrouds hounds -> spreader tips -> chainplate, lowers from below
+# the lower spreader root; a flat 0.6 mm frame on the mast's aft print face. Tabs at the feet drop into the
+# chainplate pockets; the mast heel bottoms in its socket while the tabs and feet keep clearance.
+SHR_T, SHR_W, FOOT_R, TIP_R = 0.6, 1.0, 1.0, 0.8
+SPREADERS = [(95.0, 17.4), (155.0, 10.5)]
 HOUNDS = (MAST_XA+0.9, MAST_TOP-8.5)
-td = [(HOUNDS[0]+q, HOUNDS[1]+p_) for p_, q in teardrop(0.0, 0.0, 0.4)]
-G.boolean(mast, prism("ShroudHole", td, "y", -3.0, 3.0), "DIFFERENCE")
+SHROUD_FEET, SHROUD_PATHS = [], {}
+
+
+def strip_x(name, pts, w=SHR_W, x0=MAST_XA, x1=MAST_XA+SHR_T, e0=0.0, e1=0.0):
+    """One mitred flat strip along a y-z polyline (a single prism, no internal booleans). e0/e1 extend (+) or
+    shorten (-) the open ends so that strips meeting at a node never share an end face."""
+    P = [list(p) for p in pts]
+    for i_, j_, e_ in ((0, 1, e0), (-1, -2, e1)):  # move the end point outward along its own segment by e_
+        L = math.hypot(P[i_][0]-P[j_][0], P[i_][1]-P[j_][1])
+        P[i_] = [P[i_][0]+(P[i_][0]-P[j_][0])/L*e_, P[i_][1]+(P[i_][1]-P[j_][1])/L*e_]
+    nrm = []
+    for (y0, z0), (y1, z1) in zip(P, P[1:]):
+        L = math.hypot(y1-y0, z1-z0); nrm.append((-(z1-z0)/L, (y1-y0)/L))
+    left, right = [], []
+    for k, p in enumerate(P):
+        if k == 0 or k == len(P)-1:
+            n_ = nrm[0] if k == 0 else nrm[-1]
+            m_ = 1.0
+        else:
+            n_ = (nrm[k-1][0]+nrm[k][0], nrm[k-1][1]+nrm[k][1]); L = math.hypot(*n_); n_ = (n_[0]/L, n_[1]/L)
+            m_ = 1.0/max(0.3, n_[0]*nrm[k][0]+n_[1]*nrm[k][1])
+        left.append((p[0]+n_[0]*w/2*m_, p[1]+n_[1]*w/2*m_))
+        right.append((p[0]-n_[0]*w/2*m_, p[1]-n_[1]*w/2*m_))
+    return prism_x(name, left+list(reversed(right)), x0, x1)
+
+
+shrouds = None
+for s in (1, -1):
+    cx_, cy_, cz_, ctop_ = [c for c in CHAINPLATES if c[1]*s > 0][0]
+    foot = (cy_, ctop_+0.3+FOOT_R)
+    SHROUD_FEET.append((MAST_XA+0.6, cy_, foot[1]))
+    cap_ = [(s*0.3, HOUNDS[1]), (s*(SPREADERS[1][1]-0.2), SPREADERS[1][0]),
+            (s*(SPREADERS[0][1]-0.2), SPREADERS[0][0]), foot]
+    low_ = [(s*0.6, SPREADERS[0][0]-1.6), foot]
+    SHROUD_PATHS["port" if s > 0 else "starboard"] = {"cap": cap_, "lower": low_}
+    side = strip_x("CapShroud", cap_, e1=0.3)
+    G.boolean(side, rod_x("ShroudFoot", MAST_XA, MAST_XA+SHR_T, foot[0], foot[1], FOOT_R, 28), "UNION")
+    for (y_, z_) in cap_[1:3]:
+        G.boolean(side, rod_x("SpreaderTipNode", MAST_XA, MAST_XA+SHR_T, y_, z_, TIP_R, 28), "UNION")
+    G.boolean(side, strip_x("LowerShroud", low_, e1=-0.3), "UNION")
+    G.boolean(side, rbox("ShroudTab", MAST_XA, MAST_XA+TAB_W, cy_-TAB_W/2, cy_+TAB_W/2,
+                         ctop_-CHAIN_DEPTH+0.5, foot[1], 0.25, 4), "UNION")
+    if shrouds is None:
+        shrouds = side
+    else:
+        G.boolean(shrouds, side, "UNION")
+G.boolean(shrouds, spar_only, "DIFFERENCE")
+for i, (zsp, half) in enumerate(SPREADERS):
+    G.boolean(mast, prism_x("Spreader%d" % i, rrect(-half, half, zsp-0.55, zsp+0.55, 0.35), MAST_XA, MAST_XA+1.25), "UNION")
 MASTHEAD_HOLE_Z = MAST_TOP-2.2
 G.boolean(mast, rod_x("StayHole", MAST_XA-1, MAST_XA+5, 0, MASTHEAD_HOLE_Z, 0.42, 16), "DIFFERENCE")
-mast.name = "Mast"
+_cut = dup(shrouds, "ShroudCut")
+for v in _cut.data.vertices:                    # drop the cutter's print face below the mast's to avoid coplanar faces
+    if abs(v.co.x-MAST_XA) < 1e-4:
+        v.co.x -= 0.3
+G.boolean(mast, _cut, "DIFFERENCE")
+mast.name = "Mast"; shrouds.name = "Shrouds"
+log("shroud feet", [(round(y, 2), round(z, 2)) for _, y, z in SHROUD_FEET], "chainplates", CHAINPLATES)
+
+# printed furled genoa on a furler (display only): white D-section body on the stay axis, navy drum + foot tab
+# that drops into the stemhead pocket, and an inverted-U hook that hangs over the masthead cap.
+
+
+def furl_ring(s, a, c, n=20):
+    """Truncated ellipse section at axis station s: in-plane half-width a, y semi-axis c, flat face at FURL_Y0."""
+    yc = FURL_Y0+0.75*c
+    cx, cz = FURL_A[0]+FURL_T[0]*s, FURL_A[1]+FURL_T[1]*s
+    ring = []
+    for k in range(n):
+        ph = 2*math.pi*k/n
+        u, yy = a*math.cos(ph), max(FURL_Y0, yc+c*math.sin(ph))
+        ring.append((cx+FURL_N[0]*u, yy, cz+FURL_N[1]*u))
+    return ring
+
+
+DRUM_S0, DRUM_S1, BODY_A = FURL_DRUM_S, FURL_DRUM_S+1.6, 1.1
+drum = rings_solid("FurlerDrum", [furl_ring(DRUM_S0, 1.0, 0.8), furl_ring(DRUM_S0+0.25, 1.3, 1.0),
+                                  furl_ring(DRUM_S1-0.25, 1.3, 1.0), furl_ring(DRUM_S1, 1.0, 0.8)])
+G.boolean(drum, axis_solid("FurlerTab", [(DRUM_S0-3.4, FTAB_A, FURL_Y0, FURL_Y0+FTAB_H),
+                                          (DRUM_S0+0.3, FTAB_A, FURL_Y0, FURL_Y0+FTAB_H)]), "UNION")
+body_rings = []
+NS = 60
+for k in range(NS+1):
+    s_ = DRUM_S1+(FURL_L-DRUM_S1)*k/NS
+    if s_ < 12.0:
+        a_ = 0.55+(BODY_A-0.55)*math.sin(0.5*math.pi*(s_-DRUM_S1)/(12.0-DRUM_S1))
+    else:
+        a_ = BODY_A-(BODY_A-0.55)*((s_-12.0)/(FURL_L-12.0))**1.3
+    body_rings.append(furl_ring(s_, a_, 0.55+0.37*a_/BODY_A))
+furler = rings_solid("FurlerBody", body_rings)
+hx0, hx1 = CAP_XA-HOOK_CLR-HOOK_STOCK, CAP_XF+HOOK_CLR+HOOK_STOCK
+hz1 = CAP_TOP+HOOK_CLR+HOOK_STOCK
+hook = [(hx1, HOOK_B[1]-0.4), (hx1, hz1-0.5)]
+hook += [(hx1-0.5+0.5*math.cos(math.radians(a_)), hz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(15, 91, 15)]
+hook += [(hx0+0.5+0.5*math.cos(math.radians(a_)), hz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(90, 181, 15)]
+hook += [(hx0, CAP_TOP-HOOK_LEG), (hx0+HOOK_STOCK, CAP_TOP-HOOK_LEG), (hx0+HOOK_STOCK, CAP_TOP+HOOK_CLR),
+         (hx1-HOOK_STOCK, CAP_TOP+HOOK_CLR), (hx1-HOOK_STOCK, HOOK_B[1]-0.4)]
+G.boolean(furler, prism("FurlerHook", hook, "y", FURL_Y0, FURL_Y0+HOOK_STOCK), "UNION")
+furler.name = "Furler"; drum.name = "Furler_ink"
+log("furler length", round(FURL_L, 2), "axis", [round(v, 4) for v in FURL_T], "hook x", (round(hx0, 2), round(hx1, 2)),
+    "hook top", round(hz1, 2), "cap", (round(CAP_XA, 2), round(CAP_XF, 2), round(CAP_TOP, 2)))
 log("mast section heel", mast_dw(0.0), "gooseneck", (round(d43, 2), round(w43, 2)), "top", (round(dt, 2), round(wt, 2)))
 
 BOOM_Z0, BOOM_H, BOOM_W = GOOSE_Z+0.05, 2.6, 1.9
@@ -1542,7 +1691,8 @@ wheel_p, spokes_p = helm_wheel("Wheel_Port", WHEEL_X, WHEEL_Y, WHEEL_Z)
 wheel_s, spokes_s = helm_wheel("Wheel_Starboard", WHEEL_X, -WHEEL_Y, WHEEL_Z)
 wheel_p.name, wheel_s.name = "Wheel_Port", "Wheel_Starboard"
 spokes_p.name, spokes_s.name = "WheelSpokes_Port", "WheelSpokes_Starboard"
-parts.update({"Mast": mast, "Boom": boom, "Rudder": rudder, "Rudder_ink": rudder_ink,
+parts.update({"Mast": mast, "Shrouds": shrouds, "Furler": furler, "Furler_ink": drum,
+              "Boom": boom, "Rudder": rudder, "Rudder_ink": rudder_ink,
               "Wheel_Port": wheel_p, "Wheel_Starboard": wheel_s,
               "WheelSpokes_Port": spokes_p, "WheelSpokes_Starboard": spokes_s})
 
@@ -1648,7 +1798,17 @@ json.dump({"parts": tot, "canoe_cm3": vol*SX/1000, "LCB": (LCB-X_CENTER)*SX,
            "rig": {"mast_aft_x": fx(MAST_XA), "mast_heel_z": MAST_HEEL, "mast_top_z": MAST_TOP,
                    "gooseneck_z": GOOSE_Z, "boom_top_z": BOOM_Z0+BOOM_H, "boom_holes_x": {k: fx(v) for k, v in BOOM_HOLES.items()},
                    "masthead_hole_z": MASTHEAD_HOLE_Z, "hounds_z": HOUNDS[1], "spreaders": SPREADERS,
-                   "padeye_holes": [(fx(x), y, z) for x, y, z in PADEYE_HOLES], "sheet_eye": (fx(SHEET_EYE[0]), 0.0, SHEET_EYE[2])},
+                   "shroud_strip_mm": [SHR_T, SHR_W], "shroud_paths_yz": SHROUD_PATHS,
+                   "shroud_feet": [(fx(x), y, z) for x, y, z in SHROUD_FEET],
+                   "chainplates": [{"x": fx(x), "y": y, "deck_z": round(z, 2), "top_z": round(t, 2),
+                                    "pocket_seat": CHAIN_SEAT, "pocket_depth": CHAIN_DEPTH} for x, y, z, t in CHAINPLATES],
+                   "tab_mm": [TAB_W, TAB_W, TAB_L], "sheet_eye": (fx(SHEET_EYE[0]), 0.0, SHEET_EYE[2])},
+           "furler": {"display_only": True, "axis_foot": (fx(FURL_A[0]), 0.0, FURL_A[1]),
+                      "axis_head": (fx(HOOK_B[0]), 0.0, HOOK_B[1]), "length_mm": round(FURL_L*1.0, 2),
+                      "body_max_width_mm": 2*BODY_A, "flat_face_y": FURL_Y0, "drum_s": [DRUM_S0, DRUM_S1],
+                      "foot_tab": [2*FTAB_A, FTAB_H, 3.4], "stemhead_pocket": FPOCKET,
+                      "hook_x": (fx(hx0), fx(hx1)), "hook_top_z": hz1, "hook_clearance": HOOK_CLR},
+           "display_only_parts": ["Furler", "Furler_ink"],
            "wheel": {"x": fx(WHEEL_X), "y": WHEEL_Y, "z": WHEEL_Z, "r": WHEEL_R},
            "rudder_x": fx(X_RUD)}, open(os.path.join(OUT, "stats.json"), "w"), indent=1)
 
@@ -1671,7 +1831,8 @@ def srgb(hexs):
 PRINT_COLOURS = {"white": "#F6F5EE", "blue": "#15499D", "ink": "#173347", "teak": "#BF8A54"}
 PART_COLOUR = {"Lower_blue": "blue", "Lower_white": "white", "Lower_ink": "ink", "Upper_white": "white",
                "Upper_ink": "ink", "Upper_teak": "teak", "Window_ink": "ink", "Fin_cap": "blue",
-               "Ballast_cup": "blue", "Mast": "white", "Boom": "white", "Rudder": "blue", "Rudder_ink": "ink",
+               "Ballast_cup": "blue", "Mast": "white", "Shrouds": "ink", "Furler": "white", "Furler_ink": "ink",
+               "Boom": "white", "Rudder": "blue", "Rudder_ink": "ink",
                "Wheel_Port": "ink", "Wheel_Starboard": "ink", "WheelSpokes_Port": "white",
                "WheelSpokes_Starboard": "white"}
 PRINT_MATS = {k: material("PLA %s %s" % (k, v), srgb(v), 0.55) for k, v in PRINT_COLOURS.items()}
@@ -1710,40 +1871,13 @@ sail = prism("Preview_PaperSail", [(fx(x), z) for x, z in sail_xz], "y", -0.12, 
 sail["printable"] = False
 sail.data.materials.append(material("Paper sail preview", (0.96, 0.94, 0.84, 1)))
 
-ph = [(fx(x), y, z) for x, y, z in PADEYE_HOLES]
-fore_head = (fx(MAST_XA+dt+0.3), 0.0, MASTHEAD_HOLE_Z)
-aft_head = (fx(MAST_XA), 0.0, MASTHEAD_HOLE_Z)
-mid_stern = Vector(((ph[3][0]+ph[4][0])/2, 0.0, (ph[3][2]+ph[4][2])/2))
-split = tuple(Vector(aft_head)+(mid_stern-Vector(aft_head))*0.8)
-tips = {s: [(fx(x), y, z) for x, y, z in SPREADER_TIPS if y*s > 0] for s in (1, -1)}
-stay_paths = {
-    "Preview_Forestay": [fore_head, ph[0]],
-    "Preview_Backstay": [aft_head, split],
-    "Preview_BackstayPortLeg": [split, ph[3]],
-    "Preview_BackstayStarboardLeg": [split, ph[4]],
-    "Preview_Mainsheet": [(fx(TRAV_X), 0.0, BOOM_Z0), (fx(SHEET_EYE[0]), 0.0, SHEET_EYE[2])],
-}
-for s, nm in ((1, "Port"), (-1, "Starboard")):
-    hp = (fx(HOUNDS[0]), s*wt/2, HOUNDS[1])
-    lo, hi = sorted(tips[s], key=lambda p: p[2])
-    stay_paths["Preview_%sShroud" % nm] = [hp, hi, lo, ph[1] if s > 0 else ph[2]]
-    root = (fx(MAST_XA+0.6), s*mast_dw(SPREADERS[0][0]-1.6)[1]/2, SPREADERS[0][0]-1.6)
-    stay_paths["Preview_%sLowerShroud" % nm] = [root, ph[1] if s > 0 else ph[2]]
-rig_mat = material("Thread stay preview", (0.04, 0.055, 0.07, 1))
-fs0, fs1 = Vector(ph[0]), Vector(fore_head)
-GENOA = (8.0/(fs1-fs0).length, 0.85)
-g0, g1 = fs0+(fs1-fs0)*GENOA[0], fs0+(fs1-fs0)*GENOA[1]
-genoa = rod_between("Preview_FurledGenoa", tuple(g0), tuple(g1), 0.75)
-for v in genoa.data.vertices:
-    t = (v.co-g0).dot(fs1-fs0)/((fs1-fs0).length*(g1-g0).length)
-    off = v.co-(g0+(g1-g0)*max(0.0, min(1.0, t)))
-    v.co = g0+(g1-g0)*max(0.0, min(1.0, t))+off*(1.0-0.45*max(0.0, min(1.0, t)))
-genoa["printable"] = False
-genoa.data.materials.append(material("Furled genoa preview", (0.9, 0.88, 0.8, 1)))
-build_stats["furled_genoa"] = {"start_mm_above_padeye": 8.0, "length_mm": round((g1-g0).length, 1)}
+stay_paths = {"Preview_Mainsheet": [(fx(TRAV_X), 0.0, BOOM_Z0), (fx(SHEET_EYE[0]), 0.0, SHEET_EYE[2])]}
 build_stats.update(build_stats_extra)
-build_stats["anchor"] = {"toe_u": round(ANCHOR_U0, 2), "front_x_prescale": ANCHOR_FRONT}
+build_stats["anchor"] = {"toe_u": round(ANCHOR_U0, 2), "crown_front_x_prescale": ANCH_X1, "cheek_end_x_prescale": CHEEK_X1,
+                         "roller": ROLLER, "shackle": SHACKLE, "fluke_shadow_gap_mm": FL_OT,
+                         "shank_daylight_to_cheeks_mm": round(1.15-0.5, 2), "shank_air_over_plank_mm": 0.9}
 json.dump(build_stats, open(os.path.join(OUT, "stats.json"), "w"), indent=1)
+rig_mat = material("Mainsheet thread preview", (0.04, 0.055, 0.07, 1))
 for name, path in stay_paths.items():
     for i, (p0, p1) in enumerate(zip(path, path[1:])):
         segment = rod_between("%s_%d" % (name, i), p0, p1, 0.12)

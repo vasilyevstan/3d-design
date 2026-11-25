@@ -3,8 +3,8 @@
 Run: STAND_DIR=<dir with Stand.stl> [SAIL_DIR=<dir with Display_sail.stl>] MARGARET_WORK=<render dir>
      blender -b <stage>/Margaret.blend -P stand_show.py
 Saves the blend in place and writes stand-1.png (boat on stand, printed display sail instead of the paper preview sail
-when SAIL_DIR is given), stand-2.png (wall and keel pocket), stand-3.png (stand alone), stand-4.png (display sail detail),
-stand-5.png (port profile: the wall rake against the fin).
+when SAIL_DIR is given), stand-2.png (fork on the fin root and the tail saddle), stand-3.png (stand alone), stand-4.png
+(display sail with its navy markings), stand-5.png (port profile: the swan neck against the keel).
 """
 import bpy, os
 from mathutils import Vector
@@ -45,6 +45,19 @@ if os.environ.get("SAIL_DIR"):
     sail.data.materials.clear(); sail.data.materials.append(white)
     for p in sail.data.polygons:
         p.use_smooth = False
+    sail.color = (0.93, 0.92, 0.88, 1.0)
+    ip = os.path.join(os.environ["SAIL_DIR"], "Display_sail_ink.stl")
+    if os.path.exists(ip):                       # navy sail number, insignia and reef rows (second colour)
+        bpy.ops.wm.stl_import(filepath=ip)
+        si = bpy.context.selected_objects[0]
+        si.name = si.data.name = "Display_sail_ink"
+        for uc in list(si.users_collection):
+            uc.objects.unlink(si)
+        scol.objects.link(si)
+        si.data.materials.clear(); si.data.materials.append(ink)
+        for p in si.data.polygons:
+            p.use_smooth = False
+        si.color = (0.06, 0.12, 0.28, 1.0)
     scol.hide_render = True                      # off in the boat views; the paper sail is the sailing default
 camcol = bpy.data.collections.get("Cameras")
 
@@ -68,10 +81,10 @@ c1 = cam("Cam 7 - On the display stand", (300, -330, 120), (-5, 0, 85), 365)
 bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath, compress=True)
 
 sc.render.film_transparent = True
-paper = bpy.data.objects.get("Preview_PaperSail")
+papers = [o for o in (bpy.data.objects.get(n) for n in ("Preview_PaperSail", "Preview_PaperSail_marks")) if o]
 shots = [("stand-1", c1, (1200, 1500), {"Display sail"} if sail is None else set(), sail is not None),
-         ("stand-2", cam("tmp2", (220, -300, 20), (-12, 0, -36), 132), (1600, 1000), {"Preview", "Display sail"}, False),
-         ("stand-3", cam("tmp3", (180, -250, 170), (-10, 0, -40), 150), (1600, 1000),
+         ("stand-2", cam("tmp2", (220, -300, 40), (-6, 0, -35), 112), (1600, 1000), {"Preview", "Display sail"}, False),
+         ("stand-3", cam("tmp3", (160, -230, 150), (-7, 0, -42), 104), (1600, 1000),
           {"Print", "Preview", "Display sail"}, False),
          ("stand-5", cam("tmp5", (-5, -400, -17.5), (-5, 0, -17.5), 232), (1600, 640), {"Preview", "Display sail"}, False)]
 if sail is not None:
@@ -83,7 +96,7 @@ for key, c, res, hide, hide_paper in shots:
     if key == "stand-4":                         # relief is 0.16 mm: show it with Workbench cavity shading
         sc.render.engine = "BLENDER_WORKBENCH"
         sh = sc.display.shading
-        sh.light, sh.color_type, sh.single_color = "STUDIO", "SINGLE", (0.93, 0.92, 0.88)
+        sh.light, sh.color_type = "STUDIO", "OBJECT"
         sh.show_cavity, sh.cavity_type = True, "BOTH"
         sh.cavity_ridge_factor, sh.cavity_valley_factor = 2.0, 2.0
         sh.curvature_ridge_factor, sh.curvature_valley_factor = 2.0, 2.0
@@ -92,7 +105,7 @@ for key, c, res, hide, hide_paper in shots:
         sc.render.engine = eng
     for ch in sc.collection.children:
         ch.hide_render = any(ch.name.startswith(h) for h in hide)
-    if paper is not None:
+    for paper in papers:
         paper.hide_render = hide_paper
     sc.camera = c
     sc.render.resolution_x, sc.render.resolution_y = res
@@ -101,6 +114,6 @@ for key, c, res, hide, hide_paper in shots:
 sc.render.engine = eng
 for ch in sc.collection.children:
     ch.hide_render = before[ch.name]
-if paper is not None:
+for paper in papers:
     paper.hide_render = False
 print("STAND SHOW OK")

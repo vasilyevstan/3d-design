@@ -134,7 +134,7 @@ def equilibrium(phi, mass_g, Gb, theta0=0.0):
 
 # ------------------------------------------------------------------ masses
 parts = {}
-for n in ST["parts"]:
+for n in [k for k in ST["parts"] if k not in ST.get("display_only_parts", [])]:   # furler stays ashore
     T = read_stl(os.path.join(OUT, n+".stl"))
     v, c, a = vol_centroid(T)
     shell = min(v, a/2.0*0.84/1000.0)                 # 2 perimeters of 0.42 mm, both faces counted once
@@ -147,6 +147,7 @@ SLICE = os.environ.get("SLICE_MASS")            # mass.json from gcode_mass.py: 
 if SLICE:
     GROUPS = {"Hull_lower": ["Lower_blue", "Lower_white", "Lower_ink"],
               "Hull_upper": ["Upper_white", "Upper_ink", "Upper_teak", "Window_ink"],
+              "Mast": ["Mast", "Shrouds"], "Furler": ["Furler", "Furler_ink"],
               "Rudder": ["Rudder", "Rudder_ink"], "Wheel_Port": ["Wheel_Port", "WheelSpokes_Port"],
               "Wheel_Starboard": ["Wheel_Starboard", "WheelSpokes_Starboard"]}
     for obj, d in json.load(open(SLICE))["objects"].items():
@@ -158,10 +159,9 @@ if SLICE:
 sail = ST["sail"]; b = ST["bulb"]; rig = ST["rig"]
 full = ST["sails"]["full"]
 EXTRAS = [("paper sail 80 g/m2 (full)", full["area_cm2"]*0.008, np.array([sail["luff_x"]-full["foot_mm"]/3, 0, sail["tack_z"]+full["luff_mm"]/3])),
-          ("thread rig + lashings", 0.25, np.array([10.0, 0, 110.0])),
+          ("sail ties (printed rig, paper main)", 0.05, np.array([-15.0, 0, 110.0])),
           ("deck seam glue", 0.8, np.array([-5.0, 0, 2.5])),
-          ("bulb joint + lead glue", 0.4, np.array([b["x_center"], 0, -47.0])),
-          ("furled genoa paper roll", 0.15, np.array([60.0, 0, 90.0]))]
+          ("bulb joint + lead glue", 0.4, np.array([b["x_center"], 0, -47.0]))]
 m_pla = sum(p["m"] for p in parts.values())
 M_known = m_pla+sum(e[1] for e in EXTRAS)
 mom_known = sum(p["m"]*p["c"] for p in parts.values())+sum(e[1]*e[2] for e in EXTRAS)

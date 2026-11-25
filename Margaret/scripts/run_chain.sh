@@ -14,7 +14,7 @@ rm -f Margaret-P2S.3mf
 $BS --load-settings "machine.json;process.json" --load-filaments "f1.json;f2.json;f3.json;f4.json" \
     --load-assemble-list plate.json --arrange 0 --orient 0 --slice 1 --export-3mf "$PWD/Margaret-P2S.3mf" > slice.log 2>&1
 rm -rf x && mkdir x && (cd x && unzip -q ../Margaret-P2S.3mf)
-python3 "$F/gcode_mass.py" x/Metadata/plate_1.gcode Hull_lower,Hull_upper,Mast,Boom,Fin_cap,Ballast_cup,Rudder,Wheel_Port,Wheel_Starboard > mass.json
+python3 "$F/gcode_mass.py" x/Metadata/plate_1.gcode Hull_lower,Hull_upper,Mast,Furler,Boom,Fin_cap,Ballast_cup,Rudder,Wheel_Port,Wheel_Starboard > mass.json
 grep -m3 -i "model printing time\|total estimated time\|total filament weight" x/Metadata/plate_1.gcode | tee times.txt
 cd "$F"
 PLA=$(python3 -c "import json;d=json.load(open('$V/plate/mass.json'));print(round(sum(o['total_g'] for o in d['objects'].values()),2))")

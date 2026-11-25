@@ -17,7 +17,7 @@ GROUPS = {
     "Print - hull and deck": ["Lower_blue", "Lower_white", "Lower_ink", "Upper_white", "Upper_ink", "Upper_teak",
                               "Window_ink"],
     "Print - keel and ballast bulb": ["Fin_cap", "Ballast_cup"],
-    "Print - rig": ["Mast", "Boom"],
+    "Print - rig": ["Mast", "Boom", "Shrouds", "Furler", "Furler_ink"],
     "Print - steering": ["Rudder", "Rudder_ink", "Wheel_Port", "WheelSpokes_Port", "Wheel_Starboard",
                          "WheelSpokes_Starboard"],
 }
@@ -25,10 +25,25 @@ cols = {}
 for title, names in GROUPS.items():
     c = bpy.data.collections.new(title); sc.collection.children.link(c); cols[title] = c
     for n in names:
-        ob = bpy.data.objects[n]
+        ob = bpy.data.objects.get(n)
+        if ob is None:
+            continue
         for uc in list(ob.users_collection):
             uc.objects.unlink(ob)
         c.objects.link(ob)
+# paper main preview carries the same marks as the PDF/display sail (sail number per face, insignia): reuse the
+# display sail's navy marks, thinned from the 0.52 mm print to the 0.24 mm paper preview (render-only decals)
+_ink = os.path.join(OUT, "dsail", "Display_sail_ink.stl")
+if os.path.exists(_ink) and bpy.data.objects.get("Preview_PaperSail") and not bpy.data.objects.get("Preview_PaperSail_marks"):
+    bpy.ops.wm.stl_import(filepath=_ink)
+    mk = bpy.context.selected_objects[0]; mk.name = mk.data.name = "Preview_PaperSail_marks"
+    for v in mk.data.vertices:
+        v.co.y *= 0.55
+    mk.data.materials.clear(); mk.data.materials.append(bpy.data.objects["Lower_ink"].data.materials[0])
+    mk["printable"] = False
+    for uc in list(mk.users_collection):
+        uc.objects.unlink(mk)
+    sc.collection.objects.link(mk)
 prev = bpy.data.collections.new("Preview - thread rig and paper sails (not printed)")
 sc.collection.children.link(prev)
 for ob in list(sc.collection.objects):

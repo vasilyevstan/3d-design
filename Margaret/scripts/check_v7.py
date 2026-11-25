@@ -72,19 +72,24 @@ for wn in ("WheelSpokes_Port", "WheelSpokes_Starboard"):
     res[wn] = {"triangle_overlaps": overlaps(bm_of(load(wn)), hull_trees)}
 res["Rudder_ink_overlaps"] = overlaps(bm_of(load("Rudder_ink")), hull_trees)
 
-# 2b shroud geometry: spreader tip holes must sit outboard of the straight hounds->chainplate line
+# 2b printed rig: the shroud frame's tabs drop into the chainplate pockets and the display furler sits in the
+# stemhead pocket with its hook over the masthead cap; none may touch the hull except through clearance gaps
 rig = st["rig"]
-hz = rig["hounds_z"]
-geo = {}
-for py in (1, -1):
-    pad = [p for p in rig["padeye_holes"] if p[1]*py > 5][0]
-    for sp in rig["spreaders"]:
-        zsp, half = sp[0], sp[1]
-        y_line = 0.85+(abs(pad[1])-0.85)*(hz-zsp)/(hz-pad[2])
-        geo["%s z%.0f" % ("port" if py > 0 else "stbd", zsp)] = {"tip_hole_y": round(half-1.15, 2),
-                                                                  "straight_line_y": round(y_line, 2),
-                                                                  "deflection_mm": round(half-1.15-y_line, 2)}
-res["shroud_deflection"] = geo
+shr = load("Shrouds"); sbm = bm_of(shr)
+low = [v for v in sbm.verts if v.z < max(c["top_z"] for c in rig["chainplates"])+3.0]
+d, n, p = min_dist(low, hull_trees, 3.0)
+res["shrouds"] = {"triangle_overlaps": overlaps(sbm, hull_trees), "foot_and_tab_min_gap_mm": round(d, 3),
+                  "nearest_part": n, "at": p}
+fur = load("Furler"); fbm = bm_of(fur)
+mtree0 = {"Mast": tree(bm_of(load("Mast")))}
+hook = [v for v in fbm.verts if v.z > st["furler"]["hook_top_z"]-6.0]
+d, n, p = min_dist(hook, mtree0, 3.0)
+dbm = bm_of(load("Furler_ink"))              # drum + foot tab (navy) sit in the stemhead pocket
+d2, n2, p2 = min_dist(dbm.verts, hull_trees, 3.0)
+res["furler"] = {"hull_overlaps": overlaps(fbm, hull_trees), "mast_overlaps": overlaps(fbm, mtree0),
+                 "drum_overlaps": overlaps(dbm, hull_trees),
+                 "hook_min_gap_to_mast_mm": round(d, 3), "hook_at": p,
+                 "drum_tab_min_gap_to_hull_mm": round(d2, 3), "foot_at": p2}
 
 
 def islands(name):
@@ -116,7 +121,7 @@ res["islands"] = {n: islands(n) for n in ("Lower_ink", "Upper_ink", "Upper_teak"
                                           "Rudder_ink", "WheelSpokes_Port")}
 
 # 3 boom swing about the gooseneck thread loop
-mast = load("Mast"); mtree = {"Mast": tree(bm_of(mast))}
+mast = bpy.data.objects["Mast"]; mtree = {"Mast": tree(bm_of(mast)), "Shrouds": tree(sbm)}
 boom = load("Boom")
 px = st["rig"]["boom_holes_x"]["gooseneck loop"]
 swing = {}

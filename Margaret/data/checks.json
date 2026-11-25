@@ -10,12 +10,12 @@
   "triangle_overlaps": {}
  },
  "Wheel_Port": {
-  "rim_min_gap_mm": 0.404,
+  "rim_min_gap_mm": 0.403,
   "nearest_part": "Upper_white",
   "triangle_overlaps": {}
  },
  "Wheel_Starboard": {
-  "rim_min_gap_mm": 0.404,
+  "rim_min_gap_mm": 0.403,
   "nearest_part": "Upper_white",
   "triangle_overlaps": {}
  },
@@ -26,27 +26,32 @@
   "triangle_overlaps": {}
  },
  "Rudder_ink_overlaps": {},
- "shroud_deflection": {
-  "port z95": {
-   "tip_hole_y": 15.05,
-   "straight_line_y": 12.18,
-   "deflection_mm": 2.87
-  },
-  "port z155": {
-   "tip_hole_y": 9.35,
-   "straight_line_y": 7.2,
-   "deflection_mm": 2.15
-  },
-  "stbd z95": {
-   "tip_hole_y": 15.05,
-   "straight_line_y": 12.18,
-   "deflection_mm": 2.87
-  },
-  "stbd z155": {
-   "tip_hole_y": 9.35,
-   "straight_line_y": 7.2,
-   "deflection_mm": 2.15
-  }
+ "shrouds": {
+  "triangle_overlaps": {},
+  "foot_and_tab_min_gap_mm": 0.207,
+  "nearest_part": "Upper_white",
+  "at": [
+   22.91,
+   17.25,
+   16.84
+  ]
+ },
+ "furler": {
+  "hull_overlaps": {},
+  "mast_overlaps": {},
+  "drum_overlaps": {},
+  "hook_min_gap_to_mast_mm": 0.358,
+  "hook_at": [
+   24.76,
+   -0.05,
+   238.85
+  ],
+  "drum_tab_min_gap_to_hull_mm": 0.2,
+  "foot_at": [
+   91.07,
+   -0.6,
+   19.52
+  ]
  },
  "islands": {
   "Lower_ink": {
@@ -55,12 +60,12 @@
    "tiny_count": 0
   },
   "Upper_ink": {
-   "components": 98,
+   "components": 100,
    "tiny": [],
    "tiny_count": 0
   },
   "Upper_teak": {
-   "components": 66,
+   "components": 64,
    "tiny": [],
    "tiny_count": 0
   },
@@ -95,11 +100,11 @@
    "overlaps": {}
   },
   "-35": {
-   "min_gap": 0.375,
+   "min_gap": 0.374,
    "overlaps": {}
   },
   "-30": {
-   "min_gap": 0.372,
+   "min_gap": 0.371,
    "overlaps": {}
   },
   "-25": {
@@ -147,11 +152,11 @@
    "overlaps": {}
   },
   "30": {
-   "min_gap": 0.372,
+   "min_gap": 0.371,
    "overlaps": {}
   },
   "35": {
-   "min_gap": 0.375,
+   "min_gap": 0.374,
    "overlaps": {}
   },
   "40": {
@@ -172,59 +177,59 @@
   "gap": 0.149,
   "part": "Lower_blue",
   "at": [
-   24.32,
-   -1.28,
+   24.31,
+   1.28,
    -2.65
   ]
  },
  "cup_cap_overlaps": {
-  "total": 387,
+  "total": 389,
   "off_split_plane": 381,
   "examples": [
    [
     [
-     -27.39,
+     -27.4,
      4.91,
      -45.0
     ],
     [
-     -27.39,
+     -27.4,
      4.91,
      -45.0
     ]
    ],
    [
     [
-     -29.38,
-     4.64,
-     -45.21
-    ],
-    [
-     -29.38,
-     4.44,
-     -45.0
-    ]
-   ],
-   [
-    [
-     -30.88,
+     -30.89,
      2.55,
      -45.0
     ],
     [
-     -29.38,
+     -29.39,
      4.44,
      -45.0
     ]
    ],
    [
     [
-     -31.61,
+     -31.62,
      2.29,
      -45.0
     ],
     [
-     -30.7,
+     -30.71,
+     4.11,
+     -45.0
+    ]
+   ],
+   [
+    [
+     -31.62,
+     2.86,
+     -45.34
+    ],
+    [
+     -30.71,
      4.11,
      -45.0
     ]
@@ -233,7 +238,7 @@
  },
  "cup_cap_intersection_mm3": 0.0,
  "keel_vs_hull_overlaps": {
-  "Lower_blue": 185
+  "Lower_blue": 187
  },
  "keel_hull_intersection_mm3": 0.0
 }
