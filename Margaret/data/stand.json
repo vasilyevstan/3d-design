@@ -115,7 +115,7 @@
   "push_to_start_slide_N_full_lead": 0.197,
   "slide_before_G_leaves_pads_mm": {
    "sailing trim (full lead, paper sail)": 8.6,
-   "no lead": 7.35,
+   "no lead": 7.39,
    "full lead, printed display sail": 8.5
   },
   "aft": "closed fork stop 0.45 mm behind the fin trailing edge",
@@ -164,10 +164,10 @@
    4.92
   ],
   "head_x": [
-   -36.19,
+   -36.2,
    5.0
   ],
-  "head_bottom_z": -15.23,
+  "head_bottom_z": -15.24,
   "head_half_width_mm": [
    4.6,
    10.12
@@ -187,7 +187,7 @@
    0.399,
    [
     -22.87,
-    0.25,
+    -0.25,
     -13.9
    ]
   ],
@@ -213,7 +213,7 @@
  "lift_off": {
   "path": "lift 3.0 mm, slide forward 29 mm, lift off",
   "steps": 95,
-  "vertex_checks": 728625,
+  "vertex_checks": 728409,
   "hits": {},
   "rudder_closest_to_stand_on_slide_mm": {
    "gap": 2.839,
@@ -221,10 +221,10 @@
   }
  },
  "printability": {
-  "downward_area_mm2": 754.7,
+  "downward_area_mm2": 753.9,
   "area_over_50_deg_mm2": 0.0,
   "max_overhang_from_vertical_deg_faces_over_0.05mm2": 49.2,
-  "head_underside_supported_mm2": 194.9,
+  "head_underside_supported_mm2": 195.0,
   "supports": "tree supports under the fork head only; base, fillet and neck support-free"
  },
  "stability": {
@@ -234,15 +234,15 @@
   "stand_cg": [
    -23.61,
    0.0,
-   -54.08
+   -54.07
   ],
   "cases": {
    "sailing trim (full lead, paper sail)": {
-    "boat_mass_g": 64.01,
+    "boat_mass_g": 63.92,
     "G": [
      -3.68,
      0.01,
-     -3.61
+     -3.5
     ],
     "G_margin_to_pads_aft_mm": 27.8,
     "G_margin_to_pads_fore_mm": 8.6,
@@ -250,41 +250,41 @@
     "assembly_tip_deg": {
      "sideways": 30.3,
      "forward": 32.3,
-     "aft": 48.8,
-     "any_direction_min": 30.2
+     "aft": 48.7,
+     "any_direction_min": 30.1
     }
    },
    "no lead": {
-    "boat_mass_g": 52.01,
+    "boat_mass_g": 52.08,
     "G": [
-     -2.43,
+     -2.46,
      0.01,
-     7.58
+     7.56
     ],
-    "G_margin_to_pads_aft_mm": 29.05,
-    "G_margin_to_pads_fore_mm": 7.35,
+    "G_margin_to_pads_aft_mm": 29.01,
+    "G_margin_to_pads_fore_mm": 7.39,
     "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
      "sideways": 27.0,
-     "forward": 28.5,
+     "forward": 28.6,
      "aft": 45.1,
      "any_direction_min": 26.8
     }
    },
    "full lead, printed display sail": {
-    "boat_mass_g": 68.04,
+    "boat_mass_g": 67.95,
     "G": [
      -3.58,
      0.01,
-     3.13
+     3.24
     ],
     "G_margin_to_pads_aft_mm": 27.9,
     "G_margin_to_pads_fore_mm": 8.5,
     "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
-     "sideways": 27.7,
+     "sideways": 27.6,
      "forward": 29.4,
-     "aft": 45.8,
+     "aft": 45.7,
      "any_direction_min": 27.5
     }
    }
@@ -296,7 +296,7 @@
  "volume_parts_cm3": {
   "base": 6.49,
   "neck": 1.91,
-  "head": 0.88
+  "head": 0.89
  },
  "size_mm": [
   96.5,

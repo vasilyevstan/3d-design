@@ -781,3 +781,66 @@ solver silently returned empty bands (Lower_ink 0 cm³). The fault sat near the 
   - G margins 8.6 / 7.4 / 8.5 mm;
   - neck SF 10.6 static, 3.5 under a 3 g knock.
 - **Reprint:** only Hull_lower (Lower_blue, Lower_white, Lower_ink).
+
+## Step 14 — assembly fits measured on the toolpaths (v7k)
+
+**User:** "are you sure the steering fits into the hole in the body?", and "the kiel fitting is a bit loose, validate
+and verify the assembly and challenge/defend with models".
+
+**Method.** Every joint was measured twice, for v7j (the print in hand) and v7k:
+- **Model:** STL slices (`scripts/review14/fits_stl.py` → `data/fits_v7j.json`, `data/fits_v7k.json`).
+- **As printed:** the edge of the sliced toolpaths (`fits_gcode.py` → `data/fits_gcode_*.json`): bead centre ± w/2,
+  with w from the extruded volume (Bambu flow model, `w = e·A/L/h + h(1 − π/4)`), G2/G3 arcs sampled.
+- **Measurement artifact found and removed:** the width formula explodes on 0.001 mm seam and arc-start stubs. It
+  produced a fake bulb-post "blob" (r 1.122 in v7j, 1.203 in v7k) and a fake 0.958 "pinch" in the rudder bore.
+  `bore_pinch.py` and `post_detail.py` traced both to single stubs; segments under 0.02 mm are now skipped. The real
+  post maximum is r 1.097 and no bore point is under r 1.016.
+
+**Findings (v7j, as printed)**
+
+| Joint | Model | Printed | Per side |
+|---|---|---|---|
+| Fin tenon in socket | 18.622 × 3.200 in 19.036 × 3.600 | 18.614 × 3.192 in 19.039 × 3.596 | 0.20–0.21 mm → **±4.8° roll, ±2.8 mm at the bulb: the "loose" keel** |
+| Bulb post in cap hole | r 1.0 in r 1.2 | r 0.99–1.03 in r 1.17–1.21 | ≈ 0.18 mm |
+| Rudder stock in bore | r 1.0 in r 1.05 | stock 2.044 × 1.96 (prints on its side); bore min r 1.016 | 0.03–0.04 mm on the flats; the stock's **first-layer foot reaches r 1.092**, so −0.066 mm interference, plus any seam offset |
+| Wheel stub in binnacle | Ø1.6 in r 1.0 teardrop | wall r 0.995; open 0.8 mm past the stub end | 0.2 mm; fits |
+
+So in v7j the rudder is a line-to-line press through 12.5 mm of bore and across the glued seam. It is not certain to
+go in without scraping the stock's bed edge. The wheels fit. A GPT claim that the port wheel bore was blocked was
+disproved with a wall-distance probe (`wheel_bore.py`); it came from overlapping colour-part boundaries in a
+parity test.
+
+**Decisions (v7k).** All in Hull_lower and Ballast_cup, so the printed upper hull, fin and rudder stay usable.
+- **Fin socket** 19.0 × 3.6 → 18.83 × 3.4 mm: 0.10 mm per side (printed 0.10 / 0.11), roll about ±2.4° before
+  glue. Epoxy fills the rest. Square the fin with a set square while it cures.
+- **Rudder bore:** r 1.2 free bore through the lower half and the seam (≥ 0.07 mm past the stock's widest printed
+  point; also absorbs seam offset), a cone to r 1.05 at z 2.7–3.0 as a lead-in, then the existing r 1.05 bore for the
+  last 7 mm in the upper half, where friction holds the trim. The rudder tube grows from r 1.925 to r 2.1, so the wall
+  round the r 1.2 bore stays 0.9 mm (two perimeters) and remains watertight.
+- **Bulb posts** r 1.0 → 1.05 (holes stay r 1.2; `CAP_HOLE_R` decoupled from `POST_R`): printed clearance
+  0.18 → 0.12 mm.
+- Wheels unchanged.
+
+![Joint cross-sections, v7j vs v7k](views/details/assembly-fits.png)
+
+**Challenge/defend**
+
+| Reviewer | Round 1 | Round 2 (on v7k) |
+|---|---|---|
+| GPT-6.2-sol | Socket 0.10 per side; posts r 1.05; lower bore r 1.15 with tube r 2.1. Claimed the port wheel bore was blocked (**disproved**, see above) | **ACCEPT.** Dry-fit the rudder with the rod pins in, and keep that alignment for the glue-up |
+| Opus 5.5 | Socket 0.10; posts r 1.08; lower bore r 1.2. The bind is the stock's first-layer foot, so tell the user to scrape it | **ACCEPT.** Scrape the bed edge first; a Ø2.0 drill only clears a seam lip or blob; Ø2.1 only as a last resort, never 2.2 |
+| Grok 4.7 | Socket 0.10; posts r 1.05; lower bore r 1.08 with tube r 2.0; the tube wall must stay ≥ 0.9 mm (two lines) | **ACCEPT.** Waxed 2 mm rod in the bore while the seam cures; glue only the outer seam face round the tube; leak-test |
+
+Chosen: socket 0.10 (unanimous), posts r 1.05 (two of three), lower bore r 1.2 (the largest proposed, because the
+measured foot is r 1.092 and seam offset adds to it), tube r 2.1 to keep Grok's two-line wall.
+
+**As built (v7k)**
+- **Checks:** `check_v7.py` passes; keel/hull and cup/cap intersection volumes are 0.0 mm³. The name gates pass (bow
+  19/19 layers navy; transom PASS).
+- **Plate:** 13 h 11 min model time (13 h 18 min total); 212.3 g filament (80.8 / 47.0 / 55.6 / 28.9 g); 235 layers.
+  Printed 50.9 g, 50.3 g on board; Hull_lower 16.0 g.
+- **Float:** 74 balls (11.8 g), all-up 63.9 g; GM 15.9 mm; GZ 2.7 / 5.0 / 6.8 mm at 10 / 20 / 30°; AVS 132°; cup
+  capacity 127 balls.
+- **Stand:** fin slot 0.40 mm, bulb to neck 3.7 mm, no lift-off contact; tipping ≥ 26.8°.
+- **Reprint from v7j:** Hull_lower (required); Ballast_cup (optional, for the tighter posts). The v7j Hull_upper still
+  fits (same r 1.05 bore and 0.7 mm overlapping glue land round the tube).

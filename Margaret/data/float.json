@@ -2,15 +2,15 @@
  "float-upright": {
   "waterline_row_px": 576.8,
   "heel_deg": 0,
-  "trim_deg_bow_down": 0.085,
-  "sink_mm": -0.031,
+  "trim_deg_bow_down": 0.083,
+  "sink_mm": -0.019,
   "GZ_mm": 0.011
  },
  "float-heel15": {
   "waterline_row_px": 1018.7,
   "heel_deg": 15,
-  "trim_deg_bow_down": 0.429,
-  "sink_mm": 0.556,
-  "GZ_mm": 3.952
+  "trim_deg_bow_down": 0.428,
+  "sink_mm": 0.569,
+  "GZ_mm": 3.92
  }
 }

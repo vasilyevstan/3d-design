@@ -1,28 +1,28 @@
 {
  "parts": {
   "Lower_blue": {
-   "verts": 34543,
-   "faces": 69086,
+   "verts": 34544,
+   "faces": 69088,
    "nonmanifold": 0,
-   "vol_cm3": 11.572
+   "vol_cm3": 11.598
   },
   "Lower_white": {
-   "verts": 6550,
-   "faces": 13116,
+   "verts": 6549,
+   "faces": 13114,
    "nonmanifold": 0,
-   "vol_cm3": 0.88
+   "vol_cm3": 0.882
   },
   "Lower_ink": {
-   "verts": 5296,
-   "faces": 10608,
+   "verts": 5295,
+   "faces": 10606,
    "nonmanifold": 0,
-   "vol_cm3": 0.857
+   "vol_cm3": 0.858
   },
   "Upper_white": {
-   "verts": 62225,
-   "faces": 124486,
+   "verts": 62305,
+   "faces": 124646,
    "nonmanifold": 0,
-   "vol_cm3": 20.465
+   "vol_cm3": 20.481
   },
   "Upper_ink": {
    "verts": 40129,
@@ -49,10 +49,10 @@
    "vol_cm3": 3.188
   },
   "Ballast_cup": {
-   "verts": 6305,
-   "faces": 12606,
+   "verts": 6301,
+   "faces": 12598,
    "nonmanifold": 0,
-   "vol_cm3": 2.189
+   "vol_cm3": 2.196
   },
   "Mast": {
    "verts": 1070,
@@ -143,10 +143,10 @@
   "4.0": 97.726,
   "5.0": 106.637
  },
- "ballast_cavity_cm3": 4.704112960370724,
+ "ballast_cavity_cm3": 4.697749983930342,
  "lead_3mm_balls_64pct": 212,
  "lead_mass_g_64pct": 33.92,
- "total_parts_cm3": 45.901,
+ "total_parts_cm3": 45.953,
  "lugs": [
   [
    50.52762283228525,
@@ -176,7 +176,8 @@
    -15.166563077337521
   ],
   "split_z": -45.0,
-  "post_r": 1.0,
+  "post_r": 1.05,
+  "cap_hole_r": 1.2,
   "post_top_z": -44.0,
   "length": 66.21146296402925,
   "half_width": 8.6,

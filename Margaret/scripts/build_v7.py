@@ -1274,7 +1274,7 @@ keep.append(prism("MastTube", mast_section(MAST_D0, MAST_W0, 1.15), "z", -30, 40
 for cx_, cy_, cz_, ctop_ in CHAINPLATES:           # solid bosses under the chainplate pockets
     keep.append(rbox("ChainBoss", cx_-1.8, cx_+1.8, cy_-1.8, cy_+1.8, ctop_-CHAIN_DEPTH-0.9, 80, 0.8))
 keep.append(rbox("KeelBox", X_FIN-10.4, X_FIN+10.4, -3.0, 3.0, -30, -5.6, 1.0))
-keep.append(lathe("RudTube", X_RUD, 0, [(1.925, -30), (1.925, 9.5)]))
+keep.append(lathe("RudTube", X_RUD, 0, [(2.1, -30), (2.1, 9.5)]))           # >=0.9 mm wall round the r1.2 lower bore
 keep += RAIL_KEEP
 LUGS = []
 for lx in (52.0, -46.0):
@@ -1296,8 +1296,9 @@ G.boolean(shell, cav, "DIFFERENCE")
 stats(shell)
 
 bores = [prism("MastBore", mast_section(MAST_D0, MAST_W0, 0.15), "z", MAST_HEEL-0.3, 40),
-         rbox("FinSlot", X_FIN-9.2, X_FIN+9.2, -1.8, 1.8, -30, -6.8, 0.3),
-         lathe("RudBore", X_RUD, 0, [(1.05, -30), (1.05, 11.0)])]
+         rbox("FinSlot", X_FIN-9.1, X_FIN+9.1, -1.7, 1.7, -30, -6.8, 0.3),
+         # lower half free-running r1.2 (seam offset, stock first layer); lead-in cone just above the seam; r1.05 friction above
+         lathe("RudBore", X_RUD, 0, [(1.2, -30), (1.2, SEAM+0.15), (1.05, SEAM+0.45), (1.05, 11.0)])]
 for s in (1, -1):
     bores.append(prism_x("AxleBore%d" % s, [(s*WHEEL_Y+a, WHEEL_Z+b) for a, b in teardrop(0.0, 0.0, 1.0, 24)],
                          BINNACLE_AFT-0.5, BINNACLE_AFT+2.7))
@@ -1651,7 +1652,7 @@ CAVITY_CM3 = G.mesh_stats(cavity_probe)["vol_cm3"]
 bpy.data.objects.remove(cavity_probe, do_unlink=True)
 G.boolean(cup, cavity_tool, "DIFFERENCE")
 POSTS = [CAV_X[1]-8.0, X_BULB+1.5]
-POST_R, POST_TOP = 1.0, BULB_SPLIT+1.0
+POST_R, POST_TOP, CAP_HOLE_R = 1.05, BULB_SPLIT+1.0, 1.2
 POST_IN_CAVITY = 0.0
 for px in POSTS:
     f = bulb_factor((X_BULB+BULB_L/2-px)/BULB_L)
@@ -1660,7 +1661,7 @@ for px in POSTS:
     log("post x", round(px, 2), "cavity floor", round(z_floor, 2), "cap wall above hole", round(BULB_ZC+BULB_HH*f-hole_top, 2))
     POST_IN_CAVITY += math.pi*POST_R**2*(BULB_SPLIT-z_floor)/1000
     G.boolean(cup, lathe("CupPost", px, 0, [(POST_R, z_floor-0.5), (POST_R, POST_TOP-0.25), (POST_R-0.25, POST_TOP)], 32), "UNION")
-    G.boolean(cap, lathe("CapPostHole", px, 0, [(POST_R+0.2, BULB_SPLIT-1.0), (POST_R+0.2, POST_TOP+0.3),
+    G.boolean(cap, lathe("CapPostHole", px, 0, [(CAP_HOLE_R, BULB_SPLIT-1.0), (CAP_HOLE_R, POST_TOP+0.3),
                                                  (0.3, hole_top)], 32), "DIFFERENCE")
 CAVITY_CM3 -= POST_IN_CAVITY
 log("bulb x", round(X_BULB, 2), "cavity x", [round(v, 2) for v in CAV_X], "usable cavity cm3", round(CAVITY_CM3, 3),
@@ -2093,7 +2094,7 @@ json.dump({"parts": tot, "canoe_cm3": vol*SX/1000, "LCB": (LCB-X_CENTER)*SX,
            "total_parts_cm3": round(sum(v["vol_cm3"] for v in tot.values()), 3),
            "lugs": [((x-X_CENTER)*SX, y) for x, y in LUGS],
            "bulb": {"x_center": fx(X_BULB), "cavity_x": [fx(v) for v in CAV_X], "posts_x": [fx(v) for v in POSTS],
-                    "split_z": BULB_SPLIT, "post_r": POST_R, "post_top_z": POST_TOP, "length": BULB_L*SX,
+                    "split_z": BULB_SPLIT, "post_r": POST_R, "cap_hole_r": CAP_HOLE_R, "post_top_z": POST_TOP, "length": BULB_L*SX,
                     "half_width": BULB_HW, "half_height": BULB_HH, "z_centre": BULB_ZC, "wall": BULB_WALL,
                     "flat_z": BULB_FLAT, "floor_z": BULB_FLOOR},
            "rig": {"mast_aft_x": fx(MAST_XA), "mast_heel_z": MAST_HEEL, "mast_top_z": MAST_TOP,

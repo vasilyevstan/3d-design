@@ -3,32 +3,32 @@
  "interlayer_strength_MPa": 15.0,
  "cases": {
   "full lead, paper sail": {
-   "boat_g": 64.01,
+   "boat_g": 63.92,
    "G_x": -3.68,
-   "W_N": 0.6279,
-   "max_layer_tension_MPa": 1.33,
+   "W_N": 0.6271,
+   "max_layer_tension_MPa": 1.328,
    "at_z": -39.4,
    "section_area_mm2": 29.43,
    "section_depth_x_mm": 6.23,
    "safety_factor_static": 11.3,
    "safety_factor_3g_bump": 3.8,
-   "head_rotation_deg": 0.675,
-   "load_point_sag_mm": 0.544,
-   "sag_after_creep_x2_mm": 1.088
+   "head_rotation_deg": 0.674,
+   "load_point_sag_mm": 0.543,
+   "sag_after_creep_x2_mm": 1.086
   },
   "full lead, display sail": {
-   "boat_g": 68.04,
+   "boat_g": 67.95,
    "G_x": -3.58,
-   "W_N": 0.6675,
-   "max_layer_tension_MPa": 1.417,
+   "W_N": 0.6666,
+   "max_layer_tension_MPa": 1.415,
    "at_z": -39.4,
    "section_area_mm2": 29.43,
    "section_depth_x_mm": 6.23,
    "safety_factor_static": 10.6,
    "safety_factor_3g_bump": 3.5,
-   "head_rotation_deg": 0.719,
-   "load_point_sag_mm": 0.581,
-   "sag_after_creep_x2_mm": 1.161
+   "head_rotation_deg": 0.718,
+   "load_point_sag_mm": 0.58,
+   "sag_after_creep_x2_mm": 1.16
   }
  },
  "sections": [
@@ -181,30 +181,30 @@
   },
   {
    "z": -21.4,
-   "A": 39.99,
+   "A": 40.02,
    "xc": -39.3,
-   "Iyy": 155.3,
+   "Iyy": 155.5,
    "depth": 7.47
   },
   {
    "z": -19.4,
-   "A": 48.99,
+   "A": 49.04,
    "xc": -37.08,
-   "Iyy": 197.3,
+   "Iyy": 197.5,
    "depth": 7.47
   },
   {
    "z": -17.4,
-   "A": 58.43,
+   "A": 58.47,
    "xc": -34.86,
-   "Iyy": 241.2,
+   "Iyy": 241.4,
    "depth": 7.47
   },
   {
    "z": -15.4,
    "A": 63.26,
    "xc": -32.64,
-   "Iyy": 263.6,
+   "Iyy": 263.7,
    "depth": 7.47
   }
  ]

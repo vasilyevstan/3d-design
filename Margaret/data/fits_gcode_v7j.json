@@ -1,0 +1,199 @@
+{
+ "rudder_bore_lower_half": {
+  "layers": 34,
+  "z_range": [
+   0.2,
+   5.48
+  ],
+  "min_radius": 1.016,
+  "median_min_radius": 1.028,
+  "radius_along_boat_x": 1.056,
+  "radius_across_y": 1.019,
+  "first_layer": {
+   "min": 1.034,
+   "x": 1.055,
+   "y": 1.022,
+   "w": 0.45,
+   "feat": "Outer wall"
+  },
+  "hole_wall_feature": "Outer wall"
+ },
+ "rudder_bore_upper_half": {
+  "layers": 44,
+  "z_range": [
+   0.2,
+   7.08
+  ],
+  "min_radius": 1.021,
+  "median_min_radius": 1.027,
+  "radius_along_boat_x": 1.056,
+  "radius_across_y": 1.019,
+  "first_layer": {
+   "min": 1.037,
+   "x": 1.057,
+   "y": 1.023,
+   "w": 0.446,
+   "feat": "Outer wall"
+  },
+  "hole_wall_feature": "Outer wall"
+ },
+ "bulb_post_hole_0": {
+  "layers": 7,
+  "z_range": [
+   0.2,
+   1.16
+  ],
+  "min_radius": 1.175,
+  "median_min_radius": 1.175,
+  "radius_along_boat_x": 1.205,
+  "radius_across_y": 1.167,
+  "first_layer": {
+   "min": 1.327,
+   "x": 1.376,
+   "y": 1.32,
+   "w": 0.49,
+   "feat": "Outer wall"
+  },
+  "hole_wall_feature": "Outer wall"
+ },
+ "bulb_post_hole_1": {
+  "layers": 7,
+  "z_range": [
+   0.2,
+   1.16
+  ],
+  "min_radius": 1.175,
+  "median_min_radius": 1.175,
+  "radius_along_boat_x": 1.204,
+  "radius_across_y": 1.166,
+  "first_layer": {
+   "min": 1.332,
+   "x": 1.377,
+   "y": 1.328,
+   "w": 0.491,
+   "feat": "Outer wall"
+  },
+  "hole_wall_feature": "Outer wall"
+ },
+ "bulb_post_0": {
+  "layers": 6,
+  "max_radius": 1.026,
+  "half_x": 1.026,
+  "half_y": 0.992
+ },
+ "bulb_post_1": {
+  "layers": 6,
+  "max_radius": 1.027,
+  "half_x": 1.027,
+  "half_y": 0.992
+ },
+ "fin_socket": {
+  "layers": 32,
+  "z_range": [
+   9.48,
+   14.44
+  ],
+  "median_half": {
+   "+y": 1.798,
+   "-y": 1.798,
+   "+x": 9.517,
+   "-x": 9.522
+  },
+  "width_y": 3.596,
+  "length_x": 19.039
+ },
+ "fin_tenon": {
+  "layers": 29,
+  "z_range": [
+   33.16,
+   37.64
+  ],
+  "median_half": {
+   "+y": 1.596,
+   "-y": 1.596,
+   "+x": 9.307,
+   "-x": 9.307
+  },
+  "width_y": 3.192,
+  "length_x": 18.614
+ },
+ "rudder_stock": {
+  "layers": [
+   {
+    "z": 0.2,
+    "printed_width": 0.875,
+    "nominal_chord": 0.902,
+    "off_centre": 0.0
+   },
+   {
+    "z": 0.36,
+    "printed_width": 1.422,
+    "nominal_chord": 1.436,
+    "off_centre": 0.0
+   },
+   {
+    "z": 0.52,
+    "printed_width": 1.705,
+    "nominal_chord": 1.714,
+    "off_centre": -0.0
+   },
+   {
+    "z": 0.68,
+    "printed_width": 1.884,
+    "nominal_chord": 1.896,
+    "off_centre": 0.0
+   },
+   {
+    "z": 0.84,
+    "printed_width": 1.994,
+    "nominal_chord": 2.009,
+    "off_centre": 0.0
+   },
+   {
+    "z": 1.0,
+    "printed_width": 2.044,
+    "nominal_chord": 2.062,
+    "off_centre": 0.0
+   },
+   {
+    "z": 1.16,
+    "printed_width": 2.044,
+    "nominal_chord": 2.062,
+    "off_centre": 0.0
+   },
+   {
+    "z": 1.32,
+    "printed_width": 1.994,
+    "nominal_chord": 2.009,
+    "off_centre": 0.0
+   },
+   {
+    "z": 1.48,
+    "printed_width": 1.884,
+    "nominal_chord": 1.896,
+    "off_centre": 0.0
+   },
+   {
+    "z": 1.64,
+    "printed_width": 1.705,
+    "nominal_chord": 1.714,
+    "off_centre": -0.0
+   },
+   {
+    "z": 1.8,
+    "printed_width": 1.422,
+    "nominal_chord": 1.436,
+    "off_centre": 0.0
+   },
+   {
+    "z": 1.96,
+    "printed_width": 0.953,
+    "nominal_chord": 0.983,
+    "off_centre": 0.0
+   }
+  ],
+  "printed_height": 1.96,
+  "max_width": 2.044,
+  "worst_corner_margin_to_nominal_bore_mm": -0.036
+ }
+}
