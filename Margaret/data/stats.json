@@ -19,22 +19,22 @@
    "vol_cm3": 0.827
   },
   "Upper_white": {
-   "verts": 64399,
-   "faces": 128834,
+   "verts": 62124,
+   "faces": 124284,
    "nonmanifold": 0,
-   "vol_cm3": 20.506
+   "vol_cm3": 20.462
   },
   "Upper_ink": {
-   "verts": 42745,
-   "faces": 85218,
+   "verts": 40129,
+   "faces": 79914,
    "nonmanifold": 0,
-   "vol_cm3": 0.942
+   "vol_cm3": 0.896
   },
   "Upper_teak": {
-   "verts": 35339,
-   "faces": 70434,
+   "verts": 34927,
+   "faces": 69610,
    "nonmanifold": 0,
-   "vol_cm3": 2.216
+   "vol_cm3": 2.227
   },
   "Window_ink": {
    "verts": 3533,
@@ -119,30 +119,6 @@
    "faces": 464,
    "nonmanifold": 0,
    "vol_cm3": 0.032
-  },
-  "Rail_Port": {
-   "verts": 2250,
-   "faces": 4528,
-   "nonmanifold": 0,
-   "vol_cm3": 0.259
-  },
-  "Rail_Starboard": {
-   "verts": 2250,
-   "faces": 4528,
-   "nonmanifold": 0,
-   "vol_cm3": 0.259
-  },
-  "RailAft_Port": {
-   "verts": 75,
-   "faces": 150,
-   "nonmanifold": 0,
-   "vol_cm3": 0.032
-  },
-  "RailAft_Starboard": {
-   "verts": 75,
-   "faces": 150,
-   "nonmanifold": 0,
-   "vol_cm3": 0.032
   }
  },
  "canoe_cm3": 53.98502681324409,
@@ -170,7 +146,7 @@
  "ballast_cavity_cm3": 4.704112960370724,
  "lead_3mm_balls_64pct": 212,
  "lead_mass_g_64pct": 33.92,
- "total_parts_cm3": 43.561,
+ "total_parts_cm3": 42.9,
  "lugs": [
   [
    50.52762283228525,
@@ -468,147 +444,7 @@
   "shank_daylight_to_cheeks_mm": 0.65,
   "shank_air_over_plank_mm": 0.9
  },
- "railings": {
-  "posts_x_prescale": [
-   90.0,
-   82.0,
-   72.0,
-   46.0,
-   18.0,
-   -10.0,
-   -38.0,
-   -64.0,
-   -82.0
-  ],
-  "posts_x": [
-   89.84,
-   81.56,
-   71.22,
-   44.32,
-   15.35,
-   -13.61,
-   -42.58,
-   -69.48,
-   -88.1
-  ],
-  "heights_above_deck": {
-   "pulpit": 10.5,
-   "lifelines": 9.2,
-   "pushpit": 10.0
-  },
-  "mid_rail": 4.7,
-  "strip_t": 0.68,
-  "top_rail_w": 0.85,
-  "mid_rail_w": 0.8,
-  "post_w": 1.0,
-  "tab": [
-   0.7,
-   1.2
-  ],
-  "pocket": [
-   0.98,
-   1.0,
-   0.004,
-   1.2
-  ],
-  "pad": [
-   2.45,
-   0.85,
-   2.4,
-   0.35
-  ],
-  "fence_inboard_of_edge": 1.45,
-  "strip_length": 183.58,
-  "nest_dz": 12.57,
-  "print_sheet_mm": [
-   202.22,
-   28.01,
-   0.68
-  ],
-  "post_heights_above_pads": {
-   "90.0": 10.1,
-   "82.0": 10.1,
-   "72.0": 10.1,
-   "46.0": 8.8,
-   "18.0": 8.8,
-   "-10.0": 8.8,
-   "-38.0": 8.8,
-   "-64.0": 9.6,
-   "-82.0": 9.6
-  },
-  "pads": {
-   "90.0": {
-    "pad_top": 20.1414,
-    "deck": 19.7914,
-    "pocket_len": 1.432,
-    "deck_spread": 0.212
-   },
-   "82.0": {
-    "pad_top": 19.6109,
-    "deck": 19.2609,
-    "pocket_len": 1.391,
-    "deck_spread": 0.235
-   },
-   "72.0": {
-    "pad_top": 18.9852,
-    "deck": 18.6352,
-    "pocket_len": 1.344,
-    "deck_spread": 0.235
-   },
-   "46.0": {
-    "pad_top": 17.7129,
-    "deck": 17.3629,
-    "pocket_len": 1.232,
-    "deck_spread": 0.196
-   },
-   "18.0": {
-    "pad_top": 16.8824,
-    "deck": 16.5324,
-    "pocket_len": 1.116,
-    "deck_spread": 0.172
-   },
-   "-10.0": {
-    "pad_top": 16.3079,
-    "deck": 15.9579,
-    "pocket_len": 1.0,
-    "deck_spread": 0.143
-   },
-   "-38.0": {
-    "pad_top": 16.0755,
-    "deck": 15.7255,
-    "pocket_len": 1.116,
-    "deck_spread": 0.118
-   },
-   "-64.0": {
-    "pad_top": 16.1877,
-    "deck": 15.8377,
-    "pocket_len": 1.224,
-    "deck_spread": 0.136
-   },
-   "-82.0": {
-    "pad_top": 16.5592,
-    "deck": 16.2092,
-    "pocket_len": 1.299,
-    "deck_spread": 0.178
-   }
-  },
-  "returns": {
-   "x": -88.935,
-   "legs_y": [
-    25.741,
-    10.1
-   ],
-   "top_z": 26.21,
-   "pad_tops": [
-    16.5592,
-    14.35
-   ],
-   "corner_post": "tab-less, stands on the corner pad, glued to the corner post's aft face",
-   "mid_z": 20.91,
-   "y_end": 26.24,
-   "front_face_to_corner_post": 0.0
-  }
- },
+ "railings": "removed in rev 12",
  "cleats": {
   "xy_prescale": [
    [

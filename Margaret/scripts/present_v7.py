@@ -16,7 +16,6 @@ sc = bpy.context.scene
 GROUPS = {
     "Print - hull and deck": ["Lower_blue", "Lower_white", "Lower_ink", "Upper_white", "Upper_ink", "Upper_teak",
                               "Window_ink"],
-    "Print - railings": ["Rail_Port", "Rail_Starboard", "RailAft_Port", "RailAft_Starboard"],
     "Print - keel and ballast bulb": ["Fin_cap", "Ballast_cup"],
     "Print - rig": ["Mast", "Boom", "Shrouds", "Furler", "Furler_ink"],
     "Print - steering": ["Rudder", "Rudder_ink", "Wheel_Port", "WheelSpokes_Port", "Wheel_Starboard",

@@ -1149,6 +1149,8 @@ for s in (1, -1):
 # rev 11 railings: two flat-printed navy fences (pulpit + stanchions + lifelines + pushpit side) and two flat
 # transom returns. Each post ends in a tab that drops into a pocket in a navy base pad just inside the toe rail.
 # Pads are added after the cockpit cuts (the return's inner leg stands on the helm seat).
+RAILINGS = False                               # rev 12: removed (user: "the railing are terrible"); a 0.4 mm
+                                               # nozzle cannot print 1:66 stanchions/wire, so none at all
 RAIL_POSTS = [90.0, 82.0, 72.0, 46.0, 18.0, -10.0, -38.0, -64.0, -82.0]
 RAIL_IN, RAIL_T = 1.45, 0.68                   # fence centreline inboard of the hull edge; strip thickness (0.2+3x0.16)
 RAIL_PAD = (2.45, 0.85, 2.4, 0.35)             # pad: inboard / outboard offset from hb, length along the edge, height
@@ -1199,7 +1201,7 @@ def edge_pad(name, xc, side, half_x, y_in, y_out, z0, z1, n=8):
 
 RAIL_INFO, RAIL_BORES, RAIL_KEEP, RAIL_INK, RAIL_CUT = {}, [], [], [], []
 _s_mid = rail_s(-10.0)
-for xp in RAIL_POSTS:
+for xp in (RAIL_POSTS if RAILINGS else []):
     tx, ty = rail_t(xp)
     k_ = math.hypot(SX_EST*tx, ty)             # final mm per pre-scale mm along the fence line
     hx = RAIL_PAD[2]/2*tx/k_
@@ -1225,7 +1227,7 @@ _tx, _ty = rail_t(RAIL_POSTS[-1])
 RET_X = RAIL_POSTS[-1]-0.5*_tx/math.hypot(SX_EST*_tx, _ty)-RAIL_T/2/SX_EST
 RET_INFO = {}
 _hx = 0.65/SX_EST
-for j, yl in enumerate(RET_LEGS):
+for j, yl in enumerate(RET_LEGS if RAILINGS else ()):
     y0_, y1_ = yl-1.0, yl+1.0
     zs_ = [surf_z(x_, y_) for x_ in (RET_X-_hx, RET_X, RET_X+_hx) for y_ in (y0_+0.1, yl, yl+0.9)]
     top = max(surf_z(RET_X, yl)+RAIL_PAD[3], max(zs_)+0.15); bot = min(zs_)-0.5
@@ -1832,178 +1834,182 @@ def fx(x):
 log("x scale", round(SX, 6), "hull length", round((HULL_X1-HULL_X0)*SX, 3),
     "overall", round((X_MAX-X_MIN)*SX, 3))
 
-log("railings: flat strips, bent to the deck edge")
-assert abs(SX-SX_EST) < 0.003, ("rail pockets were sized for SX", SX_EST, SX)
-_CX = [fx(x) for x in _RX]; _CY = [rail_y(x) for x in _RX]
-_CS = [0.0]
-for i in range(1, len(_RX)):
-    _CS.append(_CS[-1]+math.hypot(_CX[i]-_CX[i-1], _CY[i]-_CY[i-1]))
+if RAILINGS:
+    log("railings: flat strips, bent to the deck edge")
+    assert abs(SX-SX_EST) < 0.003, ("rail pockets were sized for SX", SX_EST, SX)
+    _CX = [fx(x) for x in _RX]; _CY = [rail_y(x) for x in _RX]
+    _CS = [0.0]
+    for i in range(1, len(_RX)):
+        _CS.append(_CS[-1]+math.hypot(_CX[i]-_CX[i-1], _CY[i]-_CY[i-1]))
 
 
-def _interp(s, arr):
-    i = min(max(bisect.bisect_right(_CS, s)-1, 0), len(_CS)-2)
-    u = (s-_CS[i])/(_CS[i+1]-_CS[i])
-    return arr[i]+(arr[i+1]-arr[i])*u
+    def _interp(s, arr):
+        i = min(max(bisect.bisect_right(_CS, s)-1, 0), len(_CS)-2)
+        u = (s-_CS[i])/(_CS[i+1]-_CS[i])
+        return arr[i]+(arr[i+1]-arr[i])*u
 
 
-def c_at(s):
-    """final (x, y) of the port fence centreline, outward unit normal, and pre-scale x at arc length s."""
-    x0, y0 = _interp(s-0.05, _CX), _interp(s-0.05, _CY)
-    x1, y1 = _interp(s+0.05, _CX), _interp(s+0.05, _CY)
-    L = math.hypot(x1-x0, y1-y0); tx_, ty_ = (x1-x0)/L, (y1-y0)/L
-    return (_interp(s, _CX), _interp(s, _CY)), (ty_, -tx_), _interp(s, _RX)
+    def c_at(s):
+        """final (x, y) of the port fence centreline, outward unit normal, and pre-scale x at arc length s."""
+        x0, y0 = _interp(s-0.05, _CX), _interp(s-0.05, _CY)
+        x1, y1 = _interp(s+0.05, _CX), _interp(s+0.05, _CY)
+        L = math.hypot(x1-x0, y1-y0); tx_, ty_ = (x1-x0)/L, (y1-y0)/L
+        return (_interp(s, _CX), _interp(s, _CY)), (ty_, -tx_), _interp(s, _RX)
 
 
-def s_post(x):
-    i = min(max(int((95.0-x)/0.05), 0), len(_RX)-2)
-    return _CS[i]+(_CS[i+1]-_CS[i])*((95.0-x)/0.05-i)
+    def s_post(x):
+        i = min(max(int((95.0-x)/0.05), 0), len(_RX)-2)
+        return _CS[i]+(_CS[i+1]-_CS[i])*((95.0-x)/0.05-i)
 
 
-def deck_s(s):
-    x = c_at(s)[2]
-    return deck_z(x, rail_y(x))
+    def deck_s(s):
+        x = c_at(s)[2]
+        return deck_z(x, rail_y(x))
 
 
-RAIL_H = [(RAIL_POSTS[0], RAIL_POSTS[2], 10.5), (RAIL_POSTS[2], RAIL_POSTS[-2], 9.2),
-          (RAIL_POSTS[-2], RAIL_POSTS[-1], 10.0)]          # pulpit, lifelines, pushpit: top above the deck
-RAIL_TOP_W, RAIL_MID_W, RAIL_MID_Z, RAIL_POST_W = 0.85, 0.8, 4.7, 1.0
+    RAIL_H = [(RAIL_POSTS[0], RAIL_POSTS[2], 10.5), (RAIL_POSTS[2], RAIL_POSTS[-2], 9.2),
+              (RAIL_POSTS[-2], RAIL_POSTS[-1], 10.0)]          # pulpit, lifelines, pushpit: top above the deck
+    RAIL_TOP_W, RAIL_MID_W, RAIL_MID_Z, RAIL_POST_W = 0.85, 0.8, 4.7, 1.0
 
 
-def flat_box(name, s0, s1, z0, z1):
-    return rings_solid(name, [[(s0, z0, 0.0), (s0, z0, RAIL_T), (s0, z1, RAIL_T), (s0, z1, 0.0)],
-                              [(s1, z0, 0.0), (s1, z0, RAIL_T), (s1, z1, RAIL_T), (s1, z1, 0.0)]])
+    def flat_box(name, s0, s1, z0, z1):
+        return rings_solid(name, [[(s0, z0, 0.0), (s0, z0, RAIL_T), (s0, z1, RAIL_T), (s0, z1, 0.0)],
+                                  [(s1, z0, 0.0), (s1, z0, RAIL_T), (s1, z1, RAIL_T), (s1, z1, 0.0)]])
 
 
-def flat_band(name, s0, s1, zc_fun, h):
-    n = max(2, int((s1-s0)/0.8)+1)
-    rings = []
-    for k in range(n+1):
-        s = s0+(s1-s0)*k/n; zc = zc_fun(s)
-        rings.append([(s, zc-h/2, 0.0), (s, zc-h/2, RAIL_T), (s, zc+h/2, RAIL_T), (s, zc+h/2, 0.0)])
-    return rings_solid(name, rings)
+    def flat_band(name, s0, s1, zc_fun, h):
+        n = max(2, int((s1-s0)/0.8)+1)
+        rings = []
+        for k in range(n+1):
+            s = s0+(s1-s0)*k/n; zc = zc_fun(s)
+            rings.append([(s, zc-h/2, 0.0), (s, zc-h/2, RAIL_T), (s, zc+h/2, RAIL_T), (s, zc+h/2, 0.0)])
+        return rings_solid(name, rings)
 
 
-def fine_s(ob, max_len=0.9):
-    """split long strip-wise edges so the strip bends smoothly when mapped onto the deck-edge curve."""
-    bm = bmesh.new(); bm.from_mesh(ob.data)
-    bmesh.ops.triangulate(bm, faces=bm.faces)
-    for _ in range(8):
-        long_ = [e for e in bm.edges if abs(e.verts[0].co.x-e.verts[1].co.x) > max_len]
-        if not long_:
-            break
-        bmesh.ops.subdivide_edges(bm, edges=long_, cuts=1, use_grid_fill=False)
+    def fine_s(ob, max_len=0.9):
+        """split long strip-wise edges so the strip bends smoothly when mapped onto the deck-edge curve."""
+        bm = bmesh.new(); bm.from_mesh(ob.data)
         bmesh.ops.triangulate(bm, faces=bm.faces)
-    bm.to_mesh(ob.data); bm.free()
-    return ob
+        for _ in range(8):
+            long_ = [e for e in bm.edges if abs(e.verts[0].co.x-e.verts[1].co.x) > max_len]
+            if not long_:
+                break
+            bmesh.ops.subdivide_edges(bm, edges=long_, cuts=1, use_grid_fill=False)
+            bmesh.ops.triangulate(bm, faces=bm.faces)
+        bm.to_mesh(ob.data); bm.free()
+        return ob
 
 
-SP = {xp: s_post(xp) for xp in RAIL_POSTS}
-strip = None
-for xa, xb, h in RAIL_H:
-    sa, sb = SP[xa]-0.45, SP[xb]+0.45
-    b_ = flat_band("RailTop", sa, sb, lambda s, h=h: deck_s(s)+h-RAIL_TOP_W/2, RAIL_TOP_W)
-    strip = b_ if strip is None else G.boolean(strip, b_, "UNION")
-G.boolean(strip, flat_band("RailMid", SP[RAIL_POSTS[0]]-0.45, SP[RAIL_POSTS[-1]]+0.45,
-                           lambda s: deck_s(s)+RAIL_MID_Z, RAIL_MID_W), "UNION")
-RAIL_POST_TOPS = {}
-for xp in RAIL_POSTS:
-    h = max(h_ for xa, xb, h_ in RAIL_H if xb <= xp <= xa)
-    top_ = deck_s(SP[xp])+h-0.05; ptop = RAIL_INFO[xp]["pad_top"]
-    RAIL_POST_TOPS[xp] = round(top_-ptop, 2)
-    G.boolean(strip, flat_box("RailPost", SP[xp]-RAIL_POST_W/2, SP[xp]+RAIL_POST_W/2, ptop, top_), "UNION")
-    G.boolean(strip, flat_box("RailTab", SP[xp]-RAIL_TAB[0]/2, SP[xp]+RAIL_TAB[0]/2, ptop-RAIL_TAB[1], ptop+0.05), "UNION")
-fine_s(strip)
-log("rail strip", G.mesh_stats(strip), "post heights above pads", RAIL_POST_TOPS)
-# transom return (flat coords: s = y, z, t), top and mid rails level with the side fence at the corner post
-s_c = SP[RAIL_POSTS[-1]]
-RET_TOP = deck_s(s_c)+RAIL_H[-1][2]
-RET_MIDZ = deck_s(s_c)+RAIL_MID_Z
-RET_YEND = rail_y(RAIL_POSTS[-1])+RAIL_T/2
-RET_YC = RET_YEND-RAIL_POST_W/2                 # corner post of the return, flush with the fence's outer face
-RET_CTOP = RAIL_INFO[RAIL_POSTS[-1]]["pad_top"]   # it stands on the side fence's corner pad, no tab, glued
-ret = flat_box("RetTop", RET_LEGS[0]-0.45, RET_YEND, RET_TOP-RAIL_TOP_W, RET_TOP)
-G.boolean(ret, flat_box("RetMid", RET_LEGS[0]-0.45, RET_YEND, RET_MIDZ-RAIL_MID_W/2, RET_MIDZ+RAIL_MID_W/2), "UNION")
-G.boolean(ret, flat_box("RetCorner", RET_YC-RAIL_POST_W/2, RET_YC+RAIL_POST_W/2, RET_CTOP, RET_TOP-0.05), "UNION")
-for j, yl in enumerate(RET_LEGS):
-    ptop = RET_INFO[j]["pad_top"]
-    G.boolean(ret, flat_box("RetPost", yl-RAIL_POST_W/2, yl+RAIL_POST_W/2, ptop, RET_TOP-0.05), "UNION")
-    G.boolean(ret, flat_box("RetTab", yl-RAIL_TAB[0]/2, yl+RAIL_TAB[0]/2, ptop-RAIL_TAB[1], ptop+0.05), "UNION")
-RET_XF = fx(RET_X)
-_post_aft = c_at(s_c+RAIL_POST_W/2)[0][0]
-log("transom return", G.mesh_stats(ret), "front face x", round(RET_XF+RAIL_T/2, 3), "corner post aft face x",
-    round(_post_aft, 3), "top z", round(RET_TOP, 2), "mid z", round(RET_MIDZ, 2))
+    SP = {xp: s_post(xp) for xp in RAIL_POSTS}
+    strip = None
+    for xa, xb, h in RAIL_H:
+        sa, sb = SP[xa]-0.45, SP[xb]+0.45
+        b_ = flat_band("RailTop", sa, sb, lambda s, h=h: deck_s(s)+h-RAIL_TOP_W/2, RAIL_TOP_W)
+        strip = b_ if strip is None else G.boolean(strip, b_, "UNION")
+    G.boolean(strip, flat_band("RailMid", SP[RAIL_POSTS[0]]-0.45, SP[RAIL_POSTS[-1]]+0.45,
+                               lambda s: deck_s(s)+RAIL_MID_Z, RAIL_MID_W), "UNION")
+    RAIL_POST_TOPS = {}
+    for xp in RAIL_POSTS:
+        h = max(h_ for xa, xb, h_ in RAIL_H if xb <= xp <= xa)
+        top_ = deck_s(SP[xp])+h-0.05; ptop = RAIL_INFO[xp]["pad_top"]
+        RAIL_POST_TOPS[xp] = round(top_-ptop, 2)
+        G.boolean(strip, flat_box("RailPost", SP[xp]-RAIL_POST_W/2, SP[xp]+RAIL_POST_W/2, ptop, top_), "UNION")
+        G.boolean(strip, flat_box("RailTab", SP[xp]-RAIL_TAB[0]/2, SP[xp]+RAIL_TAB[0]/2, ptop-RAIL_TAB[1], ptop+0.05), "UNION")
+    fine_s(strip)
+    log("rail strip", G.mesh_stats(strip), "post heights above pads", RAIL_POST_TOPS)
+    # transom return (flat coords: s = y, z, t), top and mid rails level with the side fence at the corner post
+    s_c = SP[RAIL_POSTS[-1]]
+    RET_TOP = deck_s(s_c)+RAIL_H[-1][2]
+    RET_MIDZ = deck_s(s_c)+RAIL_MID_Z
+    RET_YEND = rail_y(RAIL_POSTS[-1])+RAIL_T/2
+    RET_YC = RET_YEND-RAIL_POST_W/2                 # corner post of the return, flush with the fence's outer face
+    RET_CTOP = RAIL_INFO[RAIL_POSTS[-1]]["pad_top"]   # it stands on the side fence's corner pad, no tab, glued
+    ret = flat_box("RetTop", RET_LEGS[0]-0.45, RET_YEND, RET_TOP-RAIL_TOP_W, RET_TOP)
+    G.boolean(ret, flat_box("RetMid", RET_LEGS[0]-0.45, RET_YEND, RET_MIDZ-RAIL_MID_W/2, RET_MIDZ+RAIL_MID_W/2), "UNION")
+    G.boolean(ret, flat_box("RetCorner", RET_YC-RAIL_POST_W/2, RET_YC+RAIL_POST_W/2, RET_CTOP, RET_TOP-0.05), "UNION")
+    for j, yl in enumerate(RET_LEGS):
+        ptop = RET_INFO[j]["pad_top"]
+        G.boolean(ret, flat_box("RetPost", yl-RAIL_POST_W/2, yl+RAIL_POST_W/2, ptop, RET_TOP-0.05), "UNION")
+        G.boolean(ret, flat_box("RetTab", yl-RAIL_TAB[0]/2, yl+RAIL_TAB[0]/2, ptop-RAIL_TAB[1], ptop+0.05), "UNION")
+    RET_XF = fx(RET_X)
+    _post_aft = c_at(s_c+RAIL_POST_W/2)[0][0]
+    log("transom return", G.mesh_stats(ret), "front face x", round(RET_XF+RAIL_T/2, 3), "corner post aft face x",
+        round(_post_aft, 3), "top z", round(RET_TOP, 2), "mid z", round(RET_MIDZ, 2))
 
 
-def _flip(o):
-    bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.reverse_faces(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
+    def _flip(o):
+        bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.reverse_faces(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
 
 
-def map_strip(name, src, side):
-    o = dup(src, name)
-    for v in o.data.vertices:
-        s, z, t = v.co
-        (cx_, cy_), (nx_, ny_), _ = c_at(s)
-        v.co = Vector((cx_+nx_*(t-RAIL_T/2), side*(cy_+ny_*(t-RAIL_T/2)), z))
-    if side < 0:
-        _flip(o)
-    return o
+    def map_strip(name, src, side):
+        o = dup(src, name)
+        for v in o.data.vertices:
+            s, z, t = v.co
+            (cx_, cy_), (nx_, ny_), _ = c_at(s)
+            v.co = Vector((cx_+nx_*(t-RAIL_T/2), side*(cy_+ny_*(t-RAIL_T/2)), z))
+        if side < 0:
+            _flip(o)
+        return o
 
 
-def map_ret(name, src, side):
-    o = dup(src, name)
-    for v in o.data.vertices:
-        s, z, t = v.co
-        v.co = Vector((RET_XF+t-RAIL_T/2, side*s, z))
-    if side < 0:
-        _flip(o)
-    return o
+    def map_ret(name, src, side):
+        o = dup(src, name)
+        for v in o.data.vertices:
+            s, z, t = v.co
+            v.co = Vector((RET_XF+t-RAIL_T/2, side*s, z))
+        if side < 0:
+            _flip(o)
+        return o
 
 
-rails = {"Rail_Port": map_strip("Rail_Port", strip, 1), "Rail_Starboard": map_strip("Rail_Starboard", strip, -1),
-         "RailAft_Port": map_ret("RailAft_Port", ret, 1), "RailAft_Starboard": map_ret("RailAft_Starboard", ret, -1)}
-# flat print layout: two identical strips nested along their sheer, the two (identical) returns stacked after them
-_zs = [v.co.y for v in strip.data.vertices]; _ss = [v.co.x for v in strip.data.vertices]
-_lo = [deck_s(s) for s in _ss]
-NEST_DZ = max(z-d for z, d in zip(_zs, _lo))-min(z-d for z, d in zip(_zs, _lo))+1.2
-_rz = [v.co.y for v in ret.data.vertices]; _ry = [v.co.x for v in ret.data.vertices]
-pr = []
-for k in range(2):
-    o = dup(strip, "RailPrint%d" % k)
-    for v in o.data.vertices:
-        v.co = Vector((v.co.x-min(_ss), v.co.y-min(_zs)+k*NEST_DZ, v.co.z))
-    pr.append(o)
-for k in range(2):
-    o = dup(ret, "RetPrint%d" % k)
-    for v in o.data.vertices:
-        v.co = Vector((max(_ss)-min(_ss)+2.0+v.co.x-min(_ry), v.co.y-min(_rz)+k*(max(_rz)-min(_rz)+1.5), v.co.z))
-    pr.append(o)
-rails_print = pr[0]
-for o in pr[1:]:
-    G.boolean(rails_print, o, "UNION")
-_bad = G.mesh_stats(rails_print)["nonmanifold"]
-assert _bad == 0, ("rail print sheet non-manifold", _bad)
-os.makedirs(os.path.join(OUT, "print"), exist_ok=True)
-for o in bpy.data.objects:
-    o.select_set(o is rails_print)
-bpy.ops.wm.stl_export(filepath=os.path.join(OUT, "print", "Rails_print.stl"), export_selected_objects=True)
-_pb = [max(v.co[i] for v in rails_print.data.vertices)-min(v.co[i] for v in rails_print.data.vertices) for i in range(3)]
-RAIL_STATS = {"posts_x_prescale": RAIL_POSTS, "posts_x": [round(fx(x), 2) for x in RAIL_POSTS],
-              "heights_above_deck": {"pulpit": 10.5, "lifelines": 9.2, "pushpit": 10.0}, "mid_rail": RAIL_MID_Z,
-              "strip_t": RAIL_T, "top_rail_w": RAIL_TOP_W, "mid_rail_w": RAIL_MID_W, "post_w": RAIL_POST_W,
-              "tab": RAIL_TAB, "pocket": RAIL_POCKET, "pad": RAIL_PAD, "fence_inboard_of_edge": RAIL_IN,
-              "strip_length": round(max(_ss)-min(_ss), 2), "nest_dz": round(NEST_DZ, 2),
-              "print_sheet_mm": [round(v, 2) for v in _pb], "post_heights_above_pads": RAIL_POST_TOPS,
-              "pads": {str(k): {kk: (round(vv, 4) if isinstance(vv, float) else vv) for kk, vv in v.items()}
-                       for k, v in RAIL_INFO.items()},
-              "returns": {"x": round(RET_XF, 3), "legs_y": [round(RET_YC, 3)]+list(RET_LEGS), "top_z": round(RET_TOP, 2),
-                          "pad_tops": [round(RET_CTOP, 4)]+[round(RET_INFO[j]["pad_top"], 4) for j in range(len(RET_LEGS))],
-                          "corner_post": "tab-less, stands on the corner pad, glued to the corner post's aft face",
-                          "mid_z": round(RET_MIDZ, 2), "y_end": round(RET_YEND, 2),
-                          "front_face_to_corner_post": round(_post_aft-(RET_XF+RAIL_T/2), 3)}}
-log("rail print sheet", [round(v, 1) for v in _pb], "nest dz", round(NEST_DZ, 2))
-for o in [strip, ret, rails_print]:
-    bpy.data.objects.remove(o, do_unlink=True)
-parts.update(rails)
+    rails = {"Rail_Port": map_strip("Rail_Port", strip, 1), "Rail_Starboard": map_strip("Rail_Starboard", strip, -1),
+             "RailAft_Port": map_ret("RailAft_Port", ret, 1), "RailAft_Starboard": map_ret("RailAft_Starboard", ret, -1)}
+    # flat print layout: two identical strips nested along their sheer, the two (identical) returns stacked after them
+    _zs = [v.co.y for v in strip.data.vertices]; _ss = [v.co.x for v in strip.data.vertices]
+    _lo = [deck_s(s) for s in _ss]
+    NEST_DZ = max(z-d for z, d in zip(_zs, _lo))-min(z-d for z, d in zip(_zs, _lo))+1.2
+    _rz = [v.co.y for v in ret.data.vertices]; _ry = [v.co.x for v in ret.data.vertices]
+    pr = []
+    for k in range(2):
+        o = dup(strip, "RailPrint%d" % k)
+        for v in o.data.vertices:
+            v.co = Vector((v.co.x-min(_ss), v.co.y-min(_zs)+k*NEST_DZ, v.co.z))
+        pr.append(o)
+    for k in range(2):
+        o = dup(ret, "RetPrint%d" % k)
+        for v in o.data.vertices:
+            v.co = Vector((max(_ss)-min(_ss)+2.0+v.co.x-min(_ry), v.co.y-min(_rz)+k*(max(_rz)-min(_rz)+1.5), v.co.z))
+        pr.append(o)
+    rails_print = pr[0]
+    for o in pr[1:]:
+        G.boolean(rails_print, o, "UNION")
+    _bad = G.mesh_stats(rails_print)["nonmanifold"]
+    assert _bad == 0, ("rail print sheet non-manifold", _bad)
+    os.makedirs(os.path.join(OUT, "print"), exist_ok=True)
+    for o in bpy.data.objects:
+        o.select_set(o is rails_print)
+    bpy.ops.wm.stl_export(filepath=os.path.join(OUT, "print", "Rails_print.stl"), export_selected_objects=True)
+    _pb = [max(v.co[i] for v in rails_print.data.vertices)-min(v.co[i] for v in rails_print.data.vertices) for i in range(3)]
+    RAIL_STATS = {"posts_x_prescale": RAIL_POSTS, "posts_x": [round(fx(x), 2) for x in RAIL_POSTS],
+                  "heights_above_deck": {"pulpit": 10.5, "lifelines": 9.2, "pushpit": 10.0}, "mid_rail": RAIL_MID_Z,
+                  "strip_t": RAIL_T, "top_rail_w": RAIL_TOP_W, "mid_rail_w": RAIL_MID_W, "post_w": RAIL_POST_W,
+                  "tab": RAIL_TAB, "pocket": RAIL_POCKET, "pad": RAIL_PAD, "fence_inboard_of_edge": RAIL_IN,
+                  "strip_length": round(max(_ss)-min(_ss), 2), "nest_dz": round(NEST_DZ, 2),
+                  "print_sheet_mm": [round(v, 2) for v in _pb], "post_heights_above_pads": RAIL_POST_TOPS,
+                  "pads": {str(k): {kk: (round(vv, 4) if isinstance(vv, float) else vv) for kk, vv in v.items()}
+                           for k, v in RAIL_INFO.items()},
+                  "returns": {"x": round(RET_XF, 3), "legs_y": [round(RET_YC, 3)]+list(RET_LEGS), "top_z": round(RET_TOP, 2),
+                              "pad_tops": [round(RET_CTOP, 4)]+[round(RET_INFO[j]["pad_top"], 4) for j in range(len(RET_LEGS))],
+                              "corner_post": "tab-less, stands on the corner pad, glued to the corner post's aft face",
+                              "mid_z": round(RET_MIDZ, 2), "y_end": round(RET_YEND, 2),
+                              "front_face_to_corner_post": round(_post_aft-(RET_XF+RAIL_T/2), 3)}}
+    log("rail print sheet", [round(v, 1) for v in _pb], "nest dz", round(NEST_DZ, 2))
+    for o in [strip, ret, rails_print]:
+        bpy.data.objects.remove(o, do_unlink=True)
+    parts.update(rails)
+else:
+    RAIL_STATS = None
+
 BALLAST_CAVITY_CM3 = CAVITY_CM3*SX
 PELLET_VOL_CM3 = 4*math.pi*(0.15**3)/3
 PELLET_COUNT = int(BALLAST_CAVITY_CM3*0.64/PELLET_VOL_CM3)
@@ -2168,7 +2174,7 @@ build_stats.update(build_stats_extra)
 build_stats["anchor"] = {"toe_u": round(ANCHOR_U0, 2), "crown_front_x_prescale": ANCH_X1, "cheek_end_x_prescale": CHEEK_X1,
                          "roller": ROLLER, "shackle": SHACKLE, "fluke_shadow_gap_mm": FL_OT,
                          "shank_daylight_to_cheeks_mm": round(1.15-0.5, 2), "shank_air_over_plank_mm": 0.9}
-build_stats["railings"] = RAIL_STATS
+build_stats["railings"] = RAIL_STATS or "removed in rev 12"
 build_stats["cleats"] = {"xy_prescale": CLEATS, "flange": CLEAT_FLANGE, "top_above_deck": 2.72, "length": 4.2,
                          "width": 1.2, "colour": "ink"}
 build_stats["spreaders_section"] = SPREADER_SEC

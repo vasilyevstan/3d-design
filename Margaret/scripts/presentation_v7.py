@@ -56,7 +56,7 @@ spec = ("LOA 200.0 mm  /  beam 63.4 mm  /  draft 55.5 mm  /  masthead %.0f mm ab
         % (ST["rig"]["mast_top_z"], sails["full"]["area_cm2"], sails["medium"]["area_cm2"], sails["start"]["area_cm2"],
            HY["mass_g"]["lead"], HY["mass_g"]["lead_balls"], SB["lead_capacity_balls_discrete"], HY["mass_g"]["total"]))
 d.text((28, H - 76), spec, font=font(18), fill=navy)
-foot = "Blue underwater hull  /  white topsides and deck  /  navy trim, cleats and printed rails  /  teak decks  /  printed shroud frame to the deck edge  /  paper sails to sail"
+foot = "Blue underwater hull  /  white topsides and deck  /  navy trim and cleats  /  teak decks  /  printed shroud frame to the deck edge  /  paper sails to sail"
 if SLICE:
     foot += "  /  slice %s, %.0f g PLA" % (SLICE["time"], SLICE["grams"])
 d.text((28, H - 42), foot, font=font(16), fill=muted)
@@ -469,6 +469,7 @@ SD = B / "stand"
 if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for i in (1, 2, 3)):
     import re
     SJ = json.load(open(SD / "stand.json"))
+    SS = json.load(open(SD / "stand_strength.json")) if (SD / "stand_strength.json").exists() else None
 
     def slice_info(path):
         t = path.read_text() if path.exists() else ""
@@ -482,7 +483,7 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     ds_slice = slice_info(DS / "slice-Display_sail" / "times.txt")
     has4 = DJ is not None and (W / "stand-4.png").exists()
     has5 = (W / "stand-5.png").exists()
-    bs, nk, fk, ck, lo = SJ["base"], SJ["neck"], SJ["fork"], SJ["chock"], SJ["lift_off"]
+    bs, nk, fk, ck, lo = SJ["base"], SJ["neck"], SJ["fork"], SJ["forward_hold"], SJ["lift_off"]
     PH, RH, R5 = 1000, (440 if has4 else 0), (600 if has5 else 0)
     FOOT = 230 if has4 else 196
     SH = HEAD + 20 + PH + 20 + (R5 + 20 if has5 else 0) + (RH + 20 if has4 else 0) + FOOT
@@ -496,7 +497,7 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     y5 = HEAD + 20 + PH + 20
     y2 = y5 + (R5 + 20 if has5 else 0)
     panels = [("On the stand" + (" (printed display sail)" if has4 else ""), "stand-1.png", (27, HEAD + 20, 27 + 700, HEAD + 20 + PH)),
-              ("Fork pads under the hull either side of the keel; saddle under the bulb nose", "stand-2.png",
+              ("Fork pads under the hull either side of the keel, nothing under the bulb", "stand-2.png",
                (747, HEAD + 20, 1773, HEAD + 20 + 490)),
               ("Stand alone: thin egg base + one swan neck + open fork, nothing enters the model", "stand-3.png",
                (747, HEAD + 20 + 510, 1773, HEAD + 20 + PH))]
@@ -526,13 +527,17 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
         "No pins, no glue: the fork's two pads follow the hull bottom either side of the keel (%.0f mm long, zero gap) and carry her;"
         " the keel root sits in the fork slot with %.1f mm per side, so she cannot roll." % (fk["pads_x"][1] - fk["pads_x"][0],
                                                                                          fk["slot_clearance_mm"]),
-        "The fork is closed behind the keel's trailing edge (%.1f mm), so she cannot slide aft; a low saddle under the bulb nose (%.1f mm clear) stops her going forward."
-        % (SJ["clearances"]["fin_te_to_stop_mm"], ck["clearance_mm"]),
+        "Fork closed %.1f mm behind the keel's trailing edge: she cannot slide aft. No forward lock: the pads are a shallow cradle (%.1f deg average);"
+        " with PLA friction she holds to about %.1f deg of forward tilt (a %.1f N push starts her)."
+        % (SJ["clearances"]["fin_te_to_stop_mm"], ck["cradle_slope_deg"], ck["holds_up_to_forward_tilt_deg"], ck["push_to_start_slide_N_full_lead"]),
         "To take her off: %s, the bulb passes up through the open fork (checked: %d vertex positions, no contact; rudder %.1f mm from the neck). To put her on: the reverse."
         % (lo["path"], lo["vertex_checks"], lo["rudder_closest_to_stand_on_slide_mm"]["gap"]),
         "Calculated, not yet measured (full lead / no lead%s): G is %s mm inside the pads; the whole assembly tips at %s deg sideways,"
-        " %s deg forward." % (" / display sail" if dsc else "", "/".join("%.0f" % min(q["G_margin_to_pads_aft_mm"], q["G_margin_to_pads_fore_mm"]) for q in qs),
-                              tipj("sideways"), tipj("forward")),
+        " %s deg forward%s." % (" / display sail" if dsc else "", "/".join("%.0f" % min(q["G_margin_to_pads_aft_mm"], q["G_margin_to_pads_fore_mm"]) for q in qs),
+                              tipj("sideways"), tipj("forward"),
+                              ("; neck layer stress %.1f MPa, %.0fx below PLA layer strength" % (
+                                  max(c["max_layer_tension_MPa"] for c in SS["cases"].values()),
+                                  min(c["safety_factor_static"] for c in SS["cases"].values()))) if SS else ""),
     ]
     if has4:
         mk = DJ.get("markings")

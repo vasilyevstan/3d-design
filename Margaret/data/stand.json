@@ -1,5 +1,126 @@
 {
  "type": "swan-neck from aft",
+ "forward_hold": {
+  "lock": "none (rev 12): gravity in the pad cradle plus friction",
+  "lift_needed_vs_forward_slide_mm": [
+   [
+    0.0,
+    0.0
+   ],
+   [
+    0.5,
+    0.012
+   ],
+   [
+    1.0,
+    0.024
+   ],
+   [
+    1.5,
+    0.035
+   ],
+   [
+    2.0,
+    0.045
+   ],
+   [
+    2.5,
+    0.054
+   ],
+   [
+    3.0,
+    0.064
+   ],
+   [
+    3.5,
+    0.073
+   ],
+   [
+    4.0,
+    0.08
+   ],
+   [
+    4.5,
+    0.087
+   ],
+   [
+    5.0,
+    0.095
+   ],
+   [
+    5.5,
+    0.101
+   ],
+   [
+    6.0,
+    0.106
+   ],
+   [
+    6.5,
+    0.111
+   ],
+   [
+    7.0,
+    0.116
+   ],
+   [
+    7.5,
+    0.121
+   ],
+   [
+    8.0,
+    0.123
+   ],
+   [
+    8.5,
+    0.125
+   ],
+   [
+    9.0,
+    0.128
+   ],
+   [
+    9.5,
+    0.13
+   ],
+   [
+    10.0,
+    0.13
+   ],
+   [
+    10.5,
+    0.13
+   ],
+   [
+    11.0,
+    0.13
+   ],
+   [
+    11.5,
+    0.13
+   ],
+   [
+    12.0,
+    0.127
+   ]
+  ],
+  "cradle_slope_at_rest_deg": 1.37,
+  "cradle_rim": {
+   "slide_mm": 9.5,
+   "lift_mm": 0.13
+  },
+  "cradle_slope_deg": 0.78,
+  "friction_mu_assumed": 0.3,
+  "holds_up_to_forward_tilt_deg": 17.5,
+  "push_to_start_slide_N_full_lead": 0.197,
+  "slide_before_G_leaves_pads_mm": {
+   "sailing trim (full lead, paper sail)": 8.45,
+   "no lead": 6.65,
+   "full lead, printed display sail": 8.36
+  },
+  "aft": "closed fork stop 0.45 mm behind the fin trailing edge",
+  "roll": "fin in the slot, 0.4 mm per side"
+ },
  "base": {
   "shape": "egg",
   "length_mm": 96.5,
@@ -12,7 +133,6 @@
   "top_z": -63.45,
   "top_bevel_mm": 0.8,
   "margin_root_mm": 3.31,
-  "margin_chock_mm": 19.27,
   "volume_cm3": 6.49
  },
  "neck": {
@@ -62,22 +182,6 @@
   "contact": "zero gap: pads follow the hull bottom",
   "supports": "tree, under the head only"
  },
- "chock": {
-  "x": [
-   12.9,
-   18.4
-  ],
-  "front_top_z": -53.85,
-  "max_top_z": -53.45,
-  "half_width_mm": 3.0,
-  "shape": "saddle following the bulb nose underside",
-  "lock_height_over_bulb_flat_mm": [
-   1.6,
-   2.0
-  ],
-  "clearance_mm": 0.4,
-  "lift_to_remove_mm": 3.0
- },
  "clearances": {
   "fin_to_slot_mm": [
    0.399,
@@ -93,14 +197,6 @@
     -49.82,
     0.02,
     -48.59
-   ]
-  ],
-  "bulb_to_chock_mm": [
-   0.443,
-   [
-    13.29,
-    0.47,
-    -53.19
    ]
   ],
   "bulb_to_base_mm": 8.0,
@@ -125,83 +221,82 @@
   }
  },
  "printability": {
-  "downward_area_mm2": 754.8,
+  "downward_area_mm2": 754.7,
   "area_over_50_deg_mm2": 0.0,
   "max_overhang_from_vertical_deg_faces_over_0.05mm2": 49.2,
   "head_underside_supported_mm2": 194.9,
   "supports": "tree supports under the fork head only; base, fillet and neck support-free"
  },
  "stability": {
-  "stand_mass_g": 11.0,
+  "stand_mass_g": 10.6,
   "stand_mass_source": "BambuStudio slice without supports (supports removed)",
-  "print_mass_incl_supports_g": 12.68,
+  "print_mass_incl_supports_g": 12.3,
   "stand_cg": [
-   -22.34,
-   -0.0,
-   -54.21
+   -23.61,
+   0.0,
+   -54.08
   ],
   "cases": {
    "sailing trim (full lead, paper sail)": {
-    "boat_mass_g": 63.94,
+    "boat_mass_g": 63.96,
     "G": [
-     -3.54,
+     -3.53,
      0.01,
-     -5.35
+     -6.24
     ],
-    "G_margin_to_pads_aft_mm": 27.94,
-    "G_margin_to_pads_fore_mm": 8.46,
+    "G_margin_to_pads_aft_mm": 27.95,
+    "G_margin_to_pads_fore_mm": 8.45,
     "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
-     "sideways": 31.1,
-     "forward": 33.0,
-     "aft": 49.8,
-     "any_direction_min": 30.9
+     "sideways": 31.4,
+     "forward": 33.3,
+     "aft": 50.0,
+     "any_direction_min": 31.2
     }
    },
    "no lead": {
-    "boat_mass_g": 49.06,
+    "boat_mass_g": 48.28,
     "G": [
-     -1.84,
+     -1.73,
      0.01,
-     8.71
+     8.49
     ],
-    "G_margin_to_pads_aft_mm": 29.64,
-    "G_margin_to_pads_fore_mm": 6.76,
+    "G_margin_to_pads_aft_mm": 29.75,
+    "G_margin_to_pads_fore_mm": 6.65,
     "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
      "sideways": 27.0,
-     "forward": 28.2,
-     "aft": 45.3,
+     "forward": 28.3,
+     "aft": 45.2,
      "any_direction_min": 26.7
     }
    },
    "full lead, printed display sail": {
-    "boat_mass_g": 67.97,
+    "boat_mass_g": 67.99,
     "G": [
      -3.44,
      0.01,
-     1.5
+     0.66
     ],
-    "G_margin_to_pads_aft_mm": 28.03,
-    "G_margin_to_pads_fore_mm": 8.37,
+    "G_margin_to_pads_aft_mm": 28.04,
+    "G_margin_to_pads_fore_mm": 8.36,
     "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
-     "sideways": 28.3,
-     "forward": 30.0,
-     "aft": 46.7,
-     "any_direction_min": 28.1
+     "sideways": 28.5,
+     "forward": 30.2,
+     "aft": 46.9,
+     "any_direction_min": 28.4
     }
    }
   }
  },
  "nonmanifold_edges": 0,
  "nonmanifold_at": [],
- "volume_cm3": 9.49,
+ "volume_cm3": 9.19,
  "volume_parts_cm3": {
   "base": 6.49,
   "neck": 1.91,
-  "head": 0.88,
-  "chock": 0.326
+  "head": 0.88
  },
  "size_mm": [
   96.5,

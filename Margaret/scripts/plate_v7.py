@@ -17,8 +17,7 @@ COMPONENTS = {
     "Hull_lower": ([("Lower_blue", BLUE), ("Lower_white", WHITE), ("Lower_ink", INK)], R(180, "X"), (107.0, 30.9)),
     "Hull_upper": ([("Upper_white", WHITE), ("Upper_ink", INK), ("Window_ink", INK), ("Upper_teak", TEAK)],
                    Matrix.Identity(4), (107.0, 92.8)),
-    # rev 11 railings: both side fences and both stern returns, already laid flat (0.68 mm sheet) by build_v7.py
-    "Rails": ([("print/Rails_print", INK)], Matrix.Identity(4), (107.0, 140.1)),
+    # rev 12: the rev 11 printed railings were removed
     # display furler (stays ashore when sailing): flat face y=-0.6 down, turned along the free band
     "Furler": ([("Furler", WHITE), ("Furler_ink", INK)], ("scanZ", R(90, "X"), 95.0, 118.0), (128.0, 158.7)),
     "Fin_cap": ([("Fin_cap", BLUE)], Matrix.Identity(4), (31.0, 171.4)),

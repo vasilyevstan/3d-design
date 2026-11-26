@@ -3,7 +3,7 @@
 Run: STAND_DIR=<dir with Stand.stl> [SAIL_DIR=<dir with Display_sail.stl>] MARGARET_WORK=<render dir>
      blender -b <stage>/Margaret.blend -P stand_show.py
 Saves the blend in place and writes stand-1.png (boat on stand, printed display sail instead of the paper preview sail
-when SAIL_DIR is given), stand-2.png (fork on the fin root and the nose saddle), stand-3.png (stand alone), stand-4.png
+when SAIL_DIR is given), stand-2.png (fork on the fin root), stand-3.png (stand alone), stand-4.png
 (display sail with its navy markings), stand-5.png (port profile: the neck rising between rudder and keel).
 """
 import bpy, os

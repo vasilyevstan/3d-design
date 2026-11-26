@@ -60,7 +60,7 @@
    "tiny_count": 0
   },
   "Upper_ink": {
-   "components": 106,
+   "components": 104,
    "tiny": [],
    "tiny_count": 0
   },
@@ -90,100 +90,7 @@
    "tiny_count": 0
   }
  },
- "railings": {
-  "Rail_Port": {
-   "tab_vertices": 36,
-   "tab_min_side_gap_mm": 0.15,
-   "tab_nearest": "Upper_ink",
-   "tab_at": [
-    -13.96,
-    30.59,
-    15.71
-   ],
-   "tab_points_buried": 0,
-   "tab_bottom_not_below_floor": true,
-   "tab_foot_to_floor_mm": 0.0,
-   "fence_min_gap_above_pads_mm": 2.261,
-   "fence_nearest": "Upper_ink",
-   "fence_at": [
-    -86.92,
-    25.76,
-    20.48
-   ],
-   "min_gap_to_rig_wheels_mm": 1.909,
-   "rig_nearest": "Shrouds",
-   "rig_overlaps": {}
-  },
-  "Rail_Starboard": {
-   "tab_vertices": 36,
-   "tab_min_side_gap_mm": 0.15,
-   "tab_nearest": "Upper_ink",
-   "tab_at": [
-    -13.96,
-    -30.59,
-    15.71
-   ],
-   "tab_points_buried": 0,
-   "tab_bottom_not_below_floor": true,
-   "tab_foot_to_floor_mm": 0.0,
-   "fence_min_gap_above_pads_mm": 2.261,
-   "fence_nearest": "Upper_ink",
-   "fence_at": [
-    -86.92,
-    -25.76,
-    20.48
-   ],
-   "min_gap_to_rig_wheels_mm": 1.909,
-   "rig_nearest": "Shrouds",
-   "rig_overlaps": {}
-  },
-  "RailAft_Port": {
-   "tab_vertices": 4,
-   "tab_min_side_gap_mm": 0.15,
-   "tab_nearest": "Upper_ink",
-   "tab_at": [
-    -89.28,
-    10.45,
-    13.75
-   ],
-   "tab_points_buried": 0,
-   "tab_bottom_not_below_floor": true,
-   "tab_foot_to_floor_mm": 0.0,
-   "fence_min_gap_above_pads_mm": 2.735,
-   "fence_nearest": "Upper_ink",
-   "fence_at": [
-    -88.6,
-    25.24,
-    20.51
-   ],
-   "min_gap_to_rig_wheels_mm": 6.0,
-   "rig_nearest": null,
-   "rig_overlaps": {}
-  },
-  "RailAft_Starboard": {
-   "tab_vertices": 4,
-   "tab_min_side_gap_mm": 0.15,
-   "tab_nearest": "Upper_ink",
-   "tab_at": [
-    -88.6,
-    -9.75,
-    13.75
-   ],
-   "tab_points_buried": 0,
-   "tab_bottom_not_below_floor": true,
-   "tab_foot_to_floor_mm": 0.0,
-   "fence_min_gap_above_pads_mm": 2.735,
-   "fence_nearest": "Upper_ink",
-   "fence_at": [
-    -88.6,
-    -25.24,
-    20.51
-   ],
-   "min_gap_to_rig_wheels_mm": 6.0,
-   "rig_nearest": null,
-   "rig_overlaps": {}
-  }
- },
+ "railings": "removed in rev 12",
  "boom_swing": {
   "-45": {
    "min_gap": 0.392,

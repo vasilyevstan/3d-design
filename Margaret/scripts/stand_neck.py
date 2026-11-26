@@ -6,7 +6,9 @@ bottom either side of the fin root.  No pins, nothing enters the model.
   at the rear (a stop SLOT_CLEAR behind the fin's trailing edge, so she cannot go aft) and open forward.  Near the stop
   it is the fin's swept section plus SLOT_CLEAR per side (she cannot roll); forward it flares so that, once she has slid
   SLIDE forward, the ballast bulb can pass up through it.
-* Lock: a saddle chock on the base sits CHOCK_CLEAR under the bulb's rising nose, so she cannot walk forward.
+* No forward lock (rev 12: the nose chock was removed at the user's request).  Forward she is held by gravity and
+  friction: the hull's lowest point lies inside the pad span, so the zero-gap pads are a shallow cradle and she must
+  climb to move forward (audited: lift needed vs forward slide, and the slide before G leaves the pads).
   To take her off: lift LIFT, slide forward SLIDE, lift off (audited: every hull/keel/rudder vertex on that path).
 * Printed upright.  Base, root fillet and neck are support-free (<= 48 deg, audited); tree supports only under the
   fork head, which is hidden under the hull.
@@ -32,7 +34,7 @@ WIDEN = 8.0                 # neck widening length below the head: lean + wideni
 BULB_GAP = 8.0              # bulb flat above the base top: the boat stands visibly raised
 BASE_T, BASE_BEVEL, BASE_FOOT = 1.4, 0.8, 0.3
 BASE_B, BASE_K = 31.0, 0.25  # egg: y = B sin t (1 + K cos t), widest ahead of centre
-BASE_X_HI = 28.0            # base front (chock and G well inside)
+BASE_X_HI = 28.0            # base front (G well inside: forward tipping)
 BASE_MARGIN = 4.5           # base edge beyond the neck root fillet (aft)
 XR0, XF0 = -60.0, -53.5     # neck root: rear and front faces (between the rudder and the bulb tail)
 NECK_HW = 2.8               # neck half-width (y)
@@ -42,9 +44,9 @@ LEAN = 48.0                 # neck lean from vertical (print overhang limit 50)
 ZA_F, R_F = -42.0, 10.0     # front face vertical up to ZA_F, then an R_F arc into the lean
 R_R, T_L = 16.0, 5.0        # rear arc radius; neck thickness square to the lean
 X_TIP, TIP_R = 5.0, 1.5     # fork prong tips (at the fin's leading edge) and their plan corner radius
-SLIDE = 29.0                # lift-off: up LIFT (set by the chock), forward SLIDE, then up
-CHOCK_LOCK, CHOCK_CLEAR, CHOCK_LEN, CHOCK_HW = 1.6, 0.4, 5.5, 3.0
-CHOCK_WRAP = 2.0            # saddle rises around the nose at most this far above the bulb flat
+SLIDE = 29.0                # lift-off: up LIFT, forward SLIDE, then up
+LIFT = 3.0                  # the slot is cut for the fin carried anywhere from 0 to LIFT higher while sliding
+MU_PLA = 0.3                # PLA on PLA static friction (assumed, published 0.2-0.4) for the forward-hold estimate
 Z_TOP = -8.0                # head stack top (trimmed by the hull height field)
 Z_ROOT = -12.25             # fin sections above this are inside the hull socket
 OVERHANG_MAX = 50.0
@@ -80,49 +82,6 @@ Z_BED = ZB-BASE_T
 BULB_NOSE_X = max(v.x for v in cv)
 BULB_TAIL_X = min(v.x for v in cv)
 FIN_TE_X = min(v.x for v in fv if v.z > -30.0)
-
-
-# ---------------- nose chock (saddle); it sets the lift-off height ----------------
-def bulb_bottom(x):
-    zz = []
-    for y in np.linspace(-CHOCK_HW, CHOCK_HW, 9):
-        h = cup.ray_cast(Vector((x, y, -80.0)), Vector((0, 0, 1)))
-        if h[0] is not None:
-            zz.append(h[0].z)
-    return min(zz) if zz else None
-
-
-Z_CHOCK = z_flat+CHOCK_LOCK
-XC0 = None
-for x in np.arange(-10.0, BULB_NOSE_X, 0.1):
-    zb = bulb_bottom(x)
-    if zb is not None and zb >= Z_CHOCK+CHOCK_CLEAR:
-        XC0 = float(x)
-        break
-XC1 = XC0+CHOCK_LEN
-CG = 0.1
-ER = CHOCK_CLEAR+0.05                                      # ball offset radius (true 3D clearance, not vertical)
-ne = int(math.ceil(ER/CG))
-cxs = np.arange(XC0-0.5, XC1+0.5+1e-9, CG)
-cys = np.arange(-CHOCK_HW-0.5, CHOCK_HW+0.5+1e-9, CG)
-exs = np.arange(cxs[0]-ne*CG, cxs[-1]+ne*CG+1e-9, CG)[:len(cxs)+2*ne]
-eys = np.arange(cys[0]-ne*CG, cys[-1]+ne*CG+1e-9, CG)[:len(cys)+2*ne]
-ZU = np.full((len(exs), len(eys)), z_flat+9.0)
-for i, x in enumerate(exs):
-    for j, y in enumerate(eys):
-        h = cup.ray_cast(Vector((x, y, -80.0)), Vector((0, 0, 1)))
-        if h[0] is not None:
-            ZU[i, j] = h[0].z
-CH = np.full((len(cxs), len(cys)), np.inf)
-for di in range(-ne, ne+1):
-    for dj in range(-ne, ne+1):
-        d2 = (di*CG)**2+(dj*CG)**2
-        if d2 > ER*ER:
-            continue
-        CH = np.minimum(CH, ZU[ne+di:ne+di+len(cxs), ne+dj:ne+dj+len(cys)]-math.sqrt(ER*ER-d2))
-CH = np.minimum(CH, z_flat+CHOCK_WRAP)
-CHOCK_TOP = float(CH.max())
-LIFT = math.ceil((CHOCK_TOP-z_flat+0.7)*2)/2            # the bulb flat must clear the saddle's highest point
 
 
 def smax(a, b, k):
@@ -416,16 +375,12 @@ def egg_hw(x, a=A, b=BASE_B):
 
 
 root_margin = egg_hw(XR0-ROOT_R)-(NECK_HW+ROOT_R)
-chock_margin = min(egg_hw(XC0), egg_hw(XC1))-CHOCK_HW
-if root_margin < 2.5 or chock_margin < 2.5:
-    raise RuntimeError("base too small: root %.2f chock %.2f" % (root_margin, chock_margin))
+if root_margin < 2.5:
+    raise RuntimeError("base too small: root %.2f" % root_margin)
 base = rings_solid("Base", [egg(A-BASE_FOOT, BASE_B-BASE_FOOT, Z_BED), egg(A, BASE_B, Z_BED+BASE_FOOT),
                             egg(A, BASE_B, ZB-BASE_BEVEL), egg(A-BASE_BEVEL, BASE_B-BASE_BEVEL, ZB)])
-chock = rings_solid("Chock", [[(x, y, z) for x, y in rrect(XC0, XC1, -CHOCK_HW, CHOCK_HW, 1.6)] for z in (ZB-0.6, CHOCK_TOP+1.0)])
-boolean(chock, heightfield_cutter("ChockCut", cxs, cys, CH, -30.0), "DIFFERENCE")
-v_base, v_chock = volume(base), volume(chock)
+v_base = volume(base)
 boolean(neck, base, "UNION")
-boolean(neck, chock, "UNION")
 stand = neck
 
 bm = bmesh.new(); bm.from_mesh(stand.data)
@@ -485,12 +440,10 @@ def min_gap(points):
 
 fin_pts = [v for v in fv if Z_HB-0.5 < v.z < Z_ROOT+0.2]
 bulb_pts = [v for v in fv if v.z < -40.0]
-chock_pts = [v for v in cv if v.x > XC0-3.0 and v.z < Z_CHOCK+3.0]
 gaps = {"fin_to_slot_mm": min_gap(fin_pts), "bulb_to_neck_mm": min_gap([v for v in bulb_pts if v.x < -20.0]),
-        "bulb_to_chock_mm": min_gap(chock_pts), "bulb_to_base_mm": round(z_flat-ZB, 3),
+        "bulb_to_base_mm": round(z_flat-ZB, 3),
         "rudder_to_stand_mm": min_gap(rv), "fin_te_to_stop_mm": round(FIN_TE_X-X_STOP, 3)}
-if gaps["fin_to_slot_mm"][0] < SLOT_CLEAR-0.06 or gaps["bulb_to_neck_mm"][0] < 2.5 or \
-        gaps["bulb_to_chock_mm"][0] < CHOCK_CLEAR-0.06:
+if gaps["fin_to_slot_mm"][0] < SLOT_CLEAR-0.06 or gaps["bulb_to_neck_mm"][0] < 2.5:
     raise RuntimeError("clearance %s" % gaps)
 # contact pads: height-field cells where the stand top meets the hull bottom
 pad = []
@@ -500,6 +453,22 @@ for i, x in enumerate(hxs):
         if h[0] is not None and h[0].z > H[i, j]-0.05 and hull.ray_cast(Vector((x, y, -30.0)), Vector((0, 0, 1)))[0]:
             pad.append((float(x), float(y)))
 PAD_X = (min(p[0] for p in pad), max(p[0] for p in pad))
+
+
+# ---------------- forward hold without a lock: the pads as a cradle ----------------
+def hull_z(x, y):
+    h = hull.ray_cast(Vector((x, y, -30.0)), Vector((0, 0, 1)))
+    return h[0].z if h[0] is not None and -14.0 < h[0].z < -6.0 else None
+
+
+PADZ = {(x, y): float(np.interp(y, hys, H[int(round((x-hxs[0])/0.2))])) for x, y in pad}
+cradle = []
+for d in np.arange(0.0, 12.01, 0.5):
+    need = max((zp-zh for (x, y), zp in PADZ.items() for zh in [hull_z(x-d, y)] if zh is not None), default=0.0)
+    cradle.append((round(float(d), 1), round(need, 3)))
+CRADLE_SLOPE = (cradle[2][1]-cradle[0][1])/cradle[2][0]   # mm of lift per mm of forward slide, first 1 mm
+PEAK = max(cradle, key=lambda c: c[1])                     # top of the cradle rim: (slide mm, lift mm)
+CRADLE_AVG = PEAK[1]/PEAK[0]                               # average slope up to the rim: used for the (conservative) hold
 
 # ---------------- lift-off path: up LIFT, forward SLIDE, up 50 ----------------
 P = np.array([[v.x, v.y, v.z] for v in hv+fv+rv])
@@ -590,9 +559,19 @@ for k, (m, g) in cases.items():
         raise RuntimeError("G %.2f not over the pads %s with 5 mm margin" % (g.x, PAD_X))
 report = {
     "type": "swan-neck from aft",
+    "forward_hold": {"lock": "none (rev 12): gravity in the pad cradle plus friction",
+                     "lift_needed_vs_forward_slide_mm": cradle, "cradle_slope_at_rest_deg": round(math.degrees(math.atan(CRADLE_SLOPE)), 2),
+                     "cradle_rim": {"slide_mm": PEAK[0], "lift_mm": PEAK[1]},
+                     "cradle_slope_deg": round(math.degrees(math.atan(CRADLE_AVG)), 2),
+                     "friction_mu_assumed": MU_PLA,
+                     "holds_up_to_forward_tilt_deg": round(math.degrees(math.atan(MU_PLA)+math.atan(CRADLE_AVG)), 1),
+                     "push_to_start_slide_N_full_lead": round((MU_PLA+CRADLE_AVG)*M*9.81/1000, 3),
+                     "slide_before_G_leaves_pads_mm": {k: v["G_margin_to_pads_fore_mm"] for k, v in stab["cases"].items()},
+                     "aft": "closed fork stop %.2f mm behind the fin trailing edge" % (FIN_TE_X-X_STOP),
+                     "roll": "fin in the slot, %.1f mm per side" % SLOT_CLEAR},
     "base": {"shape": "egg", "length_mm": round(2*A, 1), "width_mm": round(2*max(abs(p[1]) for p in egg(A, BASE_B, 0, 720)), 1),
              "thickness_mm": BASE_T, "x_range": [round(x_lo, 2), round(x_hi, 2)], "top_z": round(ZB, 2),
-             "top_bevel_mm": BASE_BEVEL, "margin_root_mm": round(root_margin, 2), "margin_chock_mm": round(chock_margin, 2),
+             "top_bevel_mm": BASE_BEVEL, "margin_root_mm": round(root_margin, 2),
              "volume_cm3": round(v_base/1000, 2)},
     "neck": {"root_x": [XR0, XF0], "section_at_root_mm": [round(XF0-XR0, 2), 2*NECK_HW],
              "section_at_lean_mm": [T_L, 2*NECK_HW], "lean_deg": LEAN, "lean_direction": "forward",
@@ -605,10 +584,6 @@ report = {
              "slot_half_width_at_tips_mm": round(slot_hw(Z_ROOT, X_TIP), 2), "cheek_mm": CHEEK_T,
              "slot_clearance_mm": SLOT_CLEAR, "lift_clearance_mm": LIFT_CLEAR, "pad_cells": len(pad),
              "contact": "zero gap: pads follow the hull bottom", "supports": "tree, under the head only"},
-    "chock": {"x": [round(XC0, 2), round(XC1, 2)], "front_top_z": round(Z_CHOCK, 2), "max_top_z": round(CHOCK_TOP, 2),
-              "half_width_mm": CHOCK_HW, "shape": "saddle following the bulb nose underside",
-              "lock_height_over_bulb_flat_mm": [CHOCK_LOCK, round(CHOCK_TOP-z_flat, 2)], "clearance_mm": CHOCK_CLEAR,
-              "lift_to_remove_mm": LIFT},
     "clearances": gaps,
     "lift_off": {"path": "lift %.1f mm, slide forward %.0f mm, lift off" % (LIFT, SLIDE), "steps": len(path),
                  "vertex_checks": checked, "hits": hits,
@@ -619,8 +594,7 @@ report = {
                      "supports": "tree supports under the fork head only; base, fillet and neck support-free"},
     "stability": stab,
     "nonmanifold_edges": nonman, "nonmanifold_at": nm_at[:12], "volume_cm3": round(vol/1000, 2),
-    "volume_parts_cm3": {"base": round(v_base/1000, 2), "neck": round(v_neck/1000, 2), "head": round(v_head/1000, 2),
-                         "chock": round(v_chock/1000, 3)},
+    "volume_parts_cm3": {"base": round(v_base/1000, 2), "neck": round(v_neck/1000, 2), "head": round(v_head/1000, 2)},
     "size_mm": [round(hi[i]-lo[i], 1) for i in range(3)],
     "assembled_bbox": [[round(v, 2) for v in lo], [round(v, 2) for v in hi]]}
 json.dump(report, open(os.path.join(SOUT, "stand.json"), "w"), indent=1)

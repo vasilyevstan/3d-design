@@ -653,3 +653,61 @@ Opus confirmed all six items on the rebuilt close-ups, and round 2 is closed.
   - 96.5 × 63.8 × 54.1 mm, base 1.4 mm.
   - 44 m 5 s, 12.7 g with tree supports under the fork head, 11.0 g finished.
   - G is 8.5 / 6.8 / 8.4 mm inside the front end of the pads. The assembly tips sideways at 31 / 27 / 28° and forward at 33 / 28 / 30° (full lead / no lead / display sail).
+
+## Step 12 — railings removed, stand chock removed, stand calculations (v7i)
+
+**User:** "the railing are terrible, if you cannot do better - remove them"; about the bulb-nose saddle on the stand, "do
+we need this part? remove it"; and "I hope the stand can keep the construction, hope you did the calculations".
+
+**Round 1, the brief (`review12/BRIEF.md` in the session): Q1 improve or remove the railings; Q2 the stand without the chock**
+
+| Reviewer | Q1 railings | Q2 stand without the chock |
+|---|---|---|
+| GPT-6.2-sol | **Remove** posts, pads and slots; keep the toe rail, chainplates and cleats | **Accept.** Check on the print that she does not creep at 10° nose-down, with and without lead; lift her off before moving the stand |
+| Opus 5.5 | **Remove** everything, including the pads and the gluing step | **Accept.** Friction holds her to about 16°, or against a push of about 0.19 N; update the lift-off note |
+| Grok 4.7 | **Remove** everything; the toe rail stays | **Fix:** a 1.2 mm nib on each prong at x 5.6–7.0 |
+
+**Decisions**
+* **Railings removed** (3/3). At 1:66 a stanchion is 0.38 mm and a lifeline 0.09 mm. The thinnest post a 0.4 mm nozzle
+  prints reliably (1.0 mm) reads as a fence, not wire, so no printable railing can look right. The posts, 20 deck pads
+  and pockets, the print strip and the gluing step are gone (`RAILINGS = False` in `build_v7.py`). The teak runs
+  unbroken, and the toe rail, cleats and chainplates carry the deck edge.
+* **Chock removed** (2 accept). **Grok's nib was rejected on geometry:** at x 5.6–7 the slot flares to 7.7 mm
+  half-width so the bulb can pass up through it on lift-off, and the fin there is about 2 mm thick. A 1.2 mm nib never
+  touches the fin, and one large enough to catch it blocks the bulb's exit. **Longer prongs** (tips at x 12 instead of
+  x 5) were tried and **reverted**: the lift-off sweep hit at slide 8 / lift 3, and the gain was small.
+* **Forward hold, calculated** (`stand.json` → `forward_hold`). The hull bottom's low point lies inside the pad span,
+  so the pads are a cradle. Moving forward she must rise 0.13 mm by 9.5 mm of slide: 1.37° at rest, 0.78° on average.
+  The brief's claim that she *drops* 0.2 mm was wrong, and was corrected by measurement before the build. With μ 0.3,
+  using the average slope (conservative), she holds to **17.5° of forward tilt** and needs a **0.20 N** push to start
+  sliding. G stays over the pads for 8.45 mm with full lead and 6.65 mm without.
+* **Neck strength, calculated** (`stand_strength.py` → `stand_strength.json`). Every 2 mm, `Stand.stl` is cut on a
+  horizontal print-layer plane. For each section the script computes area, centroid and I by Green's theorem, then the
+  layer-plane stress σ = M·c/I − W/A with M = W·(G.x − x_c). Worst layer, z −39.4 at the start of the lean: **1.42 MPa**
+  with the display sail (68 g). That gives SF **10.6** static and **3.5** under a 3 g knock, against a conservative
+  15 MPa interlayer strength. The load point sags 0.58 mm, and 1.17 mm allowing a 2× creep factor. Paper sail: 1.33 MPa,
+  SF 11.3.
+
+**Round 2 — challenge/defend on the built v7i**
+
+| Reviewer | Verdict | Challenge | Defence / decision |
+|---|---|---|---|
+| GPT-6.2-sol | ACCEPT | 0.13 mm over 10 mm averages 0.74°, not 1.37°; say where 1.37° applies before quoting 18.1° | **Accepted:** 1.37° is the local slope at rest. The hold and push now use the average slope to the cradle rim (0.78°): 18.1° → **17.5°**, 0.203 → 0.197 N. Both slopes are in `stand.json` |
+| Grok 4.7 | ACCEPT | Same slope point; "hold still about 17°" | Same fix. Grok also confirmed the nib rejection: "do not put the peg back" |
+| Opus 5.5 | ACCEPT | Nothing material; lead 93 → 98 balls after the rails came off is consistent | — |
+
+**As built (v7i)**
+- **Boat plate:** 10 parts, 19 colour volumes, 235 layers, 322 colour changes; 13 h 6 min model time (13 h 13 min total);
+  209.1 g filament (80.7 / 43.4 / 56.0 / 29.0 g).
+- **Mass and float:**
+  - 47.1 g printed, 46.5 g on board; 98 balls (15.7 g); all-up 64.0 g; trim 0.12° bow-down.
+  - GM 18.6 mm (v7h 17.7); GZ 3.2 / 5.9 / 8.1 mm at 10 / 20 / 30°; AVS 140°; heel 12° at 2 m/s with the full sail.
+- **Checks:** `checks.json` unchanged apart from `railings: removed in rev 12` (navy deck-ink islands 106 → 104).
+  Transom gate PASS; transom 17/17 and bow 19/19 layers carry navy.
+- **Stand:**
+  - 96.5 × 63.8 × 54.1 mm, 9.19 cm³; 0 non-manifold edges; steepest unsupported face 49.2°.
+  - 43 m 16 s, 12.3 g with tree supports, 10.6 g finished.
+  - Lift-off 0 hits in 729,497 vertex checks. Fin-to-slot 0.40 mm, bulb-to-neck 3.68 mm, fin TE to stop 0.46 mm.
+  - Tipping at 31 / 27 / 28° sideways, 33 / 28 / 30° forward.
+- **Physical checks still to do:** the base sits flat; at 10° nose-down she does not creep (with and without lead).
+  Lift her off before moving the stand.
