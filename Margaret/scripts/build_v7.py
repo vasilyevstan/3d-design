@@ -18,6 +18,7 @@ H = G.hull_tables(P)
 T0 = time.time()
 
 SEAM = P["seam"]; WALL = 0.85; DECK = 0.8
+BOTTOM_WALL = 1.2   # underwater hull shell (rev 13): 0.85 printed thin and flexible; 1.2 = three 0.4 mm beads
 LAND = 1.8
 X_MAST, X_FIN, X_RUD = 26.0, -1.0, -72.0
 T6 = math.tan(math.radians(10.0))
@@ -1257,6 +1258,7 @@ HYDRO_HULL = dup(outer, "HydroHull")
 
 log("cavity loft")
 BUMPS = [(LAND-0.95, (-300, 300, 1.0), (SEAM-1.2, SEAM+1.2, 0.9)),
+         (BOTTOM_WALL-WALL, (-300, 300, 1.0), (-100.0, SEAM-2.1, 0.9)),   # fades out as the seam land fades in
          (0.6, (-15.0, 17.0, 2.0), (9.1, 12.1, 0.8)),
          (0.6, (55.0, 86.0, 2.0), (7.0, 12.4, 0.8))]
 cav = loft_deck("Cavity", stations(P["x_aft"], 80.0, 150), 80, WALL, DECK, bumps=BUMPS)
@@ -1313,14 +1315,16 @@ stats(shell)
 
 lower = dup(shell, "Lower")
 G.boolean(lower, half_space("hs", -100, SEAM), "INTERSECT")
+# colour bands are cut from the whole shell: on the rev-13 lower half the exact solver dropped the white/ink bands
+lb = dup(shell, "Lower_blue"); G.boolean(lb, half_space("c", -100, 0.8), "INTERSECT")
+lw = dup(shell, "Lower_white"); G.boolean(lw, half_space("cw", 0.8, 1.7), "INTERSECT")
+li = dup(shell, "Lower_ink"); G.boolean(li, half_space("ci", 1.7, SEAM), "INTERSECT")
 upper = shell; upper.name = "Upper"
 G.boolean(upper, half_space("hs", SEAM, 100), "INTERSECT")
 stats(lower); stats(upper)
 
 parts = {}
-lb = dup(lower, "Lower_blue"); G.boolean(lb, half_space("c", -100, 0.8), "INTERSECT")
-lw = dup(lower, "Lower_white"); G.boolean(lw, half_space("cw", 0.8, 1.7), "INTERSECT")
-li = lower; li.name = "Lower_ink"; G.boolean(li, half_space("c", 1.7, 50), "INTERSECT")
+bpy.data.objects.remove(lower)
 parts.update({"Lower_blue": lb, "Lower_white": lw, "Lower_ink": li})
 
 log("ink zones")
@@ -2175,6 +2179,7 @@ build_stats["anchor"] = {"toe_u": round(ANCHOR_U0, 2), "crown_front_x_prescale":
                          "roller": ROLLER, "shackle": SHACKLE, "fluke_shadow_gap_mm": FL_OT,
                          "shank_daylight_to_cheeks_mm": round(1.15-0.5, 2), "shank_air_over_plank_mm": 0.9}
 build_stats["railings"] = RAIL_STATS or "removed in rev 12"
+build_stats["hull_wall_mm"] = {"underwater_below_z_0.4": BOTTOM_WALL, "seam_land": round(WALL+LAND-0.95, 2), "topsides": WALL}
 build_stats["cleats"] = {"xy_prescale": CLEATS, "flange": CLEAT_FLANGE, "top_above_deck": 2.72, "length": 4.2,
                          "width": 1.2, "colour": "ink"}
 build_stats["spreaders_section"] = SPREADER_SEC

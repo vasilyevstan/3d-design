@@ -711,3 +711,73 @@ we need this part? remove it"; and "I hope the stand can keep the construction, 
   - Tipping at 31 / 27 / 28° sideways, 33 / 28 / 30° forward.
 - **Physical checks still to do:** the base sits flat; at 10° nose-down she does not creep (with and without lead).
   Lift her off before moving the stand.
+
+## Step 13 — thicker underwater hull (v7j)
+
+**User:** "I printed two parts of the boat - the bottom blue part comes out too thin in plastic", and "how do those parts
+come together? the bottom and the upper part of the body? using filament?"
+
+**Diagnosis.** The lower hull wall was 0.85 mm everywhere below the 1.7 mm seam land, only two 0.42 mm wall lines.
+Assumption (stated to the user): "the bottom blue part" means this shell, not the bulb or fin box.
+
+**Decision: 1.2 mm below the waterline.**
+- The change is one `BUMPS` entry in `build_v7.py` (`BOTTOM_WALL = 1.2`). It fades out into the seam land between
+  z 0.4 and 1.3.
+- The outer hull is unchanged, so hydrostatics and looks are the same.
+- **Rejected alternatives:**
+  - **1.0 mm:** still prints as two lines, so it gains almost nothing (Opus).
+  - **Thicker still:** each extra 0.1 mm costs about 6–7 balls of lead (0.35 mm cost 23).
+  - **Slicer-only (more wall loops):** cannot thicken a 0.85 mm wall, because the geometry is the limit.
+  - **Thicker topsides as well:** would change the already-printed upper half, so it was offered, not done.
+
+**Boolean fix in the pipeline.** Splitting the new lower half into blue, white and navy bands with Blender's exact
+solver silently returned empty bands (Lower_ink 0 cm³). The fault sat near the aft seam lug.
+- **Tried and rejected:**
+  - `use_self`: left 6 non-manifold edges;
+  - triangulating first;
+  - dissolving degenerate faces;
+  - the float solver: broke the boot stripe.
+- **Fix:** the bands are now cut from the whole shell before the seam split. Islands match v7i (Lower_white 3,
+  Lower_ink 3), the STL gate passes and every part is manifold.
+
+**Evidence**
+- **Section at x = 30** (`views/details/hull-wall-section.png`): bottom wall 0.89 → 1.26 mm.
+- **G-code** (`scripts/wall_fill.py`): for each Hull_lower layer, the deposited volume per layer height is compared
+  with the STL cross-section area.
+  - The ratio is 0.90–0.97 for both v7i and v7j (median 0.97), so the walls are solid with no gaps.
+  - At print z 2.9, inner wall plus solid infill rises from 140 to 384 mm² per layer.
+  - The one low layer, print z 7.88, is a bridge-only sub-layer between 7.72 and 8.04, which score 0.96 and 0.97.
+- **Mating with the printed v7i upper half** (seam slices at z 2.45 and 2.55, x −98 to 80):
+  - the outer outline and lug stations are identical to 0.01 mm;
+  - only the inside of the wall at x < −70 moves inward by up to 1.2 mm, where the stern is shallow and the thicker
+    bottom reaches the seam;
+  - Upper_ink and Upper_teak are unchanged.
+
+  So the new lower half takes the old upper half flush, on a wider glue land aft.
+- **Joint (answer to the user):** the 4 lug pins only locate the halves. Use 6.5 mm of 2 mm rod; 1.75 mm filament has
+  about 0.2 mm of play per side. Slow epoxy on the 1.7 mm seam land holds and seals. Dry-fit and sand off elephant foot
+  on both seam faces first.
+
+**Challenge/defend**
+
+| Reviewer | Verdict | Challenge | Defence / decision |
+|---|---|---|---|
+| GPT-6.2-sol | ACCEPT | Leave the cup and topsides alone; prefer 2 mm pins; prove the bottom prints solid, especially at bow and stern | **Done:** the G-code fill check above; 2 mm rod in the README |
+| Opus 5.5 | ACCEPT | 1.0 mm would gain little; 1.75 mm filament is loose; dry-fit and sand elephant foot; quote 75 balls / 12.0 g; ask what "thin" meant | **Done:** README assembly step 2 and ballast. Cup and topside thickening offered, not done |
+| Grok 4.7 | ACCEPT (1, 2); CHALLENGE (3) | 1.2 mm is the minimum that adds a line; a 6.5 mm rod in 7 mm of hole sits 0.5 mm shy, so it cannot hold the land open; 1.75 mm filament will not register the boot stripe | **Accepted:** the README now says to align the stripe by eye and tape or clamp while the epoxy cures if filament is used. 2 mm rod stays the first choice |
+
+**As built (v7j)**
+- **Parts:**
+  - Lower_blue 11.57 cm³ (8.73), Lower_white 0.88, Lower_ink 0.86;
+  - Hull_lower 15.9 g (12.2); printed 50.8 g, 50.2 g on board.
+- **Plate:** 13 h 10 min model time (13 h 17 min total); 212.2 g filament (80.8 / 46.9 / 55.6 / 28.9 g); 235 layers,
+  321 colour changes.
+- **Float:**
+  - 75 balls (12.0 g, was 98), all-up 64.0 g; trim 0.09° bow-down;
+  - GM 16.0 mm (18.6); GZ 2.7 / 5.0 / 6.8 mm at 10 / 20 / 30°; AVS 132° (140°); the cockpit floods at 130°;
+  - heel with the full sail at 2 m/s: 14° (12°).
+- **Stand:** STL unchanged.
+  - Tipping at 30 / 27 / 28° sideways and 32 / 29 / 29° forward;
+  - G margins 8.6 / 7.4 / 8.5 mm;
+  - neck SF 10.6 static, 3.5 under a 3 g knock.
+- **Reprint:** only Hull_lower (Lower_blue, Lower_white, Lower_ink).

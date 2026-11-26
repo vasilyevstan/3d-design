@@ -1,28 +1,28 @@
 {
  "parts": {
   "Lower_blue": {
-   "verts": 34944,
-   "faces": 69888,
+   "verts": 34543,
+   "faces": 69086,
    "nonmanifold": 0,
-   "vol_cm3": 8.732
+   "vol_cm3": 11.572
   },
   "Lower_white": {
-   "verts": 6600,
-   "faces": 13216,
+   "verts": 6550,
+   "faces": 13116,
    "nonmanifold": 0,
-   "vol_cm3": 0.752
+   "vol_cm3": 0.88
   },
   "Lower_ink": {
-   "verts": 5204,
-   "faces": 10424,
+   "verts": 5296,
+   "faces": 10608,
    "nonmanifold": 0,
-   "vol_cm3": 0.827
+   "vol_cm3": 0.857
   },
   "Upper_white": {
-   "verts": 62124,
-   "faces": 124284,
+   "verts": 62225,
+   "faces": 124486,
    "nonmanifold": 0,
-   "vol_cm3": 20.462
+   "vol_cm3": 20.465
   },
   "Upper_ink": {
    "verts": 40129,
@@ -146,7 +146,7 @@
  "ballast_cavity_cm3": 4.704112960370724,
  "lead_3mm_balls_64pct": 212,
  "lead_mass_g_64pct": 33.92,
- "total_parts_cm3": 42.9,
+ "total_parts_cm3": 45.901,
  "lugs": [
   [
    50.52762283228525,
@@ -445,6 +445,11 @@
   "shank_air_over_plank_mm": 0.9
  },
  "railings": "removed in rev 12",
+ "hull_wall_mm": {
+  "underwater_below_z_0.4": 1.2,
+  "seam_land": 1.7,
+  "topsides": 0.85
+ },
  "cleats": {
   "xy_prescale": [
    [

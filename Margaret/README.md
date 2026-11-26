@@ -1,4 +1,4 @@
-# Margaret — 200 mm free-sailing yacht (v7i)
+# Margaret — 200 mm free-sailing yacht (v7j)
 
 A printable model in the style of a **Jeanneau Sun Odyssey 43**: a likeness, not a copy. She has a blue underwater hull, white topsides and deck, a navy boot stripe and trim, and caulked teak on the cockpit, side decks and foredeck. **Margaret** is on both bows and repeated on the port transom face, and a navy delta anchor sits stowed on the bow roller as a separate-looking fitting. Six **navy horn cleats** are printed into the deck. There are no railings: at 1:66 a stanchion would be 0.4 mm and a lifeline 0.1 mm, finer than a 0.4 mm nozzle can print.
 
@@ -32,7 +32,7 @@ A separate swan-neck table stand prints in one colour. It **rises from aft, betw
 | `stl/` | Every printable colour body, in **assembled position** (not print orientation), including `Shrouds`, `Furler`/`Furler_ink`, `Stand` and `Display_sail`/`Display_sail_ink`, all in the same coordinates as the boat. |
 | `data/` | `stats.json` (dimensions, rig, furler, anchor, sails), `stability.json` (sails, heel, CLR/CE), `hydro_check.json` (float, trim, righting curve), `mass.json` (sliced mass per part), `checks.json` (clearances and fits), `float.json`, `stand.json` (stand size, clearances, lift-off path, forward hold, tipping angles), `stand_strength.json` (neck stress on every print layer, safety factors, sag), `display_sail.json` (size, mass, markings), `namecheck.json` and `transom_gates.json` (G-code proof that both names print legibly). |
 | `scripts/` | Reproducible pipeline. `build_v7.py` builds the model (Blender 5.2, `MARGARET_OUT=<dir>`). The other scripts check, plate, slice-prep, compute hydrostatics, render and make the sheets/PDF; `stand_neck.py`, `stand_strength.py`, `display_sail.py` and `sail_marks.py` make and check the stand, the display sail and the shared sail markings. `scripts/coupon/` holds the name-printing experiment and the G-code name gates. |
-| `REVIEW.md` | Full multi-model challenge/defend log (Steps 0–12) with each accept/defend decision. |
+| `REVIEW.md` | Full multi-model challenge/defend log (Steps 0–13) with each accept/defend decision. |
 
 ## Dimensions and proportions
 
@@ -54,30 +54,31 @@ The above-water shape (sheer, coachroof, deck plan, open stern) follows the SO43
 
 | Item | Value |
 | --- | ---: |
-| Printed parts on board (per-object G-code mass; the display furler stays ashore) | 46.5 g |
+| Printed parts on board (per-object G-code mass; the display furler stays ashore) | 50.2 g |
 | Paper sail, ties, seam glue, bulb glue | 1.8 g |
-| Lead: **98 × 3 mm balls** | 15.7 g |
+| Lead: **75 × 3 mm balls** | 12.0 g |
 | **All-up mass** | **64.0 g** |
 | Displacement at the design waterline (boot stripe) | 64.0 g |
 | Hull sits deeper than designed / trim, lead poured **level** | 0.03 mm / 0.1° bow-down (bow 0.2 mm) |
-| Metacentric height GM | 18.6 mm |
-| Righting arm at 10° / 20° / 30° | 3.2 / 5.9 / 8.1 mm |
-| Sealed hull self-rights up to (water in the cockpit past 131° is not modelled) | 140° |
+| Metacentric height GM | 16.0 mm |
+| Righting arm at 10° / 20° / 30° | 2.7 / 5.0 / 6.8 mm |
+| Sealed hull self-rights up to (water in the cockpit past 130° is not modelled) | 132° |
 | Deck edge reaches the water at | 31° |
-| Water reaches the cockpit at | 131° |
+| Water reaches the cockpit at | 130° |
 | Extra lift if pushed fully under (sealed hull) | 165 g |
-| Bulb capacity | ≈ 129 balls simulated ball-by-ball (98 needed) |
+| Bulb capacity | ≈ 129 balls simulated ball-by-ball (75 needed) |
 
-The bulb is placed so that lead poured in level trims her flat. The fin joins the front third of the bulb, as on real bulb keels. Removing the railings took 0.7 g of PLA off the deck edge and lowered her centre of gravity. Compared with v7h, GM rose from 17.7 to 18.6 mm, the righting arm at 30° rose from 7.7 to 8.1 mm, and the bulb takes five more balls to keep the 64 g all-up mass.
+The bulb is placed so that lead poured in level trims her flat. The fin joins the front third of the bulb, as on real bulb keels. v7j thickens the underwater hull from 0.85 to 1.2 mm (a test print of the blue half came out too thin). That adds 3.7 g of PLA, which replaces 23 balls of lead to keep the 64 g all-up mass; her centre of gravity rises 2.6 mm, so GM drops from 18.6 to 16.0 mm and the righting arm at 30° from 8.1 to 6.8 mm. She is still stiff for a light-air model: the full sail heels her 14° at 2 m/s instead of 12°.
 
 **These are predictions, not test results.** The physical check is simple: weigh the dry, rigged boat (without the furler), then add lead until boat + lead = **64 g**. She should float with the water just under the blue/white line.
 
 ## Printing
 
 - **Settings:** Bambu Lab P2S, 0.4 mm nozzle, Bambu PLA Basic, **Textured PEI plate**. 0.16 mm layers, 2 walls, 7 % infill, supports from the build plate only, prime tower.
+- **Hull walls (v7j):** 1.2 mm below the waterline, rising smoothly to the 1.7 mm seam land; 0.85 mm topsides. The thickness is in the model, so no slicer change is needed: the G-code lays two wall lines with solid infill between them, and per layer it deposits 90–97 % of the cross-section area, so there are no gaps (`scripts/wall_fill.py`).
 - **AMS mapping:** 1 white `#F6F5EE`, 2 blue `#15499D`, 3 navy `#173347`, 4 teak/tan `#BF8A54`.
-- **Sliced result:** 13 h 6 min model time, 13 h 13 min total (235 layers), 209.1 g filament in total: white 80.7, blue 43.4, navy 56.0 (mostly purge), teak 29.0 g. About 320 colour changes; nothing outside the bed.
-- **Mass of the printed parts:** **47.1 g** summed from the G-code per object (excluding supports and purge): 46.5 g goes sailing, plus the 0.6 g display furler.
+- **Sliced result:** 13 h 10 min model time, 13 h 17 min total (235 layers), 212.2 g filament in total: white 80.8, blue 46.9, navy 55.6 (mostly purge), teak 28.9 g. About 320 colour changes; nothing outside the bed.
+- **Mass of the printed parts:** **50.8 g** summed from the G-code per object (excluding supports and purge): 50.2 g goes sailing, plus the 0.6 g display furler. The lower hull alone is 15.9 g (12.2 g in v7i).
 - **Orientation, as laid out on the plate:**
   - Both hull halves print seam-face down. Supports inside them come out through the open seam.
   - The ballast cup prints opening up.
@@ -91,8 +92,10 @@ The bulb is placed so that lead poured in level trims her flat. The fin joins th
 1. **Clean up.** Remove the supports inside both hull halves. Clear the holes with a fine pin: the mast and boom holes, the sheet eye, the 4 hull lug holes and the 2 bulb post holes. Check that the two chainplate pockets and the stemhead pocket are clear.
 2. **Hull.**
    - The lower blue hull and the white upper hull join at a seam **2.5 mm above the waterline**.
-   - Push 6.5 mm lengths of 2 mm rod into the 4 lug holes; 1.75 mm filament plus glue also works.
-   - Dry-fit, then bond the whole seam with slow epoxy. This seam must be **watertight**.
+   - Push 6.5 mm lengths of 2 mm rod into the 4 lug holes (Ø2.15 mm, 3.5 mm deep in each half). 1.75 mm filament also works, but it has about 0.2 mm of play per side and will not line up the boot stripe by itself: align it by eye and tape or clamp the halves while the epoxy cures. The pins only line the halves up.
+   - Sand off any elephant foot on both seam faces so the halves close flush at the boot stripe.
+   - Dry-fit all four pins, then bond the whole seam with slow epoxy. The epoxy on the 1.7 mm-wide seam land is what holds the halves together and seals them. This seam must be **watertight**.
+   - The v7j lower half mates with an already-printed v7i upper half. The outside, the seam outline and the lugs are unchanged (checked to 0.01 mm). Only near the stern is the inside of the wall up to 1.2 mm thicker, which gives a wider glue land under the old upper half.
    - Float the empty hull for 10 minutes and check for seepage.
 3. **Fin.** Glue the fin tenon into the socket under the hull (0.2 mm clearance per side). The fin is part of the top half of the bulb, so there is no gap between keel and bulb.
 4. **Rudder.** The Ø2 mm stock pushes up into its Ø2.1 bore. Friction holds the trim, and the slotted navy cap on deck lets you turn it.
@@ -147,7 +150,7 @@ The bulb is placed so that lead poured in level trims her flat. The fin joins th
 - 66.9 cm², 4.5 g. About 20 min to print (27 min with heating and calibration); 6.8 g white and 0.8 g navy filament including purge.
 - Print flat as sliced, no supports. Let the plate cool before peeling it off, then peel or snip off the three Ø10 mm mouse ears at the head, tack and clew (they only stop the corners lifting).
 - Tie it on exactly like the paper full sail (same holes, same thread).
-- **Don't sail with it.** It is about 8× the paper sail's weight, high up: it raises her centre of gravity by about 7 mm and cuts the metacentric height from 18.6 to about 12 mm. She still floats upright, but heels much more. Swap to paper before she goes in the water.
+- **Don't sail with it.** It is about 8× the paper sail's weight, high up: it raises her centre of gravity by about 7 mm and cuts the metacentric height from 16.0 to about 9 mm. She still floats upright, but heels much more. Swap to paper before she goes in the water.
 - If the starboard number prints faint on your printer, rebuild with a 0.24 mm relief (`display_sail.py`, one more layer).
 
 ## Paper sails
@@ -162,9 +165,9 @@ Print the PDF at **100 %** and check the 50 mm bar. Use 80–100 g/m² paper. Th
 
 | Sail | Area | Heel at 1 m/s | Heel at 1.5 m/s | Heel at 2 m/s | Use |
 | --- | ---: | ---: | ---: | ---: | --- |
-| **Start** | 26 cm² | 1° | 2° | 4° | First trials, normal light breeze |
-| Medium | 32 cm² | 1° | 3° | 5° | Steady light air |
-| Full | 66 cm² | 3° | 7° | 12° | **Only below ≈ 1.5 m/s**, or display |
+| **Start** | 26 cm² | 1° | 3° | 4° | First trials, normal light breeze |
+| Medium | 32 cm² | 1° | 3° | 6° | Steady light air |
+| Full | 66 cm² | 4° | 8° | 14° | **Only below ≈ 1.5 m/s**, or display |
 
 The sail's centre of effort is slightly ahead of the keel's centre of lateral resistance (4 mm with the full sail, 12 mm with the start sail), so she may bear away. Turn the rudder's trailing edge a few degrees to windward and ease the sheet until she sails straight.
 
@@ -172,7 +175,7 @@ The sail's centre of effort is slightly ahead of the keel's centre of lateral re
 
 The bulb splits at a horizontal glue plane. The **upper half (fin cap)** is part of the fin. The **lower half (cup)** is a hollow shell with 0.9 mm walls. Two Ø2 mm posts in the cup locate it in Ø2.4 mm holes in the cap. They stop it rotating, but they do not hold it on.
 
-1. **Weigh** the finished, rigged boat without lead and without the furler. Lead target = **64 g − that mass** (≈ 15.7 g ≈ 98 balls at 0.16 g each).
+1. **Weigh** the finished, rigged boat without lead and without the furler. Lead target = **64 g − that mass** (≈ 12.0 g ≈ 75 balls at 0.16 g each).
 2. **Pour the lead in level** (the cup standing upright) and press the cup onto the cap. **Tape the seam all round with waterproof tape** for trials; the bulb stays fully detachable.
 3. **Float it in a tank.** The water should sit just under the blue/white line, level fore and aft. Check that she rights herself from a gentle heel to both sides.
 4. **Sail on a retrieval line**, start sail first.
@@ -195,12 +198,12 @@ A swan-neck stand, like a model-aircraft stand. It has a thin egg-shaped base an
   - The fork's two pads, 36 mm long, follow the hull bottom either side of the keel with zero gap, and carry her weight.
   - The keel root sits in the fork slot with 0.4 mm per side, so she cannot roll (≈ 0.6° of play).
   - The fork is closed just behind the keel's trailing edge (0.5 mm), so she cannot slide aft.
-  - Nothing locks her going forward, and nothing touches the bulb. The low point of the hull bottom lies inside the pads, so they form a shallow cradle: to move forward she must first rise 0.13 mm over 9.5 mm (0.8° on average). With PLA-on-PLA friction (μ ≈ 0.3, assumed) she stays put up to about **17.5° of forward tilt**, and it takes a push of about **0.2 N** (a firm finger flick) to start her sliding. Her centre of gravity stays over the pads for the first 8.5 mm of any slide (6.7 mm without lead).
+  - Nothing locks her going forward, and nothing touches the bulb. The low point of the hull bottom lies inside the pads, so they form a shallow cradle: to move forward she must first rise 0.13 mm over 9.5 mm (0.8° on average). With PLA-on-PLA friction (μ ≈ 0.3, assumed) she stays put up to about **17.5° of forward tilt**, and it takes a push of about **0.2 N** (a firm finger flick) to start her sliding. Her centre of gravity stays over the pads for the first 8.6 mm of any slide (7.4 mm without lead).
   - The v7h bulb-nose saddle was removed in v7i. A catch on the fork tips was also studied and rejected: the slot there is 15 mm wide so the bulb can pass on lift-off, and anything big enough to catch the 2 mm fin would block the bulb's way out.
-- **On and off:** lift her 3 mm, slide her 29 mm forward, then lift her away; put her on in reverse. The fork's slot opens forward in a V, so the bulb passes up through it. A check of 729,497 vertex positions along that path found no contact, and the rudder stays 2.8 mm from the neck at the end of the slide.
+- **On and off:** lift her 3 mm, slide her 29 mm forward, then lift her away; put her on in reverse. The fork's slot opens forward in a V, so the bulb passes up through it. A check of 728,625 vertex positions along that path found no contact, and the rudder stays 2.8 mm from the neck at the end of the slide.
 - **Calculated, not yet measured** (full lead / no lead / printed display sail):
-  - her centre of gravity is 8.5 / 6.7 / 8.4 mm inside the front end of the pads;
-  - the whole assembly tips sideways at 31° / 27° / 28°, forward at 33° / 28° / 30°, and aft at 50° / 45° / 47°.
+  - her centre of gravity is 8.6 / 7.4 / 8.5 mm inside the front end of the pads;
+  - the whole assembly tips sideways at 30° / 27° / 28°, forward at 32° / 29° / 29°, and aft at 49° / 45° / 46°.
   - **Neck strength:** each horizontal print layer of the neck was sliced from `Stand.stl` and checked for bending plus compression from her weight acting at her centre of gravity (σ = M·c/I − W/A). The worst layer, at the start of the forward lean, sees 1.4 MPa of tension with the 68 g display-sail load. That is a safety factor of **10.6** against a conservative 15 MPa layer-bond strength, and still 3.5 if the shelf is knocked hard (3 g). The fork sags about 0.6 mm under her, about 1.2 mm if PLA creep doubles it over time. With the paper sail the factor is 11.3.
 
   Check these after printing: the base sits flat, and with her on the stand, tilt it 10° nose-down (with and without lead); she must not creep.
