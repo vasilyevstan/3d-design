@@ -844,3 +844,59 @@ measured foot is r 1.092 and seam offset adds to it), tube r 2.1 to keep Grok's 
 - **Stand:** fin slot 0.40 mm, bulb to neck 3.7 mm, no lift-off contact; tipping ≥ 26.8°.
 - **Reprint from v7j:** Hull_lower (required); Ballast_cup (optional, for the tighter posts). The v7j Hull_upper still
   fits (same r 1.05 bore and 0.7 mm overlapping glue land round the tube).
+
+## Step 15 — the rudder did not fit the printed bore (v7l)
+
+**User:** "the rudder does not fit the hole, I checked".
+
+**What failed.** The parts in hand are v7i/v7j halves with an Ø2.1 bore in both halves. Step 14 predicted a
+line-to-line fit from the toolpaths: bore r 1.016–1.056, against a stock 2.044 wide that prints on its side with a
+first-layer foot at r 1.092. The real print did not take the stock, so that prediction was too optimistic. The v7k
+plan to keep an r 1.05 friction grip in the upper half is **retracted**: it would bind for the same reason.
+
+**Why the toolpath method missed it.** Bead centre ± w/2 is an ideal bead. It cannot see:
+- small vertical holes pulling in as the perimeter cools;
+- seam blobs and Z-seam scars;
+- droop on the underside of a horizontal cylinder (the stock prints lying down);
+- first-layer squish on the stock's bed side;
+- any step between the glued halves.
+
+New rule for this printer: a vertical printed hole for an Ø2.0 horizontally printed pin is **Ø2.5**. Expect the hole
+at about Ø2.25–2.40 and the stock at about Ø2.10–2.18.
+
+**Brief** (`review15/BRIEF.md` in the session): an Ø2.5 free bore through both halves, chamfered seam mouths, tube r 2.2, tape on the
+stock for trim, and a hand-drill pass to rescue the halves already printed.
+
+**Challenge/defend**
+
+| Reviewer | Verdict | Corrections taken |
+|---|---|---|
+| GPT-6.2-sol | **ACCEPT** Ø2.5, no change to the stock. **CHALLENGE** on tape placement | The stock tip sits in the Ø3.2 deck counterbore from z 9.6, so tape goes on a 2 mm band of shank just below it. Ream old halves Ø2.4 first. Align with 2 mm rods |
+| Opus 5.5 | **ACCEPT** | PTFE tape (≈ 0.08 mm), not masking tape. Glue the halves first, including the land round the tube (it is the only seal), then drill through in one pass from the deck |
+| Grok 4.7 | **ACCEPT** | PTFE only, 1–2 turns. Old tube is r 1.925, so drill those Ø2.4, not 2.5 (breakthrough risk). Glue on 2 mm rod pins. No bottom cone |
+
+**Decisions (v7l).** Only Hull_lower and Hull_upper change, both inside the rudder tube.
+- **Rudder bore** r 1.25 (Ø2.5) through both halves, z −30 to 11, with 0.35 mm chamfers to r 1.55 at the seam so a
+  small step or squeeze-out cannot catch the stock.
+- **Rudder tube** r 2.1 → 2.2, keeping a 0.95 mm wall round the bore (two perimeters, watertight).
+- **Trim** comes from 1–2 turns of PTFE tape on the stock, not from the bore. The stock must first turn freely bare.
+- **Assembly order:** pin with 2 mm rods, epoxy the whole seam including the ring round the tube, cure, then twist an
+  **Ø2.4 drill by hand** down the bore from the deck in one pass. On old Ø2.1 halves this leaves a 0.73 mm wall; on
+  v7l halves it only cleans the seam.
+- **A v7l lower half fits an old v7i/v7j upper half.** At the seam the glue land overlaps over r 1.55–1.925, and
+  epoxy fills the chamfer pocket. The outside, the seam outline and the lugs are unchanged.
+
+![Joint cross-sections, v7j vs v7l](views/details/assembly-fits.png)
+
+**As built (v7l)**
+- **Checks:** `check_v7.py` output is identical to v7k (0.0 mm³ keel/hull and cup/cap overlap). Name gates pass
+  (bow 19/19 layers navy; transom PASS).
+- **Toolpaths** (`data/fits_gcode_v7l.json`): bore r 1.205–1.264 in the lower half and 1.223–1.264 in the upper,
+  against a stock half-width of 1.022, so 0.18–0.24 mm per side. Fin socket 3.396 × 18.832 and posts are unchanged
+  from v7k.
+- **Plate:** 13 h 11 min model time (13 h 18 min total); 212.3 g filament (80.8 / 47.0 / 55.6 / 28.9 g); 235 layers.
+  Printed 50.9 g, 50.3 g on board.
+- **Float:** unchanged. 74 balls (11.8 g), all-up 63.9 g; GM 15.9 mm; AVS 132°.
+- **Stand:** the outer hull is unchanged, so the v7k stand checks still apply; renders refreshed.
+- **For the parts in hand, no reprint:** glue with 2 mm rods, Ø2.4 drill pass, scrape the stock's bed ridge if it
+  binds, then PTFE tape.

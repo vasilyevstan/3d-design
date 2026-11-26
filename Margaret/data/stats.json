@@ -1,28 +1,28 @@
 {
  "parts": {
   "Lower_blue": {
-   "verts": 34544,
-   "faces": 69088,
+   "verts": 34529,
+   "faces": 69058,
    "nonmanifold": 0,
-   "vol_cm3": 11.598
+   "vol_cm3": 11.6
   },
   "Lower_white": {
-   "verts": 6549,
-   "faces": 13114,
+   "verts": 6550,
+   "faces": 13116,
    "nonmanifold": 0,
    "vol_cm3": 0.882
   },
   "Lower_ink": {
-   "verts": 5295,
-   "faces": 10606,
+   "verts": 5336,
+   "faces": 10688,
    "nonmanifold": 0,
    "vol_cm3": 0.858
   },
   "Upper_white": {
-   "verts": 62305,
-   "faces": 124646,
+   "verts": 62267,
+   "faces": 124570,
    "nonmanifold": 0,
-   "vol_cm3": 20.481
+   "vol_cm3": 20.479
   },
   "Upper_ink": {
    "verts": 40129,

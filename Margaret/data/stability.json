@@ -19,7 +19,7 @@
  "ball_d_mm": 3.0,
  "lead_fill_top_z": -47.75,
  "fill_method": "discrete lowest-first",
- "lead_x_needed_for_level_trim": -10.69,
+ "lead_x_needed_for_level_trim": -10.68,
  "cavity_x": [
   -31.62,
   11.92
@@ -31,7 +31,7 @@
  "G": [
   -4.0,
   0.01,
-  -3.32
+  -3.31
  ],
  "lateral_area_cm2": 34.0,
  "CLR_xz": [
@@ -76,7 +76,7 @@
   },
   {
    "phi": 35,
-   "GZ_mm": 7.713,
+   "GZ_mm": 7.712,
    "RM_mNm": 4.833
   },
   {

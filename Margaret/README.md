@@ -1,4 +1,4 @@
-# Margaret — 200 mm free-sailing yacht (v7k)
+# Margaret — 200 mm free-sailing yacht (v7l)
 
 A printable model in the style of a **Jeanneau Sun Odyssey 43**: a likeness, not a copy. She has a blue underwater hull, white topsides and deck, a navy boot stripe and trim, and caulked teak on the cockpit, side decks and foredeck. **Margaret** is on both bows and repeated on the port transom face, and a navy delta anchor sits stowed on the bow roller as a separate-looking fitting. Six **navy horn cleats** are printed into the deck. There are no railings: at 1:66 a stanchion would be 0.4 mm and a lifeline 0.1 mm, finer than a 0.4 mm nozzle can print.
 
@@ -68,7 +68,7 @@ The above-water shape (sheer, coachroof, deck plan, open stern) follows the SO43
 | Extra lift if pushed fully under (sealed hull) | 165 g |
 | Bulb capacity | ≈ 127 balls simulated ball-by-ball (74 needed) |
 
-The bulb is placed so that lead poured in level trims her flat. The fin joins the front third of the bulb, as on real bulb keels. v7j thickens the underwater hull from 0.85 to 1.2 mm (a test print of the blue half came out too thin). That adds 3.7 g of PLA, which replaces 23 balls of lead to keep the 64 g all-up mass; her centre of gravity rises 2.6 mm, so GM drops from 18.6 to 16.0 mm and the righting arm at 30° from 8.1 to 6.8 mm. She is still stiff for a light-air model: the full sail heels her 14° at 2 m/s instead of 12°. v7k only changes the joint clearances (see Assembly); it moves 0.07 g of PLA and one lead ball, and GM is 15.9 mm.
+The bulb is placed so that lead poured in level trims her flat. The fin joins the front third of the bulb, as on real bulb keels. v7j thickens the underwater hull from 0.85 to 1.2 mm (a test print of the blue half came out too thin). That adds 3.7 g of PLA, which replaces 23 balls of lead to keep the 64 g all-up mass; her centre of gravity rises 2.6 mm, so GM drops from 18.6 to 16.0 mm and the righting arm at 30° from 8.1 to 6.8 mm. She is still stiff for a light-air model: the full sail heels her 14° at 2 m/s instead of 12°. v7k only changes the joint clearances (see Assembly); it moves 0.07 g of PLA and one lead ball, and GM is 15.9 mm. v7l only opens the rudder bore to Ø2.5 (the printed Ø2.1 bore did not take the stock); mass, lead and float figures are unchanged.
 
 **These are predictions, not test results.** The physical check is simple: weigh the dry, rigged boat (without the furler), then add lead until boat + lead = **63.9 g**. She should float with the water just under the blue/white line.
 
@@ -77,7 +77,7 @@ The bulb is placed so that lead poured in level trims her flat. The fin joins th
 - **Settings:** Bambu Lab P2S, 0.4 mm nozzle, Bambu PLA Basic, **Textured PEI plate**. 0.16 mm layers, 2 walls, 7 % infill, supports from the build plate only, prime tower.
 - **Hull walls (v7j):** 1.2 mm below the waterline, rising smoothly to the 1.7 mm seam land; 0.85 mm topsides. The thickness is in the model, so no slicer change is needed: the G-code lays two wall lines with solid infill between them, and per layer it deposits 90–97 % of the cross-section area, so there are no gaps (`scripts/wall_fill.py`).
 - **AMS mapping:** 1 white `#F6F5EE`, 2 blue `#15499D`, 3 navy `#173347`, 4 teak/tan `#BF8A54`.
-- **Sliced result (v7k):** 13 h 11 min model time, 13 h 18 min total (235 layers), 212.3 g filament in total: white 80.8, blue 47.0, navy 55.6 (mostly purge), teak 28.9 g. About 320 colour changes; nothing outside the bed.
+- **Sliced result (v7l):** 13 h 11 min model time, 13 h 18 min total (235 layers), 212.3 g filament in total: white 80.8, blue 47.0, navy 55.6 (mostly purge), teak 28.9 g. About 320 colour changes; nothing outside the bed.
 - **Mass of the printed parts:** **50.9 g** summed from the G-code per object (excluding supports and purge): 50.3 g goes sailing, plus the 0.6 g display furler. The lower hull alone is 16.0 g (12.2 g in v7i).
 - **Orientation, as laid out on the plate:**
   - Both hull halves print seam-face down. Supports inside them come out through the open seam.
@@ -86,34 +86,34 @@ The bulb is placed so that lead poured in level trims her flat. The fin joins th
   - The mast and its navy shroud frame print as one part, flat on the mast's aft face.
   - The furler prints flat on its flat face. The boom, rudder and wheels print flat.
 - Don't scale or re-orient parts. The joints are sized for this slice.
-- **Upgrading a v7j print to v7k:** reprint only the **lower hull** (it also carries the 1.2 mm bottom). Reprinting the **ballast cup** is optional; it gives tighter posts. Keep the upper hull, fin, rudder and everything else. In Bambu Studio, open `Margaret-P2S.3mf`, delete the other objects from the plate, and slice.
+- **Upgrading a v7j (or earlier) print to v7l:** reprint only the **lower hull** (1.2 mm bottom, tighter fin socket, Ø2.5 rudder bore). Reprinting the **ballast cup** is optional; it gives tighter posts. Keep the upper hull, fin, rudder and everything else: the upper hull's old Ø2.1 rudder bore is opened by the Ø2.4 drill pass in Assembly step 2. In Bambu Studio, open `Margaret-P2S.3mf`, delete the other objects from the plate, and slice.
 
 ## Assembly
 
-Joint clearances in v7k, measured on the sliced toolpaths (`data/fits_gcode_v7k.json`) and reviewed in `REVIEW.md` Step 14:
+Joint clearances in v7l, measured on the sliced toolpaths (`data/fits_gcode_v7l.json`) and reviewed in `REVIEW.md` Steps 14–15. Small printed holes come out smaller than these toolpath figures (the v7j rudder failed this way), so the rudder now has real running clearance:
 
 | Joint | Model | As printed (per side) | Purpose |
 | --- | --- | --- | --- |
 | Fin tenon in hull socket | 0.10 mm | 0.10 / 0.11 mm | epoxied; small enough to square by hand |
-| Rudder stock, lower hull and seam | Ø2.4 bore | ≥ 0.07 mm past the stock's widest first-layer edge | free running, tolerates seam offset |
-| Rudder stock, upper 7 mm | Ø2.1 bore | 0.0–0.03 mm | friction holds the trim |
+| Rudder stock in its bore (both halves) | 0.25 mm (Ø2.5 bore, Ø2.0 stock) | 0.18–0.24 mm on the toolpaths; ≈ 0.1–0.2 mm after the Ø2.4 drill pass | free running; PTFE tape on the stock holds trim |
 | Bulb posts in cap holes | 0.15 mm | ≈ 0.12 mm | locate the cup; tape or epoxy holds it |
 | Wheel stubs in binnacle bores | 0.2 mm | 0.2 mm, 0.8 mm spare depth | CA glued |
 
-![Joint cross-sections, v7j vs v7k](views/details/assembly-fits.png)
+![Joint cross-sections, v7j vs v7l](views/details/assembly-fits.png)
 
 1. **Clean up.** Remove the supports inside both hull halves. Clear the holes with a fine pin: the mast and boom holes, the sheet eye, the 4 hull lug holes and the 2 bulb post holes. Check that the two chainplate pockets and the stemhead pocket are clear.
 2. **Hull.**
    - The lower blue hull and the white upper hull join at a seam **2.5 mm above the waterline**.
    - Push 6.5 mm lengths of 2 mm rod into the 4 lug holes (Ø2.15 mm, 3.5 mm deep in each half). 1.75 mm filament also works, but it has about 0.2 mm of play per side and will not line up the boot stripe by itself: align it by eye and tape or clamp the halves while the epoxy cures. The pins only line the halves up.
    - Sand off any elephant foot on both seam faces so the halves close flush at the boot stripe.
-   - **Dry-fit the rudder before gluing**, with the rod pins in place: the Ø2 mm stock must slide up through both halves. Keep exactly that alignment for the glue-up (rod pins hold it to ±0.05–0.075 mm; filament pins can shift the bore by up to 0.2 mm).
+   - **Use the 2 mm rod pins**, not filament, for the glue-up: the rudder bore runs through both halves, and filament pins allow a 0.2 mm step at the seam that eats the rudder's clearance.
    - Dry-fit all four pins, then bond the whole seam with slow epoxy. The epoxy on the 1.7 mm-wide seam land is what holds the halves together and seals them. This seam must be **watertight**.
-   - While the epoxy cures, keep a **waxed 2 mm rod** in the rudder bore, and put glue only on the outer seam face around the rudder tube. The wider pocket where the bore crosses the seam catches squeeze-out, so it cannot grip the stock.
-   - The v7k lower half mates with an already-printed v7i or v7j upper half. The outside, the seam outline and the lugs are unchanged (checked to 0.01 mm). The upper bore is still Ø2.1, and the rudder tube overlaps 0.7 mm of glue land, so **no upper-hull reprint is needed**.
+   - Glue the ring of seam land round the rudder tube too: it is the seal between the flooded rudder tube and the inside of the hull.
+   - **After the epoxy cures, true the rudder bore:** twist a **Ø2.4 mm drill bit by hand** (pin vise or fingers, no power drill) down through the bore from the deck in one pass. It clears any seam step, squeeze-out and blobs. On halves printed before v7l (Ø2.1 bore) the same pass opens the bore and leaves a 0.73 mm wall; do not use Ø2.5 on those.
+   - The v7l lower half mates with an already-printed v7i or v7j upper half. The outside, the seam outline and the lugs are unchanged (checked to 0.01 mm), so **no upper-hull reprint is needed**; the drill pass above opens its rudder bore.
    - Float the empty hull for 10 minutes and check for seepage, including round the rudder tube.
 3. **Fin.** The socket is **0.1 mm per side** larger than the tenon (v7j had 0.2 mm, which let the fin rock ±4.8°; now about ±2.4° before glue). Dry-fit first. Then turn the hull upside down on its seam face, fill the socket with slow epoxy, push the tenon in, square the fin to the hull with a set square, and tape it until cured; the epoxy fills the gap and fixes the angle. The fin is part of the top half of the bulb, so there is no gap between keel and bulb.
-4. **Rudder.** The Ø2 mm stock runs **free** in a Ø2.4 bore through the lower half and the seam, with a lead-in cone, then grips in the last **7 mm** of Ø2.1 bore in the upper half. That friction holds the trim, and the slotted navy cap on deck lets you turn it. If it binds: first scrape the stock's flat first-layer edge (the side that lay on the bed), then any layer ridges; a Ø2.0 mm drill only removes a seam lip or blob. Use Ø2.1 only as a last resort (it loses the trim grip), never Ø2.2.
+4. **Rudder.** First push the bare rudder up from below: the Ø2 mm stock must turn freely in its bore. If it binds, scrape the thin ridge along the side of the stock that printed on the bed. Then wind **1–2 turns of PTFE plumber's tape** round the stock in a 2 mm band starting 0.5 mm below its top (the slotted tip sits in the deck counterbore and touches nothing). Push it back in and add or remove a turn until it turns with firm finger pressure, holds its angle and does not drop out. The slotted navy tip on deck lets you set the trim. Don't use paper masking tape: it goes soft in the wet tube and seizes.
 5. **Wheels.** Push each wheel's Ø1.6 mm stub axle into the teardrop bore (Ø2.0, 0.2 mm per side) on its binnacle and fix it with a drop of CA. The bore is about 0.8 mm deeper than the stub. The rim faces aft, toward the helm seat.
 6. **Mast and shroud frame.**
    - Lower the mast straight down: the D-shaped heel keys into the blind deck socket while the two shroud-frame foot tabs drop into the chainplate pockets near the deck edge (0.2 mm clearance per side).
@@ -245,7 +245,7 @@ All scripts are in `scripts/` and expect Blender 5.2 and Bambu Studio on macOS. 
 
    Run `stand_neck.py` once more so it uses both masses, then `MARGARET_OUT=build STAND_DIR=build/stand DISPLAY_SAIL_JSON=build/dsail/display_sail.json python3 stand_strength.py` for the neck stress (`stand_strength.json`). Then `STAND_DIR=… SAIL_DIR=… blender -b Margaret.blend -P stand_show.py` adds the stand and display sail to the blend and renders them; run `presentation_v7.py` again for the stand sheet.
 8. Name gates on the sliced plate: `python3 coupon/transom_gates.py build` (must print PASS) and `python3 coupon/namecheck.py build preview.png`.
-9. Joint fits: copy `scripts/review14/` into a folder holding `yacht-build/<tag>/` (a build with its plate sliced and unpacked to `plate/x/`), then run `python3 review14/fits_stl.py <tag>` (model clearances), `fits_gcode.py <tag>` (as printed, from the toolpaths), `post_detail.py <tag>`, `bore_pinch.py <tag>`, `wheel_bore.py <tag>`, and `fit_sections.py out.png` (the v7j/v7k section sheet).
+9. Joint fits: copy `scripts/review14/` into a folder holding `yacht-build/<tag>/` (a build with its plate sliced and unpacked to `plate/x/`), then run `python3 review14/fits_stl.py <tag>` (model clearances), `fits_gcode.py <tag>` (as printed, from the toolpaths), `post_detail.py <tag>`, `bore_pinch.py <tag>`, `wheel_bore.py <tag>`, and `fit_sections.py out.png` (the v7j/v7l section sheet).
 
 `run_chain.sh <tag>` runs everything from `plate_v7.py` in step 2 through step 6, after the build and check (paths at the top of the script point to the author's machine). The earlier raked-wall stand generator (`stand_v7.py`) is in the git history (commit `6378dd0`).
 
@@ -256,9 +256,9 @@ The design has been modelled and checked digitally:
 - clearance and swing checks pass, with **0 mm³** overlap between the cup and the cap; the furler hook clears the masthead by 0.36 mm and the shroud feet clear their pockets by 0.21 mm
 - the plate has been sliced, and the per-part G-code mass was fed back into the float calculation
 - the G-code was checked layer by layer to prove both names print legibly
-- every joint (fin socket, rudder bore, bulb posts, wheel bores) was measured on the sliced toolpaths, not only in the model
+- every joint (fin socket, rudder bore, bulb posts, wheel bores) was measured on the sliced toolpaths, not only in the model; small holes still print smaller than their toolpaths show, so the rudder bore now has 0.25 mm of running clearance per side
 - buoyancy, trim and the righting curve were computed independently from the exported STLs
 - the stand's on/off path, clearances, overhangs, forward hold, tipping angles and neck stress were computed from the same geometry
 - all of the above was challenged by several independent model reviewers (see `REVIEW.md`).
 
-**It has not yet been printed, leak-tested or sailed.** The ball count, trim, heel, fit and tipping figures are calculations. Confirm them in the tank and on a test print before gluing the bulb shut.
+**Test prints so far** (v7i/v7j hull halves) showed two problems, both fixed: the blue bottom was too thin (1.2 mm since v7j) and the Ø2.1 rudder bore did not take the stock (Ø2.5 since v7l, plus the drill pass for halves already printed). **She has not yet been leak-tested or sailed.** The ball count, trim, heel, fit and tipping figures are calculations. Confirm them in the tank and on a test print before gluing the bulb shut.

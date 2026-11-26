@@ -1,4 +1,4 @@
-"""Cross-sections of the three assembly joints from the exported STLs, v7j (top) vs v7k (bottom)."""
+"""Cross-sections of the three assembly joints from the exported STLs, v7j (top) vs v7l (bottom)."""
 import sys, json, numpy as np
 from PIL import Image, ImageDraw, ImageFont
 OUTP = sys.argv[1]
@@ -29,11 +29,11 @@ def panel(V, kind):
         y = (v1-2.5)*PX; d.line([(0, y), (W, y)], fill=(120, 120, 120), width=1); d.text((4, y-20), "hull seam", font=FS, fill=(90, 90, 90))
     return im
 lab = {"rudder": "Rudder stock in hull bore (side cut)", "fin": "Fin tenon in hull socket (cross cut)", "cup": "Bulb post in cap hole (side cut)"}
-note = {("v7j", "rudder"): "0.05 mm/side all the way, through the seam", ("v7k", "rudder"): "0.2 below seam + lead-in; 0.05 grip above",
-        ("v7j", "fin"): "0.20 mm/side (loose: +-4.8 deg roll)", ("v7k", "fin"): "0.10 mm/side (+-2.4 deg)",
-        ("v7j", "cup"): "r1.0 in r1.2: 0.18/side printed", ("v7k", "cup"): "r1.05 in r1.2: 0.125/side printed"}
+note = {("v7j", "rudder"): "0.05 mm/side: did not fit on the real print", ("v7l", "rudder"): "0.25 mm/side free, chamfered seam mouths",
+        ("v7j", "fin"): "0.20 mm/side (loose: +-4.8 deg roll)", ("v7l", "fin"): "0.10 mm/side (+-2.4 deg)",
+        ("v7j", "cup"): "r1.0 in r1.2: 0.18/side printed", ("v7l", "cup"): "r1.05 in r1.2: 0.125/side printed"}
 rows = []
-for V in ("v7j", "v7k"):
+for V in ("v7j", "v7l"):
     ims = [panel(V, k) for k in ("rudder", "fin", "cup")]
     rows.append((V, ims))
 hmax = max(i.size[1] for _, ims in rows for i in ims); wsum = sum(i.size[0] for i in rows[0][1]) + 4*30

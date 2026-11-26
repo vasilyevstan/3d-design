@@ -1274,7 +1274,7 @@ keep.append(prism("MastTube", mast_section(MAST_D0, MAST_W0, 1.15), "z", -30, 40
 for cx_, cy_, cz_, ctop_ in CHAINPLATES:           # solid bosses under the chainplate pockets
     keep.append(rbox("ChainBoss", cx_-1.8, cx_+1.8, cy_-1.8, cy_+1.8, ctop_-CHAIN_DEPTH-0.9, 80, 0.8))
 keep.append(rbox("KeelBox", X_FIN-10.4, X_FIN+10.4, -3.0, 3.0, -30, -5.6, 1.0))
-keep.append(lathe("RudTube", X_RUD, 0, [(2.1, -30), (2.1, 9.5)]))           # >=0.9 mm wall round the r1.2 lower bore
+keep.append(lathe("RudTube", X_RUD, 0, [(2.2, -30), (2.2, 9.5)]))           # 0.95 mm wall round the r1.25 bore
 keep += RAIL_KEEP
 LUGS = []
 for lx in (52.0, -46.0):
@@ -1297,8 +1297,9 @@ stats(shell)
 
 bores = [prism("MastBore", mast_section(MAST_D0, MAST_W0, 0.15), "z", MAST_HEEL-0.3, 40),
          rbox("FinSlot", X_FIN-9.1, X_FIN+9.1, -1.7, 1.7, -30, -6.8, 0.3),
-         # lower half free-running r1.2 (seam offset, stock first layer); lead-in cone just above the seam; r1.05 friction above
-         lathe("RudBore", X_RUD, 0, [(1.2, -30), (1.2, SEAM+0.15), (1.05, SEAM+0.45), (1.05, 11.0)])]
+         # free-running r1.25 both halves (a printed r1.05 grip did not fit on the real print); seam-face mouths chamfered
+         # against elephant foot like the lug holes; trim and retention come from tape wound on the stock
+         lathe("RudBore", X_RUD, 0, [(1.25, -30), (1.25, SEAM-0.35), (1.55, SEAM), (1.25, SEAM+0.35), (1.25, 11.0)])]
 for s in (1, -1):
     bores.append(prism_x("AxleBore%d" % s, [(s*WHEEL_Y+a, WHEEL_Z+b) for a, b in teardrop(0.0, 0.0, 1.0, 24)],
                          BINNACLE_AFT-0.5, BINNACLE_AFT+2.7))
