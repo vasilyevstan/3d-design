@@ -506,17 +506,30 @@ def padeye(name, x, y, z, along="x", hole_r=0.55):
     return ob
 
 
-def cleat(name, x, y, z, along="x"):
-    """Horn cleat side profile extruded 0.9 mm, on a rounded base pad."""
-    prof = [(-2.0, z-0.4), (2.0, z-0.4), (2.0, z+1.25), (1.55, z+1.45), (0.55, z+1.15),
-            (0.4, z+0.45), (-0.4, z+0.45), (-0.55, z+1.15), (-1.55, z+1.45), (-2.0, z+1.25)]
-    if along == "x":
-        ob = prism(name, [(x+s, zz) for s, zz in prof], "y", y-0.45, y+0.45)
-        base = rbox(name+"B", x-1.3, x+1.3, y-0.8, y+0.8, z-0.4, z+0.35, 0.5)
-    else:
-        ob = prism_x(name, [(y+s, zz) for s, zz in prof], x-0.45, x+0.45)
-        base = rbox(name+"B", x-0.8, x+0.8, y-1.3, y+1.3, z-0.4, z+0.35, 0.5)
-    G.boolean(ob, base, "UNION")
+CLEAT_FLANGE = (1.5, 0.8, 0.32, 0.4)             # half-length, half-width, height above deck, plan radius
+
+
+def cleat(name, x, y, z, g=0.0):
+    """Fore-aft horn cleat (rev 11): 4.2 long, 1.2 wide, top 2.72 above the deck (17 layers); a straight pedestal of
+    +-0.75 up to 0.88 (a visible waist) and horns whose undersides rise at 45 deg to 0.3-0.5 mm tips, so there is
+    daylight under each horn and no
+    supports when the upper hull prints deck-up. Sits on a 3.0 x 1.6 x 0.32 flange buried 0.25 mm. `g` grows the
+    whole fitting (the navy ink tool copy, as for the anchor)."""
+    prof = [(-0.75, -0.25), (0.75, -0.25), (0.75, 0.88), (1.95, 2.08), (2.1, 2.20), (2.1, 2.50), (1.8, 2.68),
+            (0.6, 2.72), (-0.6, 2.72), (-1.8, 2.68), (-2.1, 2.50), (-2.1, 2.20), (-1.95, 2.08), (-0.75, 0.88)]
+    if g:
+        n = len(prof); grown = []
+        for i, (px, pz) in enumerate(prof):                 # mitred outward offset of the CCW profile
+            ax, az = prof[i-1]; bx, bz = prof[(i+1) % n]
+            n1 = (pz-az, -(px-ax)); n2 = (bz-pz, -(bx-px))
+            n1 = [c/math.hypot(*n1) for c in n1]; n2 = [c/math.hypot(*n2) for c in n2]
+            m = (n1[0]+n2[0], n1[1]+n2[1]); L = math.hypot(*m); m = (m[0]/L, m[1]/L)
+            k = g/max(0.3, m[0]*n1[0]+m[1]*n1[1])
+            grown.append((px+m[0]*k, pz+m[1]*k))
+        prof = grown
+    ob = prism(name, [(x+s, z+zz) for s, zz in prof], "y", y-0.6-g, y+0.6+g)
+    fl, fw, fh, fr = CLEAT_FLANGE
+    G.boolean(ob, pad(name+"Flange", x-fl-g, x+fl+g, y-fw-g, y+fw+g, z-0.25-g, z+fh+g, fr+g, 0.12), "UNION")
     return ob
 
 
@@ -859,7 +872,7 @@ add.append(prism("MastCollar", stadium(X_MAST, 0, 7.4, 6.0), "z", roof_mast-1.5,
 ZB = deck_z(94.0, 0.0)
 # printed rig (rev 10): no thread padeyes. Chainplate blocks with funnel pockets take the feet of the printed
 # mast + shroud frame; a stemhead block with a pocket on the stay axis takes the foot tab of the printed furler.
-CHAIN_Y, CHAIN_X = 17.6, MAST_XA+0.6           # frame-foot tab centre; the frame lies in x MAST_XA..MAST_XA+0.64
+CHAIN_Y, CHAIN_X = 26.0, MAST_XA+0.6           # rev 11: outboard, 2.2 mm inside the toe rail (was 17.6, by the coachroof)
 TAB_W, TAB_L = 1.2, 2.4                        # frame-foot tab section (x and y) and length
 CHAIN_H, CHAIN_BOSS = 1.4, 1.4                 # block height above the deck; solid boss below the deck
 CHAIN_SEAT = (TAB_W+0.4, TAB_W+0.6)            # pocket seat x, y: 0.2 / 0.3 clearance per side (rev10 r2)
@@ -868,7 +881,7 @@ CHAINPLATES = []
 for s in (1, -1):
     _y = s*CHAIN_Y
     _z = deck_z(CHAIN_X, _y)
-    add.append(pad("Chainplate%d" % s, CHAIN_X-2.0, CHAIN_X+2.0, _y-2.0, _y+2.0, _z-0.5, _z+CHAIN_H, 0.9, 0.35))
+    add.append(pad("Chainplate%d" % s, CHAIN_X-1.8, CHAIN_X+1.8, _y-1.6, _y+1.6, _z-0.5, _z+CHAIN_H, 0.9, 0.35))
     CHAINPLATES.append((CHAIN_X, _y, _z, _z+CHAIN_H))
 SH_X, SH_TOP = 90.0, ZB+1.5                    # stemhead block: the furler axis meets its top at (SH_X, SH_TOP)
 add.append(pad("Stemhead", SH_X-1.6, SH_X+1.8, -1.7, 1.7, deck_z(SH_X, 0.0)-0.5, SH_TOP, 0.8, 0.3))
@@ -982,7 +995,7 @@ def anchor(name, g=0.0):
 
 
 add.append(anchor("Anchor"))
-CLEATS = [(79.0, 9.0), (79.0, -9.0), (-30.0, 27.2), (-30.0, -27.2), (-78.6, 24.3), (-78.6, -24.3)]
+CLEATS = [(79.0, 9.0), (79.0, -9.0), (-30.0, 25.0), (-30.0, -25.0), (-78.6, 23.5), (-78.6, -23.5)]
 for i, (x, y) in enumerate(CLEATS):
     add.append(cleat("Cleat%d" % i, x, y, deck_z(x, y)))
 WINCHES = [(-46.0, 20.0, 18.5), (-46.0, -20.0, 18.5),
@@ -1132,6 +1145,101 @@ SOLE_Z = 10.3
 G.boolean(outer, lathe("RudCounterbore", X_RUD, 0, [(1.6, SOLE_Z-0.7), (1.6, 30.0)], 32), "DIFFERENCE")
 for s in (1, -1):
     G.boolean(outer, binnacle("Binnacle%d" % s, BINNACLE_AFT, s*WHEEL_Y, 10.25), "UNION")
+
+# rev 11 railings: two flat-printed navy fences (pulpit + stanchions + lifelines + pushpit side) and two flat
+# transom returns. Each post ends in a tab that drops into a pocket in a navy base pad just inside the toe rail.
+# Pads are added after the cockpit cuts (the return's inner leg stands on the helm seat).
+RAIL_POSTS = [90.0, 82.0, 72.0, 46.0, 18.0, -10.0, -38.0, -64.0, -82.0]
+RAIL_IN, RAIL_T = 1.45, 0.68                   # fence centreline inboard of the hull edge; strip thickness (0.2+3x0.16)
+RAIL_PAD = (2.45, 0.85, 2.4, 0.35)             # pad: inboard / outboard offset from hb, length along the edge, height
+RAIL_POCKET = (0.98, 1.0, 0.004, 1.2)          # width, base length, length growth per mm from the middle post, depth
+RAIL_TAB = (0.7, 1.2)                          # tab length, depth: it bottoms on the pocket floor with the post foot
+                                               # flush on the pad (the 1.0 post is not wider than the pocket)
+SX_EST = 1.0346                                # final x scale, asserted after scaling: pockets are sized in final mm
+RET_LEGS = (10.1,)                             # transom-return tabbed leg on the helm seat (rev 11 r2: the outer end
+                                               # is a tab-less post glued to the corner post's aft face, one corner)
+_bm = bmesh.new(); _bm.from_mesh(outer.data); _bvh = BVHTree.FromBMesh(_bm); _bm.free()
+
+
+def surf_z(x, y):
+    hit = _bvh.ray_cast(Vector((x, y, 80.0)), Vector((0.0, 0.0, -1.0)))
+    assert hit[0] is not None, ("no deck under", x, y)
+    return hit[0].z
+
+
+def rail_y(x):
+    return hb(x)-RAIL_IN
+
+
+def rail_t(x):
+    d = (rail_y(x+0.05)-rail_y(x-0.05))/0.1; L = math.hypot(1.0, d)
+    return (1.0/L, d/L)
+
+
+_RX = [95.0-0.05*k for k in range(3701)]
+_RS = [0.0]
+for _a, _b in zip(_RX, _RX[1:]):
+    _RS.append(_RS[-1]+math.hypot(SX_EST*(_b-_a), rail_y(_b)-rail_y(_a)))
+
+
+def rail_s(x):
+    i = min(max(int((95.0-x)/0.05), 0), len(_RX)-2)
+    return _RS[i]+(_RS[i+1]-_RS[i])*((95.0-x)/0.05-i)
+
+
+def edge_pad(name, xc, side, half_x, y_in, y_out, z0, z1, n=8):
+    rings = []
+    for k in range(n+1):
+        x = xc-half_x+2*half_x*k/n
+        B = hb(x)
+        prof = [(B-y_in, z0), (B-y_out, z0), (B-y_out, z1), (B-y_in, z1)]
+        rings.append([(x, side*y, z) for y, z in (prof if side > 0 else list(reversed(prof)))])
+    return rings_solid(name, rings)
+
+
+RAIL_INFO, RAIL_BORES, RAIL_KEEP, RAIL_INK, RAIL_CUT = {}, [], [], [], []
+_s_mid = rail_s(-10.0)
+for xp in RAIL_POSTS:
+    tx, ty = rail_t(xp)
+    k_ = math.hypot(SX_EST*tx, ty)             # final mm per pre-scale mm along the fence line
+    hx = RAIL_PAD[2]/2*tx/k_
+    zs_ = [surf_z(x_, y_) for x_ in (xp-hx, xp, xp+hx) for y_ in [hb(x_)-o_ for o_ in (RAIL_PAD[0]-0.1, RAIL_IN, RAIL_PAD[1]+0.1)]]
+    zc_ = surf_z(xp, rail_y(xp))
+    top = max(zc_+RAIL_PAD[3], max(zs_)+0.15); bot = min(zs_)-0.5
+    plen = RAIL_POCKET[1]+RAIL_POCKET[2]*abs(rail_s(xp)-_s_mid)
+    a_, b_ = plen/2/k_, RAIL_POCKET[0]/2
+    RAIL_INFO[xp] = {"pad_top": top, "deck": zc_, "pocket_len": round(plen, 3), "deck_spread": round(max(zs_)-min(zs_), 3)}
+    for s in (1, -1):
+        G.boolean(outer, edge_pad("RailPad", xp, s, hx, RAIL_PAD[0], RAIL_PAD[1], bot, top), "UNION")
+        RAIL_INK.append(edge_pad("RailPadInk", xp, s, hx+0.03, RAIL_PAD[0]+0.03, RAIL_PAD[1]-0.03, bot-0.03, top+0.03))
+        RAIL_CUT.append(edge_pad("RailPadTeak", xp, s, hx+0.1, RAIL_PAD[0]+0.1, RAIL_PAD[1]-0.1, -10.0, 60.0))
+        cx_, cy_ = xp, rail_y(xp)
+        pts = [(cx_+tx*u+(-ty)*v, cy_+ty*u+tx*v) for u, v in ((-a_, -b_), (a_, -b_), (a_, b_), (-a_, b_))]
+        if s < 0:
+            pts = [(x_, -y_) for x_, y_ in reversed(pts)]
+        RAIL_BORES.append(prism("RailPocket", pts, "z", top-RAIL_POCKET[3], top+0.6))
+        ex, ey = a_*abs(tx)+b_*abs(ty)+0.9, a_*abs(ty)+b_*abs(tx)+0.9
+        RAIL_KEEP.append(rbox("RailBoss", cx_-ex, cx_+ex, s*cy_-ey, s*cy_+ey, top-RAIL_POCKET[3]-0.9, 80, 0.6))
+# transom returns: a flat panel whose forward face touches the aft face of the corner post
+_tx, _ty = rail_t(RAIL_POSTS[-1])
+RET_X = RAIL_POSTS[-1]-0.5*_tx/math.hypot(SX_EST*_tx, _ty)-RAIL_T/2/SX_EST
+RET_INFO = {}
+_hx = 0.65/SX_EST
+for j, yl in enumerate(RET_LEGS):
+    y0_, y1_ = yl-1.0, yl+1.0
+    zs_ = [surf_z(x_, y_) for x_ in (RET_X-_hx, RET_X, RET_X+_hx) for y_ in (y0_+0.1, yl, yl+0.9)]
+    top = max(surf_z(RET_X, yl)+RAIL_PAD[3], max(zs_)+0.15); bot = min(zs_)-0.5
+    RET_INFO[j] = {"y": yl, "pad_top": top, "deck": surf_z(RET_X, yl), "deck_spread": round(max(zs_)-min(zs_), 3)}
+    for s in (1, -1):
+        Y0, Y1 = sorted((s*y0_, s*y1_))
+        G.boolean(outer, rbox("RetPad", RET_X-_hx, RET_X+_hx, Y0, Y1, bot, top, 0.4), "UNION")
+        RAIL_INK.append(rbox("RetPadInk", RET_X-_hx-0.03, RET_X+_hx+0.03, Y0-0.03, Y1+0.03, bot-0.03, top+0.03, 0.43))
+        RAIL_CUT.append(rbox("RetPadTeak", RET_X-_hx-0.1, RET_X+_hx+0.1, Y0-0.1, Y1+0.1, -10.0, 60.0, 0.5))
+        RAIL_BORES.append(rbox("RetPocket", RET_X-RAIL_POCKET[0]/2/SX_EST, RET_X+RAIL_POCKET[0]/2/SX_EST,
+                               s*yl-RAIL_POCKET[1]/2, s*yl+RAIL_POCKET[1]/2, top-RAIL_POCKET[3], top+0.6, 0.05))
+        RAIL_KEEP.append(rbox("RetBoss", RET_X-1.5, RET_X+1.5, s*yl-1.4, s*yl+1.4, top-RAIL_POCKET[3]-0.9, 80, 0.6))
+log("rail pads", {k: (round(v["pad_top"], 2), v["pocket_len"], v["deck_spread"]) for k, v in RAIL_INFO.items()},
+    "returns x", round(RET_X, 3), {k: (round(v["pad_top"], 2), v["deck_spread"]) for k, v in RET_INFO.items()})
 TABLE = (-58.5, -45.0, -4.0, 4.0, 16.6)
 TABLE_BASE = (-56.0, -47.5, -1.2, 1.2)
 table_rings = []
@@ -1160,9 +1268,10 @@ for s in (1, -1):
                      BENCH_Z-0.9, 80, 1.2))
 keep.append(prism("MastTube", mast_section(MAST_D0, MAST_W0, 1.15), "z", -30, 40))
 for cx_, cy_, cz_, ctop_ in CHAINPLATES:           # solid bosses under the chainplate pockets
-    keep.append(rbox("ChainBoss", cx_-2.2, cx_+2.2, cy_-2.2, cy_+2.2, ctop_-CHAIN_DEPTH-0.9, 80, 0.8))
+    keep.append(rbox("ChainBoss", cx_-1.8, cx_+1.8, cy_-1.8, cy_+1.8, ctop_-CHAIN_DEPTH-0.9, 80, 0.8))
 keep.append(rbox("KeelBox", X_FIN-10.4, X_FIN+10.4, -3.0, 3.0, -30, -5.6, 1.0))
 keep.append(lathe("RudTube", X_RUD, 0, [(1.925, -30), (1.925, 9.5)]))
+keep += RAIL_KEEP
 LUGS = []
 for lx in (52.0, -46.0):
     yi = y_at_z(lx, SEAM, WALL+0.85)
@@ -1194,6 +1303,7 @@ bores += window_solids("WinCut", -0.8, 0.95)
 for cx_, cy_, cz_, ctop_ in CHAINPLATES:
     bores.append(funnel("ChainPocket", cx_, cy_, CHAIN_SEAT, (2.2, 2.4), ctop_-CHAIN_DEPTH, ctop_))
 _fa, _fy0, _fy1, _fd = FPOCKET
+bores += RAIL_BORES
 bores.append(axis_solid("FurlerPocket", [(-_fd, _fa, _fy0, _fy1), (-0.5, _fa, _fy0, _fy1),
                                          (0.3, _fa+0.3, _fy0-0.2, _fy1+0.2)]))
 bool_many(shell, bores, "DIFFERENCE")
@@ -1272,6 +1382,9 @@ for s_ in (1, -1):
     G.boolean(tool, rbox("Instrument%d" % s_, BINNACLE_AFT-0.3, BINNACLE_AFT+3.7, s_*WHEEL_Y-2.2, s_*WHEEL_Y+2.2,
                          WHEEL_Z+1.7, WHEEL_Z+4.0, 0.3), "UNION")
 G.boolean(tool, anchor("AnchorInk", 0.03), "UNION")
+for i, (x, y) in enumerate(CLEATS):              # rev 11: navy cleats read against the white deck and teak
+    G.boolean(tool, cleat("CleatInk%d" % i, x, y, deck_z(x, y), 0.03), "UNION")
+bool_many(tool, RAIL_INK, "UNION")
 # repeat the name on the port (+y) upper transom face, reading left-to-right from astern, inlaid 0.8 mm.
 # Slicer coupons (coupon/): a 0.6 mm inlay of these 0.5-0.6 mm strokes is near-square in every layer, so Arachne's
 # medial axis collapses and most strokes vanish; 0.8 mm prints every layer. A white pad behind the name keeps a
@@ -1353,9 +1466,10 @@ excl = [prism("TeakExclCR", cr_poly, "z", -10.0, 60.0),
              -HATCH_FD[3]/2-0.6, HATCH_FD[3]/2+0.6, -10.0, 60.0, 1.8),
         rbox("TeakExclLid", LID[0]-0.6, LID[1]+0.6, LID[2]-0.6, LID[3]+0.6, -10.0, 60.0, 1.6)]
 for cx_, cy_, cz_, ctop_ in CHAINPLATES:
-    excl.append(rbox("TeakExclChain", cx_-2.4, cx_+2.4, cy_-2.4, cy_+2.4, -10.0, 60.0, 1.1))
+    excl.append(rbox("TeakExclChain", cx_-1.9, cx_+1.9, cy_-1.7, cy_+1.7, -10.0, 60.0, 1.0))
 for x, y in CLEATS:
-    excl.append(rbox("TeakExclCleat", x-2.6, x+2.6, y-1.4, y+1.4, -10.0, 60.0, 0.9))
+    excl.append(rbox("TeakExclCleat", x-CLEAT_FLANGE[0]-0.1, x+CLEAT_FLANGE[0]+0.1, y-CLEAT_FLANGE[1]-0.1,
+                      y+CLEAT_FLANGE[1]+0.1, -10.0, 60.0, CLEAT_FLANGE[3]+0.1))
 bool_many(deck_teak, excl, "DIFFERENCE")
 TEAK_ZONES.append(deck_teak)
 ttool = TEAK_ZONES[0]; bool_many(ttool, TEAK_ZONES[1:], "UNION")
@@ -1364,6 +1478,7 @@ cut_fp = [rbox("BinnacleFoot%d" % s, BINNACLE_AFT-0.5, BINNACLE_AFT+3.9, s*WHEEL
 cut_fp.append(rbox("TableFoot", TABLE_BASE[0]-0.5, TABLE_BASE[1]+0.5, TABLE_BASE[2]-0.5, TABLE_BASE[3]+0.5,
                    SOLE_Z-1.0, SOLE_Z+0.5, 1.2))
 cut_fp.append(lathe("DeckPlateFoot", X_RUD, 0, [(2.95, SOLE_Z-1.0), (2.95, SOLE_Z+0.5)], 40))
+cut_fp += RAIL_CUT
 for i, (x0_, x1_, y0_, y1_) in enumerate(LADDER):
     cut_fp.append(box_xy("LadderFoot%d" % i, x0_, x1_, y0_, y1_, PLAT_Z-0.6, PLAT_Z+0.6))
 bool_many(ttool, cut_fp, "DIFFERENCE")
@@ -1563,7 +1678,8 @@ spar_only = dup(mast, "SparOnly")
 # the lower spreader root; a flat 0.6 mm frame on the mast's aft print face. Tabs at the feet drop into the
 # chainplate pockets; the mast heel bottoms in its socket while the tabs and feet keep clearance.
 SHR_T, SHR_W, FOOT_R, TIP_R = 0.6, 1.0, 1.0, 0.8
-SPREADERS = [(95.0, 17.4), (155.0, 10.5)]
+SPREADERS = [(95.0, 24.0), (155.0, 14.5)]          # rev 11: swept out to the outboard chainplates
+SPREADER_SEC = [(1.6, 1.3, 0.9), (1.25, 1.1, 0.8)]  # fore-aft depth, root and tip heights (tapered aerofoil-ish)
 HOUNDS = (MAST_XA+0.9, MAST_TOP-8.5)
 SHROUD_FEET, SHROUD_PATHS = [], {}
 
@@ -1613,7 +1729,9 @@ for s in (1, -1):
         G.boolean(shrouds, side, "UNION")
 G.boolean(shrouds, spar_only, "DIFFERENCE")
 for i, (zsp, half) in enumerate(SPREADERS):
-    G.boolean(mast, prism_x("Spreader%d" % i, rrect(-half, half, zsp-0.55, zsp+0.55, 0.35), MAST_XA, MAST_XA+1.25), "UNION")
+    dep, h0, h1 = SPREADER_SEC[i]
+    poly = [(-half, zsp-h1/2), (0.0, zsp-h0/2), (half, zsp-h1/2), (half, zsp+h1/2), (0.0, zsp+h0/2), (-half, zsp+h1/2)]
+    G.boolean(mast, prism_x("Spreader%d" % i, poly, MAST_XA, MAST_XA+dep), "UNION")
 MASTHEAD_HOLE_Z = MAST_TOP-2.2
 G.boolean(mast, rod_x("StayHole", MAST_XA-1, MAST_XA+5, 0, MASTHEAD_HOLE_Z, 0.42, 16), "DIFFERENCE")
 _cut = dup(shrouds, "ShroudCut")
@@ -1713,6 +1831,179 @@ def fx(x):
     return (x-X_CENTER)*SX
 log("x scale", round(SX, 6), "hull length", round((HULL_X1-HULL_X0)*SX, 3),
     "overall", round((X_MAX-X_MIN)*SX, 3))
+
+log("railings: flat strips, bent to the deck edge")
+assert abs(SX-SX_EST) < 0.003, ("rail pockets were sized for SX", SX_EST, SX)
+_CX = [fx(x) for x in _RX]; _CY = [rail_y(x) for x in _RX]
+_CS = [0.0]
+for i in range(1, len(_RX)):
+    _CS.append(_CS[-1]+math.hypot(_CX[i]-_CX[i-1], _CY[i]-_CY[i-1]))
+
+
+def _interp(s, arr):
+    i = min(max(bisect.bisect_right(_CS, s)-1, 0), len(_CS)-2)
+    u = (s-_CS[i])/(_CS[i+1]-_CS[i])
+    return arr[i]+(arr[i+1]-arr[i])*u
+
+
+def c_at(s):
+    """final (x, y) of the port fence centreline, outward unit normal, and pre-scale x at arc length s."""
+    x0, y0 = _interp(s-0.05, _CX), _interp(s-0.05, _CY)
+    x1, y1 = _interp(s+0.05, _CX), _interp(s+0.05, _CY)
+    L = math.hypot(x1-x0, y1-y0); tx_, ty_ = (x1-x0)/L, (y1-y0)/L
+    return (_interp(s, _CX), _interp(s, _CY)), (ty_, -tx_), _interp(s, _RX)
+
+
+def s_post(x):
+    i = min(max(int((95.0-x)/0.05), 0), len(_RX)-2)
+    return _CS[i]+(_CS[i+1]-_CS[i])*((95.0-x)/0.05-i)
+
+
+def deck_s(s):
+    x = c_at(s)[2]
+    return deck_z(x, rail_y(x))
+
+
+RAIL_H = [(RAIL_POSTS[0], RAIL_POSTS[2], 10.5), (RAIL_POSTS[2], RAIL_POSTS[-2], 9.2),
+          (RAIL_POSTS[-2], RAIL_POSTS[-1], 10.0)]          # pulpit, lifelines, pushpit: top above the deck
+RAIL_TOP_W, RAIL_MID_W, RAIL_MID_Z, RAIL_POST_W = 0.85, 0.8, 4.7, 1.0
+
+
+def flat_box(name, s0, s1, z0, z1):
+    return rings_solid(name, [[(s0, z0, 0.0), (s0, z0, RAIL_T), (s0, z1, RAIL_T), (s0, z1, 0.0)],
+                              [(s1, z0, 0.0), (s1, z0, RAIL_T), (s1, z1, RAIL_T), (s1, z1, 0.0)]])
+
+
+def flat_band(name, s0, s1, zc_fun, h):
+    n = max(2, int((s1-s0)/0.8)+1)
+    rings = []
+    for k in range(n+1):
+        s = s0+(s1-s0)*k/n; zc = zc_fun(s)
+        rings.append([(s, zc-h/2, 0.0), (s, zc-h/2, RAIL_T), (s, zc+h/2, RAIL_T), (s, zc+h/2, 0.0)])
+    return rings_solid(name, rings)
+
+
+def fine_s(ob, max_len=0.9):
+    """split long strip-wise edges so the strip bends smoothly when mapped onto the deck-edge curve."""
+    bm = bmesh.new(); bm.from_mesh(ob.data)
+    bmesh.ops.triangulate(bm, faces=bm.faces)
+    for _ in range(8):
+        long_ = [e for e in bm.edges if abs(e.verts[0].co.x-e.verts[1].co.x) > max_len]
+        if not long_:
+            break
+        bmesh.ops.subdivide_edges(bm, edges=long_, cuts=1, use_grid_fill=False)
+        bmesh.ops.triangulate(bm, faces=bm.faces)
+    bm.to_mesh(ob.data); bm.free()
+    return ob
+
+
+SP = {xp: s_post(xp) for xp in RAIL_POSTS}
+strip = None
+for xa, xb, h in RAIL_H:
+    sa, sb = SP[xa]-0.45, SP[xb]+0.45
+    b_ = flat_band("RailTop", sa, sb, lambda s, h=h: deck_s(s)+h-RAIL_TOP_W/2, RAIL_TOP_W)
+    strip = b_ if strip is None else G.boolean(strip, b_, "UNION")
+G.boolean(strip, flat_band("RailMid", SP[RAIL_POSTS[0]]-0.45, SP[RAIL_POSTS[-1]]+0.45,
+                           lambda s: deck_s(s)+RAIL_MID_Z, RAIL_MID_W), "UNION")
+RAIL_POST_TOPS = {}
+for xp in RAIL_POSTS:
+    h = max(h_ for xa, xb, h_ in RAIL_H if xb <= xp <= xa)
+    top_ = deck_s(SP[xp])+h-0.05; ptop = RAIL_INFO[xp]["pad_top"]
+    RAIL_POST_TOPS[xp] = round(top_-ptop, 2)
+    G.boolean(strip, flat_box("RailPost", SP[xp]-RAIL_POST_W/2, SP[xp]+RAIL_POST_W/2, ptop, top_), "UNION")
+    G.boolean(strip, flat_box("RailTab", SP[xp]-RAIL_TAB[0]/2, SP[xp]+RAIL_TAB[0]/2, ptop-RAIL_TAB[1], ptop+0.05), "UNION")
+fine_s(strip)
+log("rail strip", G.mesh_stats(strip), "post heights above pads", RAIL_POST_TOPS)
+# transom return (flat coords: s = y, z, t), top and mid rails level with the side fence at the corner post
+s_c = SP[RAIL_POSTS[-1]]
+RET_TOP = deck_s(s_c)+RAIL_H[-1][2]
+RET_MIDZ = deck_s(s_c)+RAIL_MID_Z
+RET_YEND = rail_y(RAIL_POSTS[-1])+RAIL_T/2
+RET_YC = RET_YEND-RAIL_POST_W/2                 # corner post of the return, flush with the fence's outer face
+RET_CTOP = RAIL_INFO[RAIL_POSTS[-1]]["pad_top"]   # it stands on the side fence's corner pad, no tab, glued
+ret = flat_box("RetTop", RET_LEGS[0]-0.45, RET_YEND, RET_TOP-RAIL_TOP_W, RET_TOP)
+G.boolean(ret, flat_box("RetMid", RET_LEGS[0]-0.45, RET_YEND, RET_MIDZ-RAIL_MID_W/2, RET_MIDZ+RAIL_MID_W/2), "UNION")
+G.boolean(ret, flat_box("RetCorner", RET_YC-RAIL_POST_W/2, RET_YC+RAIL_POST_W/2, RET_CTOP, RET_TOP-0.05), "UNION")
+for j, yl in enumerate(RET_LEGS):
+    ptop = RET_INFO[j]["pad_top"]
+    G.boolean(ret, flat_box("RetPost", yl-RAIL_POST_W/2, yl+RAIL_POST_W/2, ptop, RET_TOP-0.05), "UNION")
+    G.boolean(ret, flat_box("RetTab", yl-RAIL_TAB[0]/2, yl+RAIL_TAB[0]/2, ptop-RAIL_TAB[1], ptop+0.05), "UNION")
+RET_XF = fx(RET_X)
+_post_aft = c_at(s_c+RAIL_POST_W/2)[0][0]
+log("transom return", G.mesh_stats(ret), "front face x", round(RET_XF+RAIL_T/2, 3), "corner post aft face x",
+    round(_post_aft, 3), "top z", round(RET_TOP, 2), "mid z", round(RET_MIDZ, 2))
+
+
+def _flip(o):
+    bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.reverse_faces(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
+
+
+def map_strip(name, src, side):
+    o = dup(src, name)
+    for v in o.data.vertices:
+        s, z, t = v.co
+        (cx_, cy_), (nx_, ny_), _ = c_at(s)
+        v.co = Vector((cx_+nx_*(t-RAIL_T/2), side*(cy_+ny_*(t-RAIL_T/2)), z))
+    if side < 0:
+        _flip(o)
+    return o
+
+
+def map_ret(name, src, side):
+    o = dup(src, name)
+    for v in o.data.vertices:
+        s, z, t = v.co
+        v.co = Vector((RET_XF+t-RAIL_T/2, side*s, z))
+    if side < 0:
+        _flip(o)
+    return o
+
+
+rails = {"Rail_Port": map_strip("Rail_Port", strip, 1), "Rail_Starboard": map_strip("Rail_Starboard", strip, -1),
+         "RailAft_Port": map_ret("RailAft_Port", ret, 1), "RailAft_Starboard": map_ret("RailAft_Starboard", ret, -1)}
+# flat print layout: two identical strips nested along their sheer, the two (identical) returns stacked after them
+_zs = [v.co.y for v in strip.data.vertices]; _ss = [v.co.x for v in strip.data.vertices]
+_lo = [deck_s(s) for s in _ss]
+NEST_DZ = max(z-d for z, d in zip(_zs, _lo))-min(z-d for z, d in zip(_zs, _lo))+1.2
+_rz = [v.co.y for v in ret.data.vertices]; _ry = [v.co.x for v in ret.data.vertices]
+pr = []
+for k in range(2):
+    o = dup(strip, "RailPrint%d" % k)
+    for v in o.data.vertices:
+        v.co = Vector((v.co.x-min(_ss), v.co.y-min(_zs)+k*NEST_DZ, v.co.z))
+    pr.append(o)
+for k in range(2):
+    o = dup(ret, "RetPrint%d" % k)
+    for v in o.data.vertices:
+        v.co = Vector((max(_ss)-min(_ss)+2.0+v.co.x-min(_ry), v.co.y-min(_rz)+k*(max(_rz)-min(_rz)+1.5), v.co.z))
+    pr.append(o)
+rails_print = pr[0]
+for o in pr[1:]:
+    G.boolean(rails_print, o, "UNION")
+_bad = G.mesh_stats(rails_print)["nonmanifold"]
+assert _bad == 0, ("rail print sheet non-manifold", _bad)
+os.makedirs(os.path.join(OUT, "print"), exist_ok=True)
+for o in bpy.data.objects:
+    o.select_set(o is rails_print)
+bpy.ops.wm.stl_export(filepath=os.path.join(OUT, "print", "Rails_print.stl"), export_selected_objects=True)
+_pb = [max(v.co[i] for v in rails_print.data.vertices)-min(v.co[i] for v in rails_print.data.vertices) for i in range(3)]
+RAIL_STATS = {"posts_x_prescale": RAIL_POSTS, "posts_x": [round(fx(x), 2) for x in RAIL_POSTS],
+              "heights_above_deck": {"pulpit": 10.5, "lifelines": 9.2, "pushpit": 10.0}, "mid_rail": RAIL_MID_Z,
+              "strip_t": RAIL_T, "top_rail_w": RAIL_TOP_W, "mid_rail_w": RAIL_MID_W, "post_w": RAIL_POST_W,
+              "tab": RAIL_TAB, "pocket": RAIL_POCKET, "pad": RAIL_PAD, "fence_inboard_of_edge": RAIL_IN,
+              "strip_length": round(max(_ss)-min(_ss), 2), "nest_dz": round(NEST_DZ, 2),
+              "print_sheet_mm": [round(v, 2) for v in _pb], "post_heights_above_pads": RAIL_POST_TOPS,
+              "pads": {str(k): {kk: (round(vv, 4) if isinstance(vv, float) else vv) for kk, vv in v.items()}
+                       for k, v in RAIL_INFO.items()},
+              "returns": {"x": round(RET_XF, 3), "legs_y": [round(RET_YC, 3)]+list(RET_LEGS), "top_z": round(RET_TOP, 2),
+                          "pad_tops": [round(RET_CTOP, 4)]+[round(RET_INFO[j]["pad_top"], 4) for j in range(len(RET_LEGS))],
+                          "corner_post": "tab-less, stands on the corner pad, glued to the corner post's aft face",
+                          "mid_z": round(RET_MIDZ, 2), "y_end": round(RET_YEND, 2),
+                          "front_face_to_corner_post": round(_post_aft-(RET_XF+RAIL_T/2), 3)}}
+log("rail print sheet", [round(v, 1) for v in _pb], "nest dz", round(NEST_DZ, 2))
+for o in [strip, ret, rails_print]:
+    bpy.data.objects.remove(o, do_unlink=True)
+parts.update(rails)
 BALLAST_CAVITY_CM3 = CAVITY_CM3*SX
 PELLET_VOL_CM3 = 4*math.pi*(0.15**3)/3
 PELLET_COUNT = int(BALLAST_CAVITY_CM3*0.64/PELLET_VOL_CM3)
@@ -1834,7 +2125,8 @@ PART_COLOUR = {"Lower_blue": "blue", "Lower_white": "white", "Lower_ink": "ink",
                "Ballast_cup": "blue", "Mast": "white", "Shrouds": "ink", "Furler": "white", "Furler_ink": "ink",
                "Boom": "white", "Rudder": "blue", "Rudder_ink": "ink",
                "Wheel_Port": "ink", "Wheel_Starboard": "ink", "WheelSpokes_Port": "white",
-               "WheelSpokes_Starboard": "white"}
+               "WheelSpokes_Starboard": "white", "Rail_Port": "ink", "Rail_Starboard": "ink",
+               "RailAft_Port": "ink", "RailAft_Starboard": "ink"}
 PRINT_MATS = {k: material("PLA %s %s" % (k, v), srgb(v), 0.55) for k, v in PRINT_COLOURS.items()}
 for name, ob in parts.items():
     ob["printable"] = True
@@ -1876,6 +2168,10 @@ build_stats.update(build_stats_extra)
 build_stats["anchor"] = {"toe_u": round(ANCHOR_U0, 2), "crown_front_x_prescale": ANCH_X1, "cheek_end_x_prescale": CHEEK_X1,
                          "roller": ROLLER, "shackle": SHACKLE, "fluke_shadow_gap_mm": FL_OT,
                          "shank_daylight_to_cheeks_mm": round(1.15-0.5, 2), "shank_air_over_plank_mm": 0.9}
+build_stats["railings"] = RAIL_STATS
+build_stats["cleats"] = {"xy_prescale": CLEATS, "flange": CLEAT_FLANGE, "top_above_deck": 2.72, "length": 4.2,
+                         "width": 1.2, "colour": "ink"}
+build_stats["spreaders_section"] = SPREADER_SEC
 json.dump(build_stats, open(os.path.join(OUT, "stats.json"), "w"), indent=1)
 rig_mat = material("Mainsheet thread preview", (0.04, 0.055, 0.07, 1))
 for name, path in stay_paths.items():

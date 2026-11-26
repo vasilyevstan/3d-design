@@ -1,5 +1,5 @@
 {
- "PLA_g": 46.44,
+ "PLA_g": 47.28,
  "PLA_source": "sliced per object",
  "extras_g": {
   "paper sail 80 g/m2 (full)": 0.53,
@@ -10,28 +10,28 @@
  "displacement_g_at_DWL": 63.88,
  "LCB_x": -4.0,
  "VCB_z": -10.62,
- "lead_needed_g": 15.65,
- "lead_balls_3mm": 98,
+ "lead_needed_g": 14.81,
+ "lead_balls_3mm": 93,
  "lead_capacity_balls_discrete": 129,
  "lead_capacity_g_discrete": 20.6,
  "lead_capacity_g_continuum_62pct": 32.9,
  "ball_g": 0.16,
  "ball_d_mm": 3.0,
- "lead_fill_top_z": -46.5,
+ "lead_fill_top_z": -46.75,
  "fill_method": "discrete lowest-first",
- "lead_x_needed_for_level_trim": -10.93,
+ "lead_x_needed_for_level_trim": -11.14,
  "cavity_x": [
   -31.62,
   11.92
  ],
  "lead_level_centroid": [
-  -9.19,
-  -50.72
+  -9.31,
+  -50.86
  ],
  "G": [
   -4.0,
   0.01,
-  -6.1
+  -5.1
  ],
  "lateral_area_cm2": 34.0,
  "CLR_xz": [
@@ -46,43 +46,43 @@
   },
   {
    "phi": 5,
-   "GZ_mm": 1.617,
-   "RM_mNm": 1.013
+   "GZ_mm": 1.53,
+   "RM_mNm": 0.958
   },
   {
    "phi": 10,
-   "GZ_mm": 3.184,
-   "RM_mNm": 1.995
+   "GZ_mm": 3.009,
+   "RM_mNm": 1.886
   },
   {
    "phi": 15,
-   "GZ_mm": 4.667,
-   "RM_mNm": 2.924
+   "GZ_mm": 4.407,
+   "RM_mNm": 2.762
   },
   {
    "phi": 20,
-   "GZ_mm": 6.016,
-   "RM_mNm": 3.77
+   "GZ_mm": 5.673,
+   "RM_mNm": 3.555
   },
   {
    "phi": 25,
-   "GZ_mm": 7.231,
-   "RM_mNm": 4.531
+   "GZ_mm": 6.807,
+   "RM_mNm": 4.265
   },
   {
    "phi": 30,
-   "GZ_mm": 8.338,
-   "RM_mNm": 5.225
+   "GZ_mm": 7.837,
+   "RM_mNm": 4.911
   },
   {
    "phi": 35,
-   "GZ_mm": 9.311,
-   "RM_mNm": 5.834
+   "GZ_mm": 8.736,
+   "RM_mNm": 5.474
   },
   {
    "phi": 40,
-   "GZ_mm": 9.941,
-   "RM_mNm": 6.229
+   "GZ_mm": 9.297,
+   "RM_mNm": 5.826
   }
  ],
  "sails": {
@@ -93,10 +93,10 @@
    "CE_z": 108.8,
    "CE_x": -2.0,
    "lead_mm_CE_ahead_of_CLR": 4.0,
-   "heel_deg_at_1.0_mps": 3.1,
-   "heel_deg_at_1.5_mps": 6.8,
-   "heel_deg_at_2.0_mps": 12.0,
-   "heel_deg_at_3.0_mps": 25.1
+   "heel_deg_at_1.0_mps": 3.2,
+   "heel_deg_at_1.5_mps": 7.2,
+   "heel_deg_at_2.0_mps": 12.6,
+   "heel_deg_at_3.0_mps": 26.4
   },
   "medium": {
    "area_cm2": 32.3,
@@ -105,10 +105,10 @@
    "CE_z": 83.0,
    "CE_x": 2.0,
    "lead_mm_CE_ahead_of_CLR": 8.1,
-   "heel_deg_at_1.0_mps": 1.2,
-   "heel_deg_at_1.5_mps": 2.7,
-   "heel_deg_at_2.0_mps": 4.7,
-   "heel_deg_at_3.0_mps": 10.5
+   "heel_deg_at_1.0_mps": 1.3,
+   "heel_deg_at_1.5_mps": 2.8,
+   "heel_deg_at_2.0_mps": 5.0,
+   "heel_deg_at_3.0_mps": 11.1
   },
   "start": {
    "area_cm2": 25.5,
@@ -117,30 +117,34 @@
    "CE_z": 83.0,
    "CE_x": 6.1,
    "lead_mm_CE_ahead_of_CLR": 12.2,
-   "heel_deg_at_1.0_mps": 0.9,
-   "heel_deg_at_1.5_mps": 2.1,
-   "heel_deg_at_2.0_mps": 3.7,
-   "heel_deg_at_3.0_mps": 8.3
+   "heel_deg_at_1.0_mps": 1.0,
+   "heel_deg_at_1.5_mps": 2.2,
+   "heel_deg_at_2.0_mps": 4.0,
+   "heel_deg_at_3.0_mps": 8.8
   }
  },
  "part_mass_g": {
   "Lower_blue": 10.26,
   "Lower_white": 0.93,
   "Lower_ink": 1.02,
-  "Upper_white": 21.74,
-  "Upper_ink": 1.01,
+  "Upper_white": 21.68,
+  "Upper_ink": 1.15,
   "Upper_teak": 2.71,
   "Window_ink": 0.39,
   "Fin_cap": 2.95,
   "Ballast_cup": 2.21,
-  "Mast": 1.75,
-  "Shrouds": 0.56,
+  "Mast": 1.8,
+  "Shrouds": 0.57,
   "Boom": 0.42,
   "Rudder": 0.31,
   "Rudder_ink": 0.0,
   "Wheel_Port": 0.05,
   "Wheel_Starboard": 0.05,
   "WheelSpokes_Port": 0.04,
-  "WheelSpokes_Starboard": 0.04
+  "WheelSpokes_Starboard": 0.04,
+  "Rail_Port": 0.31,
+  "Rail_Starboard": 0.31,
+  "RailAft_Port": 0.04,
+  "RailAft_Starboard": 0.04
  }
 }

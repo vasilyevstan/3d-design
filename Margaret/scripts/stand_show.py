@@ -3,8 +3,8 @@
 Run: STAND_DIR=<dir with Stand.stl> [SAIL_DIR=<dir with Display_sail.stl>] MARGARET_WORK=<render dir>
      blender -b <stage>/Margaret.blend -P stand_show.py
 Saves the blend in place and writes stand-1.png (boat on stand, printed display sail instead of the paper preview sail
-when SAIL_DIR is given), stand-2.png (fork on the fin root and the tail saddle), stand-3.png (stand alone), stand-4.png
-(display sail with its navy markings), stand-5.png (port profile: the swan neck against the keel).
+when SAIL_DIR is given), stand-2.png (fork on the fin root and the nose saddle), stand-3.png (stand alone), stand-4.png
+(display sail with its navy markings), stand-5.png (port profile: the neck rising between rudder and keel).
 """
 import bpy, os
 from mathutils import Vector
@@ -83,10 +83,10 @@ bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath, compress=True)
 sc.render.film_transparent = True
 papers = [o for o in (bpy.data.objects.get(n) for n in ("Preview_PaperSail", "Preview_PaperSail_marks")) if o]
 shots = [("stand-1", c1, (1200, 1500), {"Display sail"} if sail is None else set(), sail is not None),
-         ("stand-2", cam("tmp2", (220, -300, 40), (-6, 0, -35), 112), (1600, 1000), {"Preview", "Display sail"}, False),
-         ("stand-3", cam("tmp3", (160, -230, 150), (-7, 0, -42), 104), (1600, 1000),
+         ("stand-2", cam("tmp2", (200, -300, 30), (-18, 0, -36), 122), (1600, 1000), {"Preview", "Display sail"}, False),
+         ("stand-3", cam("tmp3", (140, -240, 150), (-20, 0, -44), 132), (1600, 1000),
           {"Print", "Preview", "Display sail"}, False),
-         ("stand-5", cam("tmp5", (-5, -400, -17.5), (-5, 0, -17.5), 232), (1600, 640), {"Preview", "Display sail"}, False)]
+         ("stand-5", cam("tmp5", (-5, -400, -22), (-5, 0, -22), 242), (1600, 640), {"Preview", "Display sail"}, False)]
 if sail is not None:
     shots.append(("stand-4", cam("tmp4", (40, -400, 150), (0, 0, 143), 205, roll=90), (1600, 760),
                   {"Print", "Preview", "Display stand"}, False))

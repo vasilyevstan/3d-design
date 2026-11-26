@@ -1,14 +1,15 @@
-"""Swan-neck display stand for Margaret (Revision 10): a thin bevelled oval base, ONE neck rising just ahead of the
-ballast bulb's nose and leaning back 45 deg under the hull, and a fork head that cradles the hull bottom either side of
-the fin root.  No pins, nothing enters the model.
+"""Swan-neck display stand for Margaret (Revision 11, T4): a thin egg-shaped base and ONE neck that rises between the
+rudder and the ballast bulb's tail, leans forward 48 deg under the hull, and ends in a fork head that cradles the hull
+bottom either side of the fin root.  No pins, nothing enters the model.
 
-* Fork: the head's top is the hull-bottom height field (the boat rests on two pads beside the fin and on the keel line
-  just ahead of it), and a fin slot is cut through it: the fin's swept section (everything that passes on the way in)
-  plus SLOT_CLEAR per side.  The slot's front end follows the fin's leading edge, so the closed front of the fork stops
-  the boat going forward, and the fin in the slot stops it rolling.
-* Lock: a small chock on the base sits CHOCK_CLEAR under the bulb's rising aft underside, so the boat cannot walk out
-  aft: lift her LIFT mm, slide her aft, lift her off (audited: no hull/appendage vertex enters the stand on that path).
-* Printable upright without supports: every downward face is <= 45-50 deg from vertical (audited).
+* Fork: the head's top is the hull-bottom height field (zero-gap pads either side of the fin).  The fin slot is CLOSED
+  at the rear (a stop SLOT_CLEAR behind the fin's trailing edge, so she cannot go aft) and open forward.  Near the stop
+  it is the fin's swept section plus SLOT_CLEAR per side (she cannot roll); forward it flares so that, once she has slid
+  SLIDE forward, the ballast bulb can pass up through it.
+* Lock: a saddle chock on the base sits CHOCK_CLEAR under the bulb's rising nose, so she cannot walk forward.
+  To take her off: lift LIFT, slide forward SLIDE, lift off (audited: every hull/keel/rudder vertex on that path).
+* Printed upright.  Base, root fillet and neck are support-free (<= 48 deg, audited); tree supports only under the
+  fork head, which is hidden under the hull.
 
 Run: MARGARET_OUT=<v7 build dir> STAND_OUT=<dir> [DISPLAY_SAIL_JSON=<display_sail.json>]
      blender -b --factory-startup -P stand_neck.py
@@ -24,28 +25,31 @@ HULL = ["Lower_blue", "Lower_white", "Lower_ink", "Upper_white", "Upper_ink", "U
 FIN = ["Fin_cap", "Ballast_cup"]
 RUD = ["Rudder", "Rudder_ink"]
 SLOT_CLEAR = 0.4            # fin to slot wall, per side
+LIFT_CLEAR = 0.8            # bulb to the flared slot wall on the final lift
 CHEEK_T = 2.4               # fork cheek thickness beside the slot
-BULB_GAP = 2.5              # bulb flat above the base top
-BASE_T, BASE_BEVEL, BASE_FOOT = 1.8, 0.8, 0.3
-BASE_HW = 30.0              # base half-width (y)
-BASE_MARGIN = 3.5           # base edge beyond the neck root fillet and the chock
-NECK_GAP = 2.2              # neck rear face ahead of the bulb nose
-NECK_T = 6.0                # neck fore-aft thickness where it stands vertical
-NECK_T45 = 5.0              # neck thickness square to its 45 deg lean
-NECK_HW = 2.6               # neck half-width (y)
-LIP_X, LIP_D = -9.0, 1.5    # aft tip of the fork pads; pad depth there
-FRONT_TOP_X = 9.5           # front face of the fork head
-R_REAR, R_FRONT = 12.0, 18.0
-FRONT_BLEND = 12.0          # smooth flare of the neck's front face into the head
-ROOT_R = 2.5                # neck-to-base fillet radius
-HEAD_R = 2.5                # plan corner radius of neck and head
-SLIDE = 32.0                # lift-off path: up LIFT (set by the chock), aft SLIDE, then up
-CHOCK_LOCK, CHOCK_CLEAR, CHOCK_LEN, CHOCK_HW = 1.6, 0.4, 5.0, 3.0
-CHOCK_WRAP = 3.0            # saddle rises around the tail at most this far above the bulb flat
-Z_TOP = -10.0               # neck stack top (above the hull bottom; trimmed by the height field)
+W_BRIDGE = 4.6              # head half-width aft of the slot (neck widens to this under the head)
+WIDEN = 8.0                 # neck widening length below the head: lean + widening stay <= 50 deg at the corners
+BULB_GAP = 8.0              # bulb flat above the base top: the boat stands visibly raised
+BASE_T, BASE_BEVEL, BASE_FOOT = 1.4, 0.8, 0.3
+BASE_B, BASE_K = 31.0, 0.25  # egg: y = B sin t (1 + K cos t), widest ahead of centre
+BASE_X_HI = 28.0            # base front (chock and G well inside)
+BASE_MARGIN = 4.5           # base edge beyond the neck root fillet (aft)
+XR0, XF0 = -60.0, -53.5     # neck root: rear and front faces (between the rudder and the bulb tail)
+NECK_HW = 2.8               # neck half-width (y)
+ROOT_R = 4.0                # neck-to-base fillet radius
+HEAD_R = 2.5                # neck plan corner radius = head rear corner radius
+LEAN = 48.0                 # neck lean from vertical (print overhang limit 50)
+ZA_F, R_F = -42.0, 10.0     # front face vertical up to ZA_F, then an R_F arc into the lean
+R_R, T_L = 16.0, 5.0        # rear arc radius; neck thickness square to the lean
+X_TIP, TIP_R = 5.0, 1.5     # fork prong tips (at the fin's leading edge) and their plan corner radius
+SLIDE = 29.0                # lift-off: up LIFT (set by the chock), forward SLIDE, then up
+CHOCK_LOCK, CHOCK_CLEAR, CHOCK_LEN, CHOCK_HW = 1.6, 0.4, 5.5, 3.0
+CHOCK_WRAP = 2.0            # saddle rises around the nose at most this far above the bulb flat
+Z_TOP = -8.0                # head stack top (trimmed by the hull height field)
+Z_ROOT = -12.25             # fin sections above this are inside the hull socket
 OVERHANG_MAX = 50.0
-PLA_STAND_G_PER_CM3 = 1.10  # thin, mostly-solid part: estimate until sliced
-S2 = math.sqrt(2.0)
+PLA_STAND_G_PER_CM3 = 1.10  # estimate until sliced
+TL, CL, SL = math.tan(math.radians(LEAN)), math.cos(math.radians(LEAN)), math.sin(math.radians(LEAN))
 
 
 def load(names):
@@ -67,21 +71,18 @@ hv, hp = load(HULL)
 fv, fp = load(FIN)
 rv, rp = load(RUD)
 cv, cpl = load(["Ballast_cup"])
+hull = BVHTree.FromPolygons(hv, hp)
 fin = BVHTree.FromPolygons(fv, fp)
 cup = BVHTree.FromPolygons(cv, cpl)
-allt = BVHTree.FromPolygons(hv+fv, hp+[tuple(i+len(hv) for i in p) for p in fp])
 z_flat = min(v.z for v in cv)
 ZB = z_flat-BULB_GAP                                       # base top
 Z_BED = ZB-BASE_T
 BULB_NOSE_X = max(v.x for v in cv)
 BULB_TAIL_X = min(v.x for v in cv)
+FIN_TE_X = min(v.x for v in fv if v.z > -30.0)
 
 
-# ---------------- tail chock (saddle) location; it sets the lift-off height ----------------
-chock_ok = None
-xsamp = np.arange(-49.0, -20.0, 0.1)
-
-
+# ---------------- nose chock (saddle); it sets the lift-off height ----------------
 def bulb_bottom(x):
     zz = []
     for y in np.linspace(-CHOCK_HW, CHOCK_HW, 9):
@@ -92,14 +93,13 @@ def bulb_bottom(x):
 
 
 Z_CHOCK = z_flat+CHOCK_LOCK
-XC1 = None
-for x in xsamp[::-1]:
+XC0 = None
+for x in np.arange(-10.0, BULB_NOSE_X, 0.1):
     zb = bulb_bottom(x)
     if zb is not None and zb >= Z_CHOCK+CHOCK_CLEAR:
-        XC1 = float(x)
+        XC0 = float(x)
         break
-XC0 = XC1-CHOCK_LEN
-# chock: a saddle under the bulb's tail whose top follows the underside CHOCK_CLEAR below it
+XC1 = XC0+CHOCK_LEN
 CG = 0.1
 ER = CHOCK_CLEAR+0.05                                      # ball offset radius (true 3D clearance, not vertical)
 ne = int(math.ceil(ER/CG))
@@ -130,10 +130,9 @@ def smax(a, b, k):
     return max(a, b)+h*h*k/4
 
 
-# ---------------- fin slot: swept fin section + clearance ----------------
-Z_ROOT = -12.25                                            # below the hull bottom beside the fin (-12.22 lowest)
-GX0, GX1, GDX = -32.0, 12.0, 0.1
-GZ0, GDZ = -34.0, 0.1
+# ---------------- fin slot near the stop: swept fin section + clearance ----------------
+GX0, GX1, GDX = -30.0, 12.0, 0.1
+GZ0, GDZ = -20.0, 0.1
 gx = np.arange(GX0, GX1+1e-9, GDX)
 gz = np.arange(GZ0, Z_ROOT+1e-9, GDZ)
 hb = np.zeros((len(gz), len(gx)))
@@ -145,12 +144,13 @@ for j, z in enumerate(gz):
             if h[0] is not None:
                 m = max(m, abs(h[0].y))
         hb[j, i] = m
-suf = np.maximum.accumulate(hb[:, ::-1], axis=1)[:, ::-1]  # everything ahead passes x on the way in (boat slides fwd)
+pre = np.maximum.accumulate(hb, axis=1)                    # everything aft passes x on the way out (boat slides fwd)
 nl = int(round(LIFT/GDZ))
 nc = int(round(SLOT_CLEAR/GDZ))                            # vertical clearance under downward steps of the fin
-lw = np.array([suf[max(0, j-nl):j+nc+1].max(axis=0) for j in range(len(gz))])   # boat carried LIFT higher on the way in
+lw = np.array([pre[max(0, j-nl):j+nc+1].max(axis=0) for j in range(len(gz))])   # carried LIFT higher while sliding
+lw[:, :-1] = np.maximum(lw[:, :-1], lw[:, 1:])            # one grid cell for the TE falling between samples
 nk = int(round(SLOT_CLEAR/GDX))
-hw = np.zeros_like(lw)
+hw_fin = np.zeros_like(lw)
 for d in range(-nk, nk+1):
     r = math.sqrt(max(0.0, SLOT_CLEAR**2-(d*GDX)**2))
     sh = np.roll(lw, -d, axis=1)
@@ -158,65 +158,121 @@ for d in range(-nk, nk+1):
         sh[:, -d:] = 0
     elif d < 0:
         sh[:, :-d] = 0
-    hw = np.maximum(hw, np.where(sh > 0, sh+r, 0.0))
-x_end = np.array([gx[np.nonzero(row > 0)[0].max()] if (row > 0).any() else GX0 for row in hw])
-HW_MAX = float(hw.max())
-W_HEAD = HW_MAX+CHEEK_T
+    hw_fin = np.maximum(hw_fin, np.where(sh > 0, sh+r, 0.0))
+
+# ---------------- flare: plan footprint of fin + bulb (all z below the root), displaced forward by SLIDE ----------------
+FX0, FX1, FDX = -54.0, 22.0, 0.1
+fxs = np.arange(FX0, FX1+1e-9, FDX)
+fpw = np.zeros(len(fxs))
+for i, x in enumerate(fxs):
+    m = 0.0
+    for z in np.arange(-56.0, Z_ROOT+1e-9, 0.25):
+        for s in (1, -1):
+            h = fin.ray_cast(Vector((x, s*20.0, z)), Vector((0, -s, 0)))
+            if h[0] is not None:
+                m = max(m, abs(h[0].y))
+    fpw[i] = m
+nf = int(round(LIFT_CLEAR/FDX))
+fpd = np.zeros_like(fpw)
+for d in range(-nf, nf+1):
+    r = math.sqrt(max(0.0, LIFT_CLEAR**2-(d*FDX)**2))
+    sh = np.roll(fpw, -d)
+    if d > 0:
+        sh[-d:] = 0
+    elif d < 0:
+        sh[:-d] = 0
+    fpd = np.maximum(fpd, np.where(sh > 0, sh+r, 0.0))
+
+
+def flare_hw(x):
+    return float(np.interp(x-SLIDE, fxs, fpd, left=0.0, right=0.0))
+
+
+def row(z):
+    return min(len(gz)-1, max(0, int(round((z-GZ0)/GDZ))))
 
 
 def slot_hw(z, x):
-    j = min(len(gz)-1, max(0, int(round((z-GZ0)/GDZ))))
-    return float(np.interp(x, gx, hw[j])), float(x_end[j])
+    return max(float(np.interp(x, gx, hw_fin[row(z)])), flare_hw(x))
 
 
-# ---------------- neck + head profile (side view) ----------------
-XR0 = BULB_NOSE_X+NECK_GAP
-XF0 = XR0+NECK_T
-lip_hits = [allt.ray_cast(Vector((LIP_X, y, -30.0)), Vector((0, 0, 1)))[0] for y in (W_HEAD-0.5, -(W_HEAD-0.5))]
-Z_LIP = min(h.z for h in lip_hits if h is not None)-LIP_D
-C_R = LIP_X+Z_LIP                                          # rear 45 deg line: x + z = C_R
-C_F = C_R+NECK_T45*S2
-Z_A = C_R-XR0+R_REAR*(1-S2)                                # rear arc start (vertical below)
-Z_Bf = C_F-XF0+R_FRONT*(1-S2)
+def slot_start(z):
+    r = hw_fin[row(z)]
+    return float(gx[np.nonzero(r > 0)[0].min()])
+
+
+X_STOP = min(slot_start(z) for z in gz)
+XE = X_TIP+3.0                                             # slot cutter runs out beyond the prong tips
+# head plan half-width: cheeks CHEEK_T outside the widest slot at any head level, monotone forward
+hx = np.arange(-40.0, X_TIP+1e-9, 0.05)
+s_top = np.array([max(slot_hw(z, x) for z in gz[::5]) for x in hx])
+hh_arr = np.maximum(W_BRIDGE, np.maximum.accumulate(np.where(hx >= X_STOP, s_top+CHEEK_T, 0.0)))
+
+
+def hh(x):
+    return float(np.interp(x, hx, hh_arr))
+
+
+HH_MAX = float(hh_arr.max())
+
+
+# ---------------- neck profile (side view) ----------------
+a_f = XF0+R_F*(1-CL)-TL*(ZA_F+R_F*SL)                      # front (lower, overhanging) face line: x = a_f + tan * z
+a_r = a_f-T_L/CL                                           # rear face line
+ZA_R = (XR0+R_R*(1-CL)-a_r)/TL-R_R*SL                       # rear face: vertical below, arc, then the line
+
+
+def face(z, x0, za, r, a):
+    if z <= za:
+        return x0
+    if z <= za+r*SL:
+        return x0+r*(1-math.cos(math.asin((z-za)/r)))
+    return a+TL*z
 
 
 def x_rear(z):
-    if z <= Z_A:
-        xr = XR0
-    elif z <= Z_A+R_REAR/S2:
-        xr = XR0-R_REAR*(1-math.cos(math.asin((z-Z_A)/R_REAR)))
-    else:
-        xr = C_R-z
-    return smax(xr, LIP_X, 1.5)
+    return face(z, XR0, ZA_R, R_R, a_r)
 
 
 def x_front(z):
-    if z <= Z_Bf:
-        xf = XF0
-    elif z <= Z_Bf+R_FRONT/S2:
-        xf = XF0-R_FRONT*(1-math.cos(math.asin((z-Z_Bf)/R_FRONT)))
-    else:
-        xf = C_F-z
-    return smax(xf, FRONT_TOP_X, FRONT_BLEND)
+    return face(z, XF0, ZA_F, R_F, a_f)
 
 
-# crotch: lowest height of the unbroken run, from the root down, where the fin slot still reaches the head's rear face
-crotch = Z_ROOT
-for z in gz[::-1]:
-    if slot_hw(z, 0.0)[1] < x_rear(z)-0.01:
-        break
-    crotch = float(z)
-Z_W1 = crotch-0.6
-Z_W0 = Z_W1-6.0
+# hull-only height field over the head (fin and socket excluded) -> zero-gap pads
+HX0, HX1, HY = x_rear(Z_ROOT)-3.0, X_TIP+4.0, HH_MAX+2.0
+hxs = np.arange(HX0, HX1+1e-9, 0.2)
+hys = np.arange(-HY, HY+1e-9, 0.2)
+H = np.full((len(hxs), len(hys)), np.nan)
+for i, x in enumerate(hxs):
+    for j, y in enumerate(hys):
+        h = hull.ray_cast(Vector((x, y, -30.0)), Vector((0, 0, 1)))
+        if h[0] is not None and -14.0 < h[0].z < -8.0:
+            H[i, j] = h[0].z
+for i in range(len(hxs)):
+    ok = ~np.isnan(H[i])
+    if ok.any():
+        k = np.nonzero(ok)[0]
+        for j in np.nonzero(~ok)[0]:                       # inside the fin socket: nearest valid |y| (slot cuts it)
+            H[i, j] = H[i, k[np.argmin(np.abs(k-j))]]
+rows_ok = [i for i in range(len(hxs)) if not np.isnan(H[i]).any()]
+for i in range(len(hxs)):
+    if np.isnan(H[i]).any():
+        H[i] = H[min(rows_ok, key=lambda k: abs(k-i))]
+in_head = [(i, j) for i in range(len(hxs)) for j in range(len(hys))
+           if X_STOP <= hxs[i] <= X_TIP and abs(hys[j]) <= hh(hxs[i])]
+Z_HB = round(float(min(H[i, j] for i, j in in_head))-3.0, 2)  # flat head underside, 3 mm below the lowest pad
+if Z_HB-1.5 < GZ0:
+    raise RuntimeError("slot grid too shallow for head bottom %.2f" % Z_HB)
 
 
 def width(z):
-    if z >= Z_W1:
-        return W_HEAD
-    if z <= Z_W0:
+    z0, z1 = Z_HB-WIDEN, Z_HB
+    if z >= z1:
+        return W_BRIDGE
+    if z <= z0:
         return NECK_HW
-    t = (z-Z_W0)/(Z_W1-Z_W0)
-    return NECK_HW+(W_HEAD-NECK_HW)*t*t*(3-2*t)
+    t = (z-z0)/(z1-z0)
+    return NECK_HW+(W_BRIDGE-NECK_HW)*t*t*(3-2*t)
 
 
 def flare(z):
@@ -289,68 +345,82 @@ def volume(ob):
     return v
 
 
-# neck + head: horizontal plan sections stacked in z
+# neck: horizontal plan sections stacked in z, root fillet at the base, capped just inside the head
 zs, z = [], ZB-0.6
-while z < Z_TOP-1e-6:
+while z < Z_HB-0.05-1e-6:
     zs.append(z)
-    z += 0.1 if z < ZB+ROOT_R+0.5 else 0.2
-zs.append(Z_TOP)
-rings = []
-for z in zs:
-    f = flare(z)
-    W = width(z)+f
-    rings.append([(x, y, z) for x, y in rrect(x_rear(z)-f, x_front(z)+f, -W, W, HEAD_R+f)])
-neck = rings_solid("Stand", rings)
-v_neck_raw = volume(neck)
+    z += 0.1 if z < ZB+ROOT_R+0.5 else 0.25
+zs += [Z_HB-0.05, Z_HB+0.05, Z_HB+0.5]
 
-# height-field cutter: the hull bottom (and anything of the boat) above the head is removed -> conforming pads
-HX0, HX1, HY = LIP_X-3.0, FRONT_TOP_X+6.0, W_HEAD+ROOT_R+1.0
-hxs = np.arange(HX0, HX1+1e-9, 0.2)
-hys = np.arange(-HY, HY+1e-9, 0.2)
-H = np.full((len(hxs), len(hys)), np.nan)
-for i, x in enumerate(hxs):
-    for j, y in enumerate(hys):
-        h = allt.ray_cast(Vector((x, y, -30.0)), Vector((0, 0, 1)))
-        if h[0] is not None and -12.8 <= h[0].z <= -10.5:
-            H[i, j] = h[0].z
-    ok = ~np.isnan(H[i])
-    for j in np.nonzero(~ok)[0]:                           # inside the fin / socket: nearest valid |y| (slot cuts it)
-        k = np.nonzero(ok)[0]
-        H[i, j] = H[i, k[np.argmin(np.abs(k-j))]]
-hcut = heightfield_cutter("HullCut", hxs, hys, H, -5.0)
+
+def neck_ring(z):
+    d = flare(z)-(0.05 if z > Z_HB else 0.0)              # inside the head: 0.05 inset, no coplanar faces to union
+    return [(x, y, z) for x, y in rrect(x_rear(z)-d, x_front(z)+d, -width(z)-d, width(z)+d, HEAD_R+d)]
+
+
+neck = rings_solid("Stand", [neck_ring(z) for z in zs])
+v_neck = volume(neck)
+
+
+# head: plan from the neck's rear face to the prong tips, half-width hh(x), rounded rear (= neck corner) and tips
+NH = 160
+
+
+def head_ring(z):
+    xa, xb = x_rear(z), X_TIP
+    pts = []
+    for k in range(NH+1):
+        x = xa+(xb-xa)*(1-math.cos(math.pi*k/NH))/2
+        w = hh(x)
+        if x < xa+HEAD_R:
+            w = (w-HEAD_R)+math.sqrt(max(0.0, HEAD_R**2-(xa+HEAD_R-x)**2))
+        elif x > xb-TIP_R:
+            w = (w-TIP_R)+math.sqrt(max(0.0, TIP_R**2-(x-xb+TIP_R)**2))
+        pts.append((x, w))
+    return [(x, y, z) for x, y in pts]+[(x, -y, z) for x, y in reversed(pts)]
+
+
+head = rings_solid("Head", [head_ring(z) for z in np.arange(Z_HB, Z_TOP+1e-9, 0.25)])
+boolean(neck, head, "UNION")
+hcut = heightfield_cutter("HullCut", hxs, hys, H, Z_TOP+3.0)
 boolean(neck, hcut, "DIFFERENCE")
 
-# fin slot cutter: plan sections stacked in z, from below the crotch to above the head
-NS = 160
+# fin slot cutter: closed rounded end at the stop, open past the prong tips
+NS = 200
 slot_rings = []
-zsl = [z for z in np.arange(crotch-3.0, Z_ROOT+1e-9, 0.2)]+[Z_ROOT+0.3, -8.0]
-for z in zsl:
+for z in list(np.arange(Z_HB-1.5, Z_ROOT+1e-9, 0.2))+[Z_ROOT+0.3, Z_TOP+3.0]:
     zz = min(z, Z_ROOT)
-    _, xe = slot_hw(zz, 0.0)
-    xa = GX0+1.0
+    xs0 = slot_start(zz)
     side = []
-    for k in range(NS):
-        x = xa+(xe-xa)*math.sin(0.5*math.pi*k/NS)
-        side.append((x, max(slot_hw(zz, x)[0], 0.02)))
-    tip = (xe+0.01, 0.0)
-    ring = [(x, y, z) for x, y in side]+[(tip[0], 0.0, z)]+[(x, -y, z) for x, y in reversed(side)]
-    slot_rings.append(ring)
-slot = rings_solid("Slot", slot_rings)
-boolean(neck, slot, "DIFFERENCE")
-v_head = volume(neck)
+    for k in range(1, NS+1):
+        x = xs0+(XE-xs0)*(1-math.cos(0.5*math.pi*k/NS))
+        side.append((x, max(slot_hw(zz, x), 0.02)))
+    slot_rings.append([(xs0-0.01, 0.0, z)]+[(x, y, z) for x, y in side]+[(x, -y, z) for x, y in reversed(side)])
+boolean(neck, rings_solid("Slot", slot_rings), "DIFFERENCE")
+v_head = volume(neck)-v_neck
 
-# base: bevelled ellipse
-x_hi = XF0+ROOT_R+BASE_MARGIN
-x_lo = XC0-BASE_MARGIN
+# base: bevelled egg, widest ahead of centre (under G), narrow aft under the neck root
+x_lo = XR0-ROOT_R-BASE_MARGIN
+x_hi = BASE_X_HI
 XC, A = (x_lo+x_hi)/2, (x_hi-x_lo)/2
 
 
-def ellipse(a, b, z, n=180):
-    return [(XC+a*math.cos(2*math.pi*k/n), b*math.sin(2*math.pi*k/n), z) for k in range(n)]
+def egg(a, b, z, n=200):
+    return [(XC+a*math.cos(2*math.pi*k/n), b*math.sin(2*math.pi*k/n)*(1+BASE_K*math.cos(2*math.pi*k/n)), z)
+            for k in range(n)]
 
 
-base = rings_solid("Base", [ellipse(A-BASE_FOOT, BASE_HW-BASE_FOOT, Z_BED), ellipse(A, BASE_HW, Z_BED+BASE_FOOT),
-                            ellipse(A, BASE_HW, ZB-BASE_BEVEL), ellipse(A-BASE_BEVEL, BASE_HW-BASE_BEVEL, ZB)])
+def egg_hw(x, a=A, b=BASE_B):
+    c = (x-XC)/a
+    return b*math.sqrt(max(0.0, 1-c*c))*(1+BASE_K*c) if abs(c) <= 1 else 0.0
+
+
+root_margin = egg_hw(XR0-ROOT_R)-(NECK_HW+ROOT_R)
+chock_margin = min(egg_hw(XC0), egg_hw(XC1))-CHOCK_HW
+if root_margin < 2.5 or chock_margin < 2.5:
+    raise RuntimeError("base too small: root %.2f chock %.2f" % (root_margin, chock_margin))
+base = rings_solid("Base", [egg(A-BASE_FOOT, BASE_B-BASE_FOOT, Z_BED), egg(A, BASE_B, Z_BED+BASE_FOOT),
+                            egg(A, BASE_B, ZB-BASE_BEVEL), egg(A-BASE_BEVEL, BASE_B-BASE_BEVEL, ZB)])
 chock = rings_solid("Chock", [[(x, y, z) for x, y in rrect(XC0, XC1, -CHOCK_HW, CHOCK_HW, 1.6)] for z in (ZB-0.6, CHOCK_TOP+1.0)])
 boolean(chock, heightfield_cutter("ChockCut", cxs, cys, CH, -30.0), "DIFFERENCE")
 v_base, v_chock = volume(base), volume(chock)
@@ -360,13 +430,14 @@ stand = neck
 
 bm = bmesh.new(); bm.from_mesh(stand.data)
 bmesh.ops.triangulate(bm, faces=list(bm.faces))
-nonman = sum(1 for e in bm.edges if not e.is_manifold)
+nm_at = [[round(c, 2) for c in (e.verts[0].co+e.verts[1].co)/2] for e in bm.edges if not e.is_manifold]
+nonman = len(nm_at)
 vol = bm.calc_volume(signed=False)
 lo = Vector([min(v.co[i] for v in bm.verts) for i in range(3)])
 hi = Vector([max(v.co[i] for v in bm.verts) for i in range(3)])
 tris = [tuple(v.co.copy() for v in f.verts) for f in bm.faces]
-# printability: downward faces above the bed
-over_area, over_max, down_area = 0.0, 0.0, 0.0
+# printability: downward faces above the bed; the head underside (z >= Z_HB) is tree-supported, the rest must not be
+over_area, over_max, down_area, sup_area = 0.0, 0.0, 0.0, 0.0
 for f in bm.faces:
     n = f.normal
     c = f.calc_center_median()
@@ -374,6 +445,10 @@ for f in bm.faces:
         ang = math.degrees(math.asin(min(1.0, -n.z)))
         a = f.calc_area()
         down_area += a
+        if c.z >= Z_HB-0.05:
+            if ang > OVERHANG_MAX:
+                sup_area += a
+            continue
         if a > 0.05:
             over_max = max(over_max, ang)
         if ang > OVERHANG_MAX and a > 1e-4:
@@ -408,26 +483,29 @@ def min_gap(points):
     return round(best, 3), at
 
 
-fin_pts = [v for v in fv if -30.0 < v.z < Z_ROOT-0.1 and v.x > LIP_X-1.0]
+fin_pts = [v for v in fv if Z_HB-0.5 < v.z < Z_ROOT+0.2]
 bulb_pts = [v for v in fv if v.z < -40.0]
-chock_pts = [v for v in cv if v.x < XC1+3.0 and v.z < Z_CHOCK+3.0]
-gaps = {"fin_to_slot_mm": min_gap(fin_pts), "bulb_to_neck_mm": min_gap([v for v in bulb_pts if v.x > 0.0]),
+chock_pts = [v for v in cv if v.x > XC0-3.0 and v.z < Z_CHOCK+3.0]
+gaps = {"fin_to_slot_mm": min_gap(fin_pts), "bulb_to_neck_mm": min_gap([v for v in bulb_pts if v.x < -20.0]),
         "bulb_to_chock_mm": min_gap(chock_pts), "bulb_to_base_mm": round(z_flat-ZB, 3),
-        "rudder_to_stand_mm": min_gap(rv)}
-if gaps["fin_to_slot_mm"][0] < SLOT_CLEAR-0.06 or gaps["bulb_to_neck_mm"][0] < NECK_GAP-0.3 or gaps["bulb_to_chock_mm"][0] < CHOCK_CLEAR-0.06:
+        "rudder_to_stand_mm": min_gap(rv), "fin_te_to_stop_mm": round(FIN_TE_X-X_STOP, 3)}
+if gaps["fin_to_slot_mm"][0] < SLOT_CLEAR-0.06 or gaps["bulb_to_neck_mm"][0] < 2.5 or \
+        gaps["bulb_to_chock_mm"][0] < CHOCK_CLEAR-0.06:
     raise RuntimeError("clearance %s" % gaps)
-# contact pads: height-field cells inside the head plan, outside the slot
-nx, ny = len(hxs), len(hys)
-pad = [(float(hxs[i]), float(hys[j])) for i in range(nx) for j in range(ny)
-       if x_rear(H[i, j]-0.05) <= hxs[i] <= x_front(H[i, j]-0.05) and abs(hys[j]) <= W_HEAD
-       and abs(hys[j]) >= slot_hw(Z_ROOT, hxs[i])[0]]
+# contact pads: height-field cells where the stand top meets the hull bottom
+pad = []
+for i, x in enumerate(hxs):
+    for j, y in enumerate(hys):
+        h = st_tree.ray_cast(Vector((x, y, H[i, j]+0.05)), Vector((0, 0, -1)))
+        if h[0] is not None and h[0].z > H[i, j]-0.05 and hull.ray_cast(Vector((x, y, -30.0)), Vector((0, 0, 1)))[0]:
+            pad.append((float(x), float(y)))
 PAD_X = (min(p[0] for p in pad), max(p[0] for p in pad))
 
-# ---------------- lift-off path: up LIFT, aft SLIDE, up 40 ----------------
+# ---------------- lift-off path: up LIFT, forward SLIDE, up 50 ----------------
 P = np.array([[v.x, v.y, v.z] for v in hv+fv+rv])
 path = [(0.0, 0.0, t) for t in np.arange(0.25, LIFT+1e-9, 0.25)]
-path += [(-s, 0.0, LIFT) for s in np.arange(0.5, SLIDE+1e-9, 0.5)]
-path += [(-SLIDE, 0.0, LIFT+t) for t in np.arange(2.0, 40.1, 2.0)]
+path += [(s, 0.0, LIFT) for s in np.arange(0.5, SLIDE+1e-9, 0.5)]
+path += [(SLIDE, 0.0, LIFT+t) for t in np.arange(2.0, 50.1, 2.0)]
 PAR_D = Vector((0.123, 0.981, 0.149)).normalized()
 
 
@@ -441,19 +519,24 @@ def inside(p):
 
 
 bb_lo, bb_hi = np.array(lo)-0.01, np.array(hi)+0.01
-hits, checked = {}, 0
+hits, checked, closest = {}, 0, (99.0, None)
 for o in path:
     Q = P+np.array(o)
     m = np.all((Q >= bb_lo) & (Q <= bb_hi), axis=1)
     cnt = 0
     for q in Q[m]:
         checked += 1
-        if q[2] < ZB-0.01 and ((q[0]-XC)/A)**2+(q[1]/BASE_HW)**2 <= 1.0:
-            cnt += 1
-        elif inside(q):
+        if inside(q):
             cnt += 1
     if cnt:
         hits["%.2f,%.2f" % (o[0], o[2])] = cnt
+# closest approach of the rudder to the neck on the slide (the binding constraint on SLIDE)
+R_ = np.array([[v.x, v.y, v.z] for v in rv])
+for s in np.arange(0.0, SLIDE+1e-9, 0.5):
+    for q in R_+np.array((s, 0.0, LIFT)):
+        n = st_tree.find_nearest(Vector(q))
+        if n[0] is not None and n[3] < closest[0]:
+            closest = (round(n[3], 3), round(float(s), 1))
 EXPLORE = os.environ.get("STAND_EXPLORE") == "1"
 if hits and not EXPLORE:
     raise RuntimeError("lift-off path blocked %s" % hits)
@@ -465,11 +548,14 @@ for a, b, c in tris:
     cvol += v6; cmom += v6*(a+b+c)/4.0
 stand_cg = cmom/cvol
 stand_g, stand_g_src = vol/1000*PLA_STAND_G_PER_CM3, "estimate %.2f g/cm3" % PLA_STAND_G_PER_CM3
-tt = os.path.join(SOUT, "slice", "times.txt")
-if os.path.exists(tt):
-    mg = re.search(r"total filament weight \[g\] : ([\d.]+)", open(tt).read())
-    if mg:
-        stand_g, stand_g_src = float(mg.group(1)), "BambuStudio slice"
+print_g = None
+for sub, src in (("slice", None), ("slice-nosupport", "BambuStudio slice without supports (supports removed)")):
+    tt = os.path.join(SOUT, sub, "times.txt")
+    mg = re.search(r"total filament weight \[g\] : ([\d.]+)", open(tt).read()) if os.path.exists(tt) else None
+    if mg and src:
+        stand_g, stand_g_src = float(mg.group(1)), src
+    elif mg:
+        print_g = float(mg.group(1))
 hj = json.load(open(os.path.join(OUT, "hydro_check.json")))
 M, Lm, Lc, G = hj["mass_g"]["total"], hj["mass_g"]["lead"], Vector(hj["lead_centroid"]), Vector(hj["G"])
 cases = {"sailing trim (full lead, paper sail)": (M, G), "no lead": (M-Lm, (G*M-Lc*Lm)/(M-Lm))}
@@ -478,14 +564,16 @@ if ds and os.path.exists(ds):
     dj = json.load(open(ds))
     dm = dj["mass_g"]-dj["replaces_paper_g"]
     cases["full lead, printed display sail"] = (M+dm, (G*M+Vector(dj["centroid"])*dm)/(M+dm))
+FOOT = [(p[0], p[1]) for p in egg(A-BASE_FOOT, BASE_B-BASE_FOOT, Z_BED, 720)]
 
 
 def tip_deg(p, H_, ux, uy):
-    hsup = ux*XC+math.sqrt((A*ux)**2+(BASE_HW*uy)**2)
+    hsup = max(ux*x+uy*y for x, y in FOOT)
     return math.degrees(math.atan2(hsup-(ux*p.x+uy*p.y), H_))
 
 
-stab = {"stand_mass_g": round(stand_g, 1), "stand_mass_source": stand_g_src, "stand_cg": [round(v, 2) for v in stand_cg],
+stab = {"stand_mass_g": round(stand_g, 1), "stand_mass_source": stand_g_src,
+        "print_mass_incl_supports_g": print_g, "stand_cg": [round(v, 2) for v in stand_cg],
         "cases": {}}
 for k, (m, g) in cases.items():
     tot = (g*m+stand_cg*stand_g)/(m+stand_g)
@@ -494,39 +582,50 @@ for k, (m, g) in cases.items():
     stab["cases"][k] = {
         "boat_mass_g": round(m, 2), "G": [round(v, 2) for v in g],
         "G_margin_to_pads_aft_mm": round(g.x-PAD_X[0], 2), "G_margin_to_pads_fore_mm": round(PAD_X[1]-g.x, 2),
-        "roll": "held by the fin in the slot (%.1f mm per side)" % SLOT_CLEAR,
+        "roll": "held by the fin in the slot (%.1f mm per side at the stop)" % SLOT_CLEAR,
         "assembly_tip_deg": {"sideways": round(tip_deg(tot, H_, 0, 1), 1), "forward": round(tip_deg(tot, H_, 1, 0), 1),
                              "aft": round(tip_deg(tot, H_, -1, 0), 1),
                              "any_direction_min": round(min(tip_deg(tot, H_, ux, uy) for ux, uy in dirs), 1)}}
-    if not (PAD_X[0]+5.0 < g.x < PAD_X[1]-5.0):
-        raise RuntimeError("G %.2f not over the pads with 5 mm margin" % g.x)
+    if not (PAD_X[0]+5.0 < g.x < PAD_X[1]-5.0) and not EXPLORE:
+        raise RuntimeError("G %.2f not over the pads %s with 5 mm margin" % (g.x, PAD_X))
 report = {
-    "type": "swan-neck",
-    "base": {"shape": "ellipse", "length_mm": round(2*A, 1), "width_mm": 2*BASE_HW, "thickness_mm": BASE_T,
-             "x_range": [round(x_lo, 2), round(x_hi, 2)], "top_z": round(ZB, 2), "top_bevel_mm": BASE_BEVEL,
+    "type": "swan-neck from aft",
+    "base": {"shape": "egg", "length_mm": round(2*A, 1), "width_mm": round(2*max(abs(p[1]) for p in egg(A, BASE_B, 0, 720)), 1),
+             "thickness_mm": BASE_T, "x_range": [round(x_lo, 2), round(x_hi, 2)], "top_z": round(ZB, 2),
+             "top_bevel_mm": BASE_BEVEL, "margin_root_mm": round(root_margin, 2), "margin_chock_mm": round(chock_margin, 2),
              "volume_cm3": round(v_base/1000, 2)},
-    "neck": {"root_x": [round(XR0, 2), round(XF0, 2)], "section_at_root_mm": [NECK_T, 2*NECK_HW],
-             "section_at_lean_mm": [NECK_T45, 2*NECK_HW], "lean_deg": 45.0, "gap_to_bulb_nose_mm": NECK_GAP,
-             "root_fillet_mm": ROOT_R, "rear_arc_r": R_REAR, "front_arc_r": R_FRONT},
-    "fork": {"pads_x": [round(v, 2) for v in PAD_X], "head_half_width_mm": round(W_HEAD, 2),
-             "slot_half_width_max_mm": round(HW_MAX, 2), "cheek_mm": CHEEK_T, "slot_clearance_mm": SLOT_CLEAR,
-             "slot_end_x_at_root": round(slot_hw(Z_ROOT, 0)[1], 2), "crotch_z": round(crotch, 2),
-             "lip_z": round(Z_LIP, 2), "pad_cells": len(pad), "contact": "zero gap: pads follow the hull bottom"},
+    "neck": {"root_x": [XR0, XF0], "section_at_root_mm": [round(XF0-XR0, 2), 2*NECK_HW],
+             "section_at_lean_mm": [T_L, 2*NECK_HW], "lean_deg": LEAN, "lean_direction": "forward",
+             "gap_to_bulb_tail_mm": gaps["bulb_to_neck_mm"][0], "gap_to_rudder_mm": gaps["rudder_to_stand_mm"][0],
+             "root_fillet_mm": ROOT_R, "front_arc_r": R_F, "rear_arc_r": R_R, "front_vertical_to_z": ZA_F,
+             "rear_vertical_to_z": round(ZA_R, 2)},
+    "fork": {"pads_x": [round(v, 2) for v in PAD_X], "head_x": [round(x_rear(Z_HB), 2), X_TIP],
+             "head_bottom_z": Z_HB, "head_half_width_mm": [W_BRIDGE, round(HH_MAX, 2)],
+             "slot_stop_x": round(X_STOP, 2), "slot_half_width_at_stop_region_mm": round(float(hw_fin.max()), 2),
+             "slot_half_width_at_tips_mm": round(slot_hw(Z_ROOT, X_TIP), 2), "cheek_mm": CHEEK_T,
+             "slot_clearance_mm": SLOT_CLEAR, "lift_clearance_mm": LIFT_CLEAR, "pad_cells": len(pad),
+             "contact": "zero gap: pads follow the hull bottom", "supports": "tree, under the head only"},
     "chock": {"x": [round(XC0, 2), round(XC1, 2)], "front_top_z": round(Z_CHOCK, 2), "max_top_z": round(CHOCK_TOP, 2),
-              "half_width_mm": CHOCK_HW, "shape": "saddle following the bulb tail underside",
+              "half_width_mm": CHOCK_HW, "shape": "saddle following the bulb nose underside",
               "lock_height_over_bulb_flat_mm": [CHOCK_LOCK, round(CHOCK_TOP-z_flat, 2)], "clearance_mm": CHOCK_CLEAR,
               "lift_to_remove_mm": LIFT},
     "clearances": gaps,
-    "lift_off": {"path": "lift %.1f mm, slide aft %.0f mm, lift off" % (LIFT, SLIDE), "steps": len(path),
-                 "vertex_checks": checked, "hits": hits},
+    "lift_off": {"path": "lift %.1f mm, slide forward %.0f mm, lift off" % (LIFT, SLIDE), "steps": len(path),
+                 "vertex_checks": checked, "hits": hits,
+                 "rudder_closest_to_stand_on_slide_mm": {"gap": closest[0], "at_slide_mm": closest[1]}},
     "printability": {"downward_area_mm2": round(down_area, 1), "area_over_%d_deg_mm2" % OVERHANG_MAX: round(over_area, 2),
-                     "max_overhang_from_vertical_deg_faces_over_0.05mm2": round(over_max, 1), "supports": "none"},
+                     "max_overhang_from_vertical_deg_faces_over_0.05mm2": round(over_max, 1),
+                     "head_underside_supported_mm2": round(sup_area, 1),
+                     "supports": "tree supports under the fork head only; base, fillet and neck support-free"},
     "stability": stab,
-    "nonmanifold_edges": nonman, "volume_cm3": round(vol/1000, 2),
-    "volume_parts_cm3": {"base": round(v_base/1000, 2), "neck_head": round(v_head/1000, 2), "chock": round(v_chock/1000, 3)},
+    "nonmanifold_edges": nonman, "nonmanifold_at": nm_at[:12], "volume_cm3": round(vol/1000, 2),
+    "volume_parts_cm3": {"base": round(v_base/1000, 2), "neck": round(v_neck/1000, 2), "head": round(v_head/1000, 2),
+                         "chock": round(v_chock/1000, 3)},
     "size_mm": [round(hi[i]-lo[i], 1) for i in range(3)],
     "assembled_bbox": [[round(v, 2) for v in lo], [round(v, 2) for v in hi]]}
 json.dump(report, open(os.path.join(SOUT, "stand.json"), "w"), indent=1)
 print("STAND", json.dumps(report))
 if nonman:
     raise RuntimeError("stand non-manifold")
+if over_area > 0.5 and not EXPLORE:
+    raise RuntimeError("unsupported overhang %.2f mm2 over %d deg" % (over_area, OVERHANG_MAX))

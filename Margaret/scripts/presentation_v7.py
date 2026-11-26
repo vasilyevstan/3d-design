@@ -56,7 +56,7 @@ spec = ("LOA 200.0 mm  /  beam 63.4 mm  /  draft 55.5 mm  /  masthead %.0f mm ab
         % (ST["rig"]["mast_top_z"], sails["full"]["area_cm2"], sails["medium"]["area_cm2"], sails["start"]["area_cm2"],
            HY["mass_g"]["lead"], HY["mass_g"]["lead_balls"], SB["lead_capacity_balls_discrete"], HY["mass_g"]["total"]))
 d.text((28, H - 76), spec, font=font(18), fill=navy)
-foot = "Blue underwater hull  /  white topsides and deck  /  navy trim  /  teak decks  /  printed shroud frame  /  paper sails to sail"
+foot = "Blue underwater hull  /  white topsides and deck  /  navy trim, cleats and printed rails  /  teak decks  /  printed shroud frame to the deck edge  /  paper sails to sail"
 if SLICE:
     foot += "  /  slice %s, %.0f g PLA" % (SLICE["time"], SLICE["grams"])
 d.text((28, H - 42), foot, font=font(16), fill=muted)
@@ -490,19 +490,19 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     sd = ImageDraw.Draw(ss)
     sd.rectangle((0, 0, 1800, HEAD), fill=navy)
     sd.text((38, 19), "Margaret", font=font(55, True), fill="#f5f4e9")
-    sd.text((42, 89), "SWAN-NECK TABLE STAND  /  SEPARATE ONE-COLOUR PRINT  /  NO PINS, NO GLUE, NO SUPPORTS"
+    sd.text((42, 89), "SWAN-NECK TABLE STAND FROM AFT  /  SEPARATE ONE-COLOUR PRINT  /  NO PINS, NO GLUE"
             + ("  /  OPTIONAL TWO-COLOUR DISPLAY SAIL" if has4 else ""), font=font(19), fill="#c5d5d7")
     sd.text((1760, 57), "DISPLAY STAND  /  " + TAG, anchor="rm", font=font(20, True), fill=sand)
     y5 = HEAD + 20 + PH + 20
     y2 = y5 + (R5 + 20 if has5 else 0)
     panels = [("On the stand" + (" (printed display sail)" if has4 else ""), "stand-1.png", (27, HEAD + 20, 27 + 700, HEAD + 20 + PH)),
-              ("Fork pads under the hull either side of the keel; saddle under the bulb tail", "stand-2.png",
+              ("Fork pads under the hull either side of the keel; saddle under the bulb nose", "stand-2.png",
                (747, HEAD + 20, 1773, HEAD + 20 + 490)),
-              ("Stand alone: thin oval base + one swan neck, nothing enters the model", "stand-3.png",
+              ("Stand alone: thin egg base + one swan neck + open fork, nothing enters the model", "stand-3.png",
                (747, HEAD + 20 + 510, 1773, HEAD + 20 + PH))]
     if has5:
-        panels.append(("Port profile: the neck leans %.0f deg up to the fork and stays %.1f mm clear of the bulb nose"
-                       % (nk["lean_deg"], nk["gap_to_bulb_nose_mm"]), "stand-5.png", (27, y5, 1773, y5 + R5)))
+        panels.append(("Port profile: the neck rises between rudder and keel, leans %.0f deg forward to the fork, %.1f mm clear of the bulb"
+                       % (nk["lean_deg"], nk["gap_to_bulb_tail_mm"]), "stand-5.png", (27, y5, 1773, y5 + R5)))
     if has4:
         panels.append(("Printed display sail: sail number %s %s, wave insignia, reef points, seams, battens (navy second colour)"
                        % (DJ["markings"]["code"], DJ["markings"]["number"]) if DJ.get("markings") else
@@ -521,17 +521,17 @@ if (SD / "stand.json").exists() and all((W / ("stand-%d.png" % i)).exists() for 
     qs = (full, nol) + ((dsc,) if dsc else ())
     tipj = lambda k: "/".join("%.0f" % q["assembly_tip_deg"][k] for q in qs)
     lines = [
-        "Stand %.0f x %.0f x %.0f mm  /  %.1f mm oval base + one swan neck + fork  /  navy PLA, upright, 15%% infill, 3 walls, no supports"
-        % (sx, sy, sz, bs["thickness_mm"]) + ("  /  slice %s, %.1f g" % st_slice if st_slice else ""),
+        "Stand %.0f x %.0f x %.0f mm  /  %.1f mm egg base, one neck, fork  /  navy PLA upright, 15%%, 3 walls, tree supports under the fork"
+        % (sx, sy, sz, bs["thickness_mm"]) + ("  /  %s, %.1f g (%.1f g finished)" % (st_slice + (SJ["stability"]["stand_mass_g"],)) if st_slice else ""),
         "No pins, no glue: the fork's two pads follow the hull bottom either side of the keel (%.0f mm long, zero gap) and carry her;"
         " the keel root sits in the fork slot with %.1f mm per side, so she cannot roll." % (fk["pads_x"][1] - fk["pads_x"][0],
                                                                                          fk["slot_clearance_mm"]),
-        "A low saddle under the bulb tail (%.1f mm clear) stops her sliding aft; the fork's closed front stops her going forward."
-        % ck["clearance_mm"],
-        "To take her off: %s (checked: %d vertex positions, no contact). To put her on: the reverse."
-        % (lo["path"], lo["vertex_checks"]),
+        "The fork is closed behind the keel's trailing edge (%.1f mm), so she cannot slide aft; a low saddle under the bulb nose (%.1f mm clear) stops her going forward."
+        % (SJ["clearances"]["fin_te_to_stop_mm"], ck["clearance_mm"]),
+        "To take her off: %s, the bulb passes up through the open fork (checked: %d vertex positions, no contact; rudder %.1f mm from the neck). To put her on: the reverse."
+        % (lo["path"], lo["vertex_checks"], lo["rudder_closest_to_stand_on_slide_mm"]["gap"]),
         "Calculated, not yet measured (full lead / no lead%s): G is %s mm inside the pads; the whole assembly tips at %s deg sideways,"
-        " %s deg forward." % (" / display sail" if dsc else "", "/".join("%.0f" % q["G_margin_to_pads_aft_mm"] for q in qs),
+        " %s deg forward." % (" / display sail" if dsc else "", "/".join("%.0f" % min(q["G_margin_to_pads_aft_mm"], q["G_margin_to_pads_fore_mm"]) for q in qs),
                               tipj("sideways"), tipj("forward")),
     ]
     if has4:

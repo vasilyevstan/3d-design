@@ -14,19 +14,22 @@ WHITE, BLUE, INK, TEAK = 1, 2, 3, 4
 R = lambda deg, ax: Matrix.Rotation(math.radians(deg), 4, ax)
 # component: ([(part, filament)], print orientation, plate centre (x, y))
 COMPONENTS = {
-    "Hull_lower": ([("Lower_blue", BLUE), ("Lower_white", WHITE), ("Lower_ink", INK)], R(180, "X"), (109.0, 42.0)),
+    "Hull_lower": ([("Lower_blue", BLUE), ("Lower_white", WHITE), ("Lower_ink", INK)], R(180, "X"), (107.0, 30.9)),
     "Hull_upper": ([("Upper_white", WHITE), ("Upper_ink", INK), ("Window_ink", INK), ("Upper_teak", TEAK)],
-                   Matrix.Identity(4), (109.0, 113.0)),
-    # mast prints on its flat aft face; the navy shroud frame lies on the bed in that same plane
-    "Mast": ([("Mast", WHITE), ("Shrouds", INK)], R(-90, "Y"), (128.0, 235.0)),
+                   Matrix.Identity(4), (107.0, 92.8)),
+    # rev 11 railings: both side fences and both stern returns, already laid flat (0.68 mm sheet) by build_v7.py
+    "Rails": ([("print/Rails_print", INK)], Matrix.Identity(4), (107.0, 140.1)),
     # display furler (stays ashore when sailing): flat face y=-0.6 down, turned along the free band
-    "Furler": ([("Furler", WHITE), ("Furler_ink", INK)], ("scanZ", R(90, "X"), 95.0, 118.0), (128.0, 154.0)),
-    "Boom": ([("Boom", WHITE)], Matrix.Identity(4), (60.0, 204.0)),
-    "Fin_cap": ([("Fin_cap", BLUE)], Matrix.Identity(4), (39.0, 172.0)),
-    "Ballast_cup": ([("Ballast_cup", BLUE)], Matrix.Identity(4), (109.0, 172.0)),
-    "Rudder": ([("Rudder", BLUE), ("Rudder_ink", INK)], R(90, "X"), (160.0, 184.0)),
-    "Wheel_Port": ([("Wheel_Port", INK), ("WheelSpokes_Port", WHITE)], R(-90, "Y"), (186.0, 178.0)),
-    "Wheel_Starboard": ([("Wheel_Starboard", INK), ("WheelSpokes_Starboard", WHITE)], R(-90, "Y"), (204.0, 178.0)),
+    "Furler": ([("Furler", WHITE), ("Furler_ink", INK)], ("scanZ", R(90, "X"), 95.0, 118.0), (128.0, 158.7)),
+    "Fin_cap": ([("Fin_cap", BLUE)], Matrix.Identity(4), (31.0, 171.4)),
+    "Ballast_cup": ([("Ballast_cup", BLUE)], Matrix.Identity(4), (95.0, 172.3)),
+    "Rudder": ([("Rudder", BLUE), ("Rudder_ink", INK)], R(90, "Z") @ R(90, "X"), (163.0, 170.3)),
+    "Wheel_Port": ([("Wheel_Port", INK), ("WheelSpokes_Port", WHITE)], R(-90, "Y"), (194.0, 171.1)),
+    "Wheel_Starboard": ([("Wheel_Starboard", INK), ("WheelSpokes_Starboard", WHITE)], R(-90, "Y"), (212.0, 171.1)),
+    "Boom": ([("Boom", WHITE)], Matrix.Identity(4), (40.0, 184.1)),
+    # mast prints on its flat aft face; the navy shroud frame (now spread to the outboard chainplates) lies on the
+    # bed in that same plane along the top edge
+    "Mast": ([("Mast", WHITE), ("Shrouds", INK)], R(-90, "Y"), (128.0, 227.0)),
 }
 COMPONENTS.update(json.loads(os.environ.get("PLATE_OVERRIDE", "{}")))
 

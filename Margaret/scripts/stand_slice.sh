@@ -4,6 +4,7 @@
 #   e.g. the display sail: stand_slice.sh <dir> Display_sail-bed.stl Margaret-display-sail.3mf 1 "Margaret display sail"
 # If <name>_ink-bed.stl exists next to <name>-bed.stl it is added to the same object as a navy (filament 3) volume and
 # the plate becomes two-colour (all four AMS filaments loaded, prime tower kept).
+# SUPPORT=1 turns on tree supports that may land on the model (the aft-rising stand's fork head).
 set -euo pipefail
 F="$(cd "$(dirname "$0")" && pwd)"; SD="$1"; STL="${2:-Stand-bed.stl}"; OUT3="${3:-Margaret-stand.3mf}"
 FIL="${4:-3}"; NAME="${5:-Margaret stand}"
@@ -11,11 +12,13 @@ if [ "$STL" = "Stand-bed.stl" ]; then W="$SD/slice"; else W="$SD/slice-${STL%-be
 mkdir -p "$W"; cd "$W"
 MARGARET_WORK="$PWD" python3 "$F/prepare_slice.py" > prep.log 2>&1
 INK="${STL%-bed.stl}_ink-bed.stl"; [ -f "$SD/$INK" ] || INK=""
-STL="$STL" NAME="$NAME" INK="$INK" FIL="$FIL" python3 - <<'PY'
+STL="$STL" NAME="$NAME" INK="$INK" FIL="$FIL" SUP="${SUPPORT:-0}" python3 - <<'PY'
 import json, os
 ink, fil = os.environ["INK"], int(os.environ["FIL"])
 p = json.load(open("process.json"))
 p.update(enable_support="0", sparse_infill_density="15%", wall_loops="3")
+if os.environ["SUP"] == "1":
+    p.update(enable_support="1", support_type="tree(auto)", support_on_build_plate_only="0")
 if not ink:
     p.update(enable_prime_tower="0")
 json.dump(p, open("process.json", "w"))

@@ -589,3 +589,67 @@ synthesised, built as v7g, and the built result went back to all three for a sec
 - **Fits:** furler hook 0.358 mm, shroud feet 0.207 mm, furler drum tab 0.2 mm; no overlaps.
 - **Stand:** 74 × 60 × 48 mm, 8.67 cm³, no supports (max overhang 48°); 29 m 28 s, 10.1 g (the raked-wall stand was 44 m 47 s, 20.84 g). G is 5.3 / 7.1 / 5.4 mm inside the aft end of the pads; the assembly tips sideways at 32 / 27 / 29° and forward at 36 / 29 / 32° (full lead / no lead / display sail).
 - **Display sail:** 4.53 g, 0 non-manifold edges, 0 mm³ white/navy overlap; 20 m 5 s.
+
+## Step 11 — outboard chainplates, printable railings, visible cleats, a stand from aft (v7h)
+
+User:
+* "I think the rigging goes closer from the side of the boat and not closer to the middle."
+* "Can we think of simple and able to print railings on the boat perimeter?"
+* "We do not have cleats — those will be hard to print but maybe you can think of something."
+* "The stand should be from the back of the ship, holding it same way as now, raising from between the steering and
+  the kiel and raising the ship up."
+
+The same three reviewers (GPT-6.2-sol, Opus 5.5, Grok 4.7) got one brief for T1–T3 and one for T4. Their decisions
+were synthesised and built as v7h, and the built result went back to all three for a second, challenge/defend round.
+The full tables are in the session's `review11/DECISIONS.md`. A summary:
+
+**Round 1 — design decisions**
+
+| Topic | Decision | Rejected / why |
+|---|---|---|
+| T1 Chainplates | All three agreed with the user. The feet at ±17.6 landed beside the coachroof (58 % of the half-beam); real SO43 chainplates sit at ~85–90 %. Moved to **±26.0** (86 %), inboard of the rail line, on a 3.6 × 3.2 pad. The spreaders were widened to 24.0 / 14.5 mm half-span so the cap shroud still bends visibly at the lower tip. The lower spreader is thicker and tapered. | Grok's "keep the short spreaders" (the cap shroud would run straight to the deck, unlike the real rig). Opus's 26 mm lower spreader (no visible bend left) |
+| T2 Railings | Flat-printed **navy fences**, 0.68 mm thick: pulpit 10.5, lifelines 9.2 (mid rail 4.7), pushpit 10.0 mm above the deck. They are laid out from the final deck-edge curve, so each strip bends elastically rather than creasing. Each post has a 0.7 mm tab that drops into a slotted pocket in a navy stanchion pad (no hole into the hull), with the slots lengthened for print shrink. The pulpit is split at the bow. Separate transom returns. The rails print on the boat plate. | Rails printed in place on the hull (one snapped post would scrap a 13 h print). Thread lifelines (they sag). Posts only (no lifelines). A closed pulpit bar (fragile, and it would clash with the furler and anchor) |
+| T3 Cleats | Root cause: six white 0.9 mm cleats stood on white cut-outs in the teak, so they were invisible. Replaced by **integrated navy horn cleats**, 4.2 × 1.2 mm, with all undersides at 45° or less and daylight under the horns. Bow (79, ±9), midship (−30), stern (−78.6, ±23.5), clear of the rails. | Loose printed cleats (tiny parts). Fairleads and chocks (clutter at 1:66) |
+| T4 Stand from aft | The neck root moves aft of the bulb (x −60…−53.5), rises vertically, then leans about 50° forward into a fork that is **closed aft** behind the keel's trailing edge. A saddle under the **bulb nose** is the forward lock. Tree supports go under the fork head only. The egg base is wider under her centre of gravity. To exit: lift, slide forward, lift off. | Opus's support-free wedge (its lowest corner would print in mid-air at (−23.4, −40.5)). Grok's 1.2 mm bead on the pad tips (it rides on the hull or locks nothing) |
+
+**Built (v7h), and what the build itself changed**
+
+* A narrow fork cannot release the boat: after the slide the bulb sits under the prongs, and sliding far enough to
+  clear it drives the rudder into the neck. The slot now flares forward to the bulb's plan outline, shifted by the
+  slide, so after lift 3 / slide 29 the fin and bulb pass up through the open V. The rear 7 mm keeps the 0.4 mm fin
+  fit. Lift-off checked at 729,497 vertex positions: **0 hits**; the rudder ends 2.8 mm from the neck.
+* The neck was widened to 8 mm so every unsupported face is ≤ 49.2°. A 0.05 mm inset splits the coplanar faces, giving
+  0 non-manifold edges.
+* `check_v7.py` measures every railing tab (0.15 mm per side, none buried), the fence gap above the pads and the
+  distance to the rig and wheels. The rail print sheet must be manifold, or the build stops.
+
+**Round 2 — challenge/defend on the built result**
+
+| Reviewer | Challenge | Defence / decision |
+|---|---|---|
+| Grok 4.7 | — | Everything accepted |
+| GPT-6.2-sol | The cleat horns read as wedges | **Accepted:** 0.48 mm of straight waist added under the horns (top 2.24 → 2.72 mm) |
+| Opus 5.5 | A stray post rises above the pushpit in profile | **Rejected by measurement:** it is the port wheel rim seen edge-on (top z 29.75 at x −74.5). The return panel's top, 26.21, is level with the pushpit corner (26.2). Opus withdrew it |
+| Opus 5.5 | Double posts at each stern corner | **Accepted, stronger variant:** the return's outer leg is now a post without a tab. It stands on the side fence's corner pad, flush with the fence's outer face, and is glued along its full height to the corner post's aft face. It reads as one post |
+| Opus 5.5 | Midship cleats sit 0.7 mm under the fence | **Accepted:** moved from y ±27.2 to ±25.0, inboard of the fence |
+| Opus 5.5 | Bow cleats are hidden by a pulpit leg; move them to x 75 | **Rejected:** the cleat (x 76.9–81.1) is clear of the post at 82, so the overlap is only the camera angle. At 75 it would sit next to the post at 72. Opus withdrew it |
+| Opus 5.5 | Stand base 1.8 → 1.4 mm | **Accepted** (the user asked for "way lighter"): 13.7 → 11.0 g finished |
+| Opus 5.5 | Report the roll angle in the fork | Answered: the bulb is about 40 mm below the pads and the nose saddle is 0.443 mm clear, so roll stops at about 0.6°. G sits above the pad edges, so the boat rights itself. No change |
+
+Opus confirmed all six items on the rebuilt close-ups, and round 2 is closed.
+
+**As built (v7h)**
+- **Boat plate:** 11 parts, 20 colour volumes, 235 layers.
+  - 13 h 12 min model time.
+  - 209.8 g filament (80.7 / 43.4 / 56.7 / 29.0 g).
+- **Mass and float:**
+  - 47.9 g printed, 47.3 g on board (the furler stays ashore); 93 balls (14.9 g); all-up 63.9 g.
+  - GM 17.7 mm (v7g 18.7); GZ 3.0 / 5.6 / 7.7 mm at 10 / 20 / 30°; AVS 137°.
+- **Fits:**
+  - railing tabs 0.15 mm per side; fences 2.26 mm above their pads and 1.9 mm from the rig and wheels;
+  - shroud feet 0.207 mm; furler hook 0.358 mm; no overlaps.
+- **Names:** transom gate PASS; transom 17/17 and bow 19/19 layers carry navy.
+- **Stand:**
+  - 96.5 × 63.8 × 54.1 mm, base 1.4 mm.
+  - 44 m 5 s, 12.7 g with tree supports under the fork head, 11.0 g finished.
+  - G is 8.5 / 6.8 / 8.4 mm inside the front end of the pads. The assembly tips sideways at 31 / 27 / 28° and forward at 33 / 28 / 30° (full lead / no lead / display sail).

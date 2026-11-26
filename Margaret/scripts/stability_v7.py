@@ -47,6 +47,7 @@ if SLICE:
     GROUPS = {"Hull_lower": ["Lower_blue", "Lower_white", "Lower_ink"],
               "Hull_upper": ["Upper_white", "Upper_ink", "Upper_teak", "Window_ink"],
               "Mast": ["Mast", "Shrouds"], "Furler": ["Furler", "Furler_ink"],
+              "Rails": ["Rail_Port", "Rail_Starboard", "RailAft_Port", "RailAft_Starboard"],
               "Rudder": ["Rudder", "Rudder_ink"], "Wheel_Port": ["Wheel_Port", "WheelSpokes_Port"],
               "Wheel_Starboard": ["Wheel_Starboard", "WheelSpokes_Starboard"]}
     for obj, d in json.load(open(SLICE))["objects"].items():

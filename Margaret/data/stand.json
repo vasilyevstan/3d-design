@@ -1,199 +1,223 @@
 {
- "type": "swan-neck",
+ "type": "swan-neck from aft",
  "base": {
-  "shape": "ellipse",
-  "length_mm": 73.5,
-  "width_mm": 60.0,
-  "thickness_mm": 1.8,
+  "shape": "egg",
+  "length_mm": 96.5,
+  "width_mm": 63.8,
+  "thickness_mm": 1.4,
   "x_range": [
-   -42.9,
-   30.59
+   -68.5,
+   28.0
   ],
-  "top_z": -57.95,
+  "top_z": -63.45,
   "top_bevel_mm": 0.8,
-  "volume_cm3": 6.16
+  "margin_root_mm": 3.31,
+  "margin_chock_mm": 19.27,
+  "volume_cm3": 6.49
  },
  "neck": {
   "root_x": [
-   18.59,
-   24.59
+   -60.0,
+   -53.5
   ],
   "section_at_root_mm": [
-   6.0,
-   5.2
+   6.5,
+   5.6
   ],
   "section_at_lean_mm": [
    5.0,
-   5.2
+   5.6
   ],
-  "lean_deg": 45.0,
-  "gap_to_bulb_nose_mm": 2.2,
-  "root_fillet_mm": 2.5,
-  "rear_arc_r": 12.0,
-  "front_arc_r": 18.0
+  "lean_deg": 48.0,
+  "lean_direction": "forward",
+  "gap_to_bulb_tail_mm": 3.676,
+  "gap_to_rudder_mm": 21.931,
+  "root_fillet_mm": 4.0,
+  "front_arc_r": 10.0,
+  "rear_arc_r": 16.0,
+  "front_vertical_to_z": -42.0,
+  "rear_vertical_to_z": -43.8
  },
  "fork": {
   "pads_x": [
-   -8.8,
-   9.4
+   -31.48,
+   4.92
   ],
-  "head_half_width_mm": 4.55,
-  "slot_half_width_max_mm": 2.15,
+  "head_x": [
+   -36.19,
+   5.0
+  ],
+  "head_bottom_z": -15.23,
+  "head_half_width_mm": [
+   4.6,
+   10.12
+  ],
+  "slot_stop_x": -23.4,
+  "slot_half_width_at_stop_region_mm": 2.15,
+  "slot_half_width_at_tips_mm": 7.72,
   "cheek_mm": 2.4,
   "slot_clearance_mm": 0.4,
-  "slot_end_x_at_root": 5.4,
-  "crotch_z": -25.0,
-  "lip_z": -13.38,
-  "pad_cells": 2739,
-  "contact": "zero gap: pads follow the hull bottom"
+  "lift_clearance_mm": 0.8,
+  "pad_cells": 5368,
+  "contact": "zero gap: pads follow the hull bottom",
+  "supports": "tree, under the head only"
  },
  "chock": {
   "x": [
-   -39.4,
-   -34.4
+   12.9,
+   18.4
   ],
   "front_top_z": -53.85,
-  "max_top_z": -52.45,
+  "max_top_z": -53.45,
   "half_width_mm": 3.0,
-  "shape": "saddle following the bulb tail underside",
+  "shape": "saddle following the bulb nose underside",
   "lock_height_over_bulb_flat_mm": [
    1.6,
-   3.0
+   2.0
   ],
   "clearance_mm": 0.4,
-  "lift_to_remove_mm": 4.0
+  "lift_to_remove_mm": 3.0
  },
  "clearances": {
   "fin_to_slot_mm": [
-   0.361,
+   0.399,
    [
-    4.94,
-    -1.11,
-    -12.6
+    -22.87,
+    0.25,
+    -13.9
    ]
   ],
   "bulb_to_neck_mm": [
-   2.2,
+   3.676,
    [
-    16.39,
+    -49.82,
     0.02,
     -48.59
    ]
   ],
   "bulb_to_chock_mm": [
-   0.445,
+   0.443,
    [
-    -39.08,
-    -1.55,
-    -52.23
+    13.29,
+    0.47,
+    -53.19
    ]
   ],
-  "bulb_to_base_mm": 2.5,
+  "bulb_to_base_mm": 8.0,
   "rudder_to_stand_mm": [
-   46.641,
+   21.931,
    [
     -76.95,
     -0.4,
     -25.0
    ]
-  ]
+  ],
+  "fin_te_to_stop_mm": 0.455
  },
  "lift_off": {
-  "path": "lift 4.0 mm, slide aft 32 mm, lift off",
-  "steps": 100,
-  "vertex_checks": 615839,
-  "hits": {}
+  "path": "lift 3.0 mm, slide forward 29 mm, lift off",
+  "steps": 95,
+  "vertex_checks": 729497,
+  "hits": {},
+  "rudder_closest_to_stand_on_slide_mm": {
+   "gap": 2.839,
+   "at_slide_mm": 29.0
+  }
  },
  "printability": {
-  "downward_area_mm2": 496.0,
+  "downward_area_mm2": 754.8,
   "area_over_50_deg_mm2": 0.0,
-  "max_overhang_from_vertical_deg_faces_over_0.05mm2": 48.0,
-  "supports": "none"
+  "max_overhang_from_vertical_deg_faces_over_0.05mm2": 49.2,
+  "head_underside_supported_mm2": 194.9,
+  "supports": "tree supports under the fork head only; base, fillet and neck support-free"
  },
  "stability": {
-  "stand_mass_g": 10.1,
-  "stand_mass_source": "BambuStudio slice",
+  "stand_mass_g": 11.0,
+  "stand_mass_source": "BambuStudio slice without supports (supports removed)",
+  "print_mass_incl_supports_g": 12.68,
   "stand_cg": [
-   -2.22,
-   0.0,
-   -50.37
+   -22.34,
+   -0.0,
+   -54.21
   ],
   "cases": {
    "sailing trim (full lead, paper sail)": {
-    "boat_mass_g": 63.9,
+    "boat_mass_g": 63.94,
     "G": [
      -3.54,
      0.01,
-     -6.34
+     -5.35
     ],
-    "G_margin_to_pads_aft_mm": 5.26,
-    "G_margin_to_pads_fore_mm": 12.94,
-    "roll": "held by the fin in the slot (0.4 mm per side)",
+    "G_margin_to_pads_aft_mm": 27.94,
+    "G_margin_to_pads_fore_mm": 8.46,
+    "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
-     "sideways": 32.3,
-     "forward": 35.6,
-     "aft": 39.8,
-     "any_direction_min": 32.1
+     "sideways": 31.1,
+     "forward": 33.0,
+     "aft": 49.8,
+     "any_direction_min": 30.9
     }
    },
    "no lead": {
-    "boat_mass_g": 48.22,
+    "boat_mass_g": 49.06,
     "G": [
-     -1.74,
+     -1.84,
      0.01,
-     8.38
+     8.71
     ],
-    "G_margin_to_pads_aft_mm": 7.06,
-    "G_margin_to_pads_fore_mm": 11.14,
-    "roll": "held by the fin in the slot (0.4 mm per side)",
+    "G_margin_to_pads_aft_mm": 29.64,
+    "G_margin_to_pads_fore_mm": 6.76,
+    "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
-     "sideways": 27.4,
-     "forward": 29.2,
-     "aft": 35.3,
-     "any_direction_min": 26.9
+     "sideways": 27.0,
+     "forward": 28.2,
+     "aft": 45.3,
+     "any_direction_min": 26.7
     }
    },
    "full lead, printed display sail": {
-    "boat_mass_g": 67.93,
+    "boat_mass_g": 67.97,
     "G": [
      -3.44,
      0.01,
-     0.57
+     1.5
     ],
-    "G_margin_to_pads_aft_mm": 5.36,
-    "G_margin_to_pads_fore_mm": 12.84,
-    "roll": "held by the fin in the slot (0.4 mm per side)",
+    "G_margin_to_pads_aft_mm": 28.03,
+    "G_margin_to_pads_fore_mm": 8.37,
+    "roll": "held by the fin in the slot (0.4 mm per side at the stop)",
     "assembly_tip_deg": {
-     "sideways": 29.2,
-     "forward": 32.2,
-     "aft": 36.4,
-     "any_direction_min": 29.0
+     "sideways": 28.3,
+     "forward": 30.0,
+     "aft": 46.7,
+     "any_direction_min": 28.1
     }
    }
   }
  },
  "nonmanifold_edges": 0,
- "volume_cm3": 8.67,
+ "nonmanifold_at": [],
+ "volume_cm3": 9.49,
  "volume_parts_cm3": {
-  "base": 6.16,
-  "neck_head": 2.43,
-  "chock": 0.15
+  "base": 6.49,
+  "neck": 1.91,
+  "head": 0.88,
+  "chock": 0.326
  },
  "size_mm": [
-  73.5,
-  60.0,
-  48.0
+  96.5,
+  63.8,
+  54.1
  ],
  "assembled_bbox": [
   [
-   -42.9,
-   -30.0,
-   -59.75
+   -68.5,
+   -31.9,
+   -64.85
   ],
   [
-   30.59,
-   30.0,
-   -11.78
+   28.0,
+   31.9,
+   -10.71
   ]
  ]
 }

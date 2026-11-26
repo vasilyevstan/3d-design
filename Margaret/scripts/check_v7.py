@@ -120,8 +120,56 @@ def islands(name):
 res["islands"] = {n: islands(n) for n in ("Lower_ink", "Upper_ink", "Upper_teak", "Window_ink", "Lower_white",
                                           "Rudder_ink", "WheelSpokes_Port")}
 
+# 2c rev 11 railings: every tab sits in an open pocket (lateral clearance, floor contact allowed); the fences
+# clear the deck, toe rail and fittings above the pads and do not hit the wheels, rig or furler
+rl = st["railings"]
+rail_bm = {n: bm_of(load(n)) for n in ("Rail_Port", "Rail_Starboard", "RailAft_Port", "RailAft_Starboard")}
+rail_trees = {n: tree(m) for n, m in rail_bm.items()}
+posts = [(x, rl["pads"][k]["pad_top"]) for x, k in zip(rl["posts_x"], [str(v) for v in rl["posts_x_prescale"]])]
+RD = rl["pocket"][3]
+
+
+def inside_hull(p):
+    best = None
+    for t in hull_trees.values():
+        h = t.find_nearest(p, 3.0)
+        if h[0] is not None and (best is None or h[3] < best[3]):
+            best = h
+    return best is not None and (p-best[0]).dot(best[1]) < 0
+
+
+rail_res = {}
+for n, m in rail_bm.items():
+    if n.startswith("RailAft"):
+        sgn = 1 if n.endswith("Port") else -1
+        legs = [(sgn*y, pt) for y, pt in zip(rl["returns"]["legs_y"], rl["returns"]["pad_tops"])]
+        foot_of = lambda v: min(legs, key=lambda L: abs(v.y-L[0]))[1]
+    else:
+        foot_of = lambda v: min(posts, key=lambda P: abs(v.x-P[0]))[1]
+    tabs = [v for v in m.verts if abs(v.z-(foot_of(v)-RD)) < 0.03]
+    body = [v for v in m.verts if v.z > foot_of(v)+0.5]
+    floor_ok = all(v.z > foot_of(v)-RD-0.03 for v in m.verts)
+    # the tab corners at mid-depth must be in air (an open pocket) with a lateral gap; the tab foot rests on the floor
+    mids = [Vector((v.x, v.y, foot_of(v)-RD/2)) for v in tabs]
+    dt, nt, pt = min_dist(mids, hull_trees, 1.0)
+    df, _, _ = min_dist(tabs, hull_trees, 1.0)
+    db, nb, pb = min_dist(body, hull_trees, 3.0)
+    buried = sum(1 for p in mids if inside_hull(p))
+    rail_res[n] = {"tab_vertices": len(tabs), "tab_min_side_gap_mm": round(dt, 3), "tab_nearest": nt, "tab_at": pt,
+                   "tab_points_buried": buried, "tab_bottom_not_below_floor": floor_ok,
+                   "tab_foot_to_floor_mm": round(df, 3),
+                   "fence_min_gap_above_pads_mm": round(db, 3), "fence_nearest": nb, "fence_at": pb}
+others = {"Wheel_Port": tree(bm_of(bpy.data.objects["Wheel_Port"])),
+          "Wheel_Starboard": tree(bm_of(bpy.data.objects["Wheel_Starboard"])),
+          "Shrouds": tree(sbm), "Furler": tree(fbm), "Mast": mtree0["Mast"]}
+for n, m in rail_bm.items():
+    d, on, p = min_dist(m.verts, others, 6.0)
+    rail_res[n]["min_gap_to_rig_wheels_mm"] = round(d, 3); rail_res[n]["rig_nearest"] = on
+    rail_res[n]["rig_overlaps"] = overlaps(m, others)
+res["railings"] = rail_res
+
 # 3 boom swing about the gooseneck thread loop
-mast = bpy.data.objects["Mast"]; mtree = {"Mast": tree(bm_of(mast)), "Shrouds": tree(sbm)}
+mast = bpy.data.objects["Mast"]; mtree = {"Mast": tree(bm_of(mast)), "Shrouds": tree(sbm), **rail_trees}
 boom = load("Boom")
 px = st["rig"]["boom_holes_x"]["gooseneck loop"]
 swing = {}
