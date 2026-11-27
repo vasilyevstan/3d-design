@@ -40,17 +40,17 @@
   "hull_overlaps": {},
   "mast_overlaps": {},
   "drum_overlaps": {},
-  "hook_min_gap_to_mast_mm": 0.358,
+  "hook_min_gap_to_mast_mm": 0.388,
   "hook_at": [
-   24.76,
-   -0.05,
-   238.85
+   24.79,
+   0.07,
+   236.78
   ],
   "drum_tab_min_gap_to_hull_mm": 0.2,
   "foot_at": [
-   91.07,
+   89.98,
    -0.6,
-   19.52
+   19.21
   ]
  },
  "islands": {

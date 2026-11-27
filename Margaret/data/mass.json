@@ -17,10 +17,10 @@
    }
   },
   "Furler": {
-   "total_g": 0.58,
+   "total_g": 1.53,
    "by_tool": {
-    "1": 0.57,
-    "3": 0.01
+    "1": 1.51,
+    "3": 0.02
    }
   },
   "Fin_cap": {
@@ -77,7 +77,7 @@
   "Support interface": 5.28,
   "Support transition": 1.59,
   "Support": 33.61,
-  "Prime tower": 16.36
+  "Prime tower": 16.46
  },
- "on_board_g": 50.86
+ "on_board_g": 51.81
 }

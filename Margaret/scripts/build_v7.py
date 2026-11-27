@@ -888,8 +888,9 @@ SH_X, SH_TOP = 90.0, ZB+1.5                    # stemhead block: the furler axis
 add.append(pad("Stemhead", SH_X-1.6, SH_X+1.8, -1.7, 1.7, deck_z(SH_X, 0.0)-0.5, SH_TOP, 0.8, 0.3))
 _dt, _wt = mast_dw(MAST_TOP)
 CAP_TOP, CAP_XA, CAP_XF = MAST_TOP+0.6, MAST_XA, MAST_XA+_dt+0.45
-HOOK_STOCK, HOOK_CLR, HOOK_LEG = 1.0, 0.375, 1.2  # rev10 r2: measured min ~0.35 (reviewers: >=0.25, <=0.45)
-HOOK_B = (CAP_XF+HOOK_CLR+HOOK_STOCK/2, CAP_TOP-1.6)  # the furler's straight run ends here, in front of the cap
+HOOK_STOCK, HOOK_CLR, HOOK_LEG = 1.5, 0.375, 1.2  # rev10 r2: measured min ~0.35 (reviewers: >=0.25, <=0.45)
+HOOK_T = 2.0                                    # rev16: hook 1.5 x 2.0 (was 1.0 x 1.0), grown outward only
+HOOK_B = (CAP_XF+HOOK_CLR+0.5, CAP_TOP-1.6)     # furler axis end, kept at v7l so the stemhead pocket is unchanged
 FURL_A = (SH_X, SH_TOP)
 _d = (HOOK_B[0]-FURL_A[0], HOOK_B[1]-FURL_A[1])
 FURL_L = math.hypot(*_d)
@@ -1754,9 +1755,12 @@ log("shroud feet", [(round(y, 2), round(z, 2)) for _, y, z in SHROUD_FEET], "cha
 # that drops into the stemhead pocket, and an inverted-U hook that hangs over the masthead cap.
 
 
-def furl_ring(s, a, c, n=20):
+FURL_F = 0.5                                   # rev16: ellipse centre f*c above the bed face (was 0.75): bed face 0.87 x width
+
+
+def furl_ring(s, a, c, n=24):
     """Truncated ellipse section at axis station s: in-plane half-width a, y semi-axis c, flat face at FURL_Y0."""
-    yc = FURL_Y0+0.75*c
+    yc = FURL_Y0+FURL_F*c
     cx, cz = FURL_A[0]+FURL_T[0]*s, FURL_A[1]+FURL_T[1]*s
     ring = []
     for k in range(n):
@@ -1766,29 +1770,38 @@ def furl_ring(s, a, c, n=20):
     return ring
 
 
-DRUM_S0, DRUM_S1, BODY_A = FURL_DRUM_S, FURL_DRUM_S+1.6, 1.1
-drum = rings_solid("FurlerDrum", [furl_ring(DRUM_S0, 1.0, 0.8), furl_ring(DRUM_S0+0.25, 1.3, 1.0),
-                                  furl_ring(DRUM_S1-0.25, 1.3, 1.0), furl_ring(DRUM_S1, 1.0, 0.8)])
+# rev16: the v7l body (1.1-2.2 mm wide, 1.3-1.6 mm tall, ~0.95 mm on the bed over its upper half) was too thin to print
+DRUM_S0, DRUM_S1 = FURL_DRUM_S, FURL_DRUM_S+1.6
+BODY_A0, BODY_A, BODY_A1 = 1.3, 1.7, 1.15     # half-widths: drum top, belly (s 12-45), head: 2.6 / 3.4 / 2.3 mm
+BODY_S1, BODY_S2 = 12.0, 45.0
+BODY_H, BODY_H1 = 2.4, 2.0                     # print height at the belly and at the head
+HEAD_CLR = HOOK_B[0]-CAP_XF-HOOK_CLR                  # last ~2 mm narrow into the hook leg: aft edge >= HOOK_CLR from the cap front
+drum = rings_solid("FurlerDrum", [furl_ring(DRUM_S0, 1.5, 1.5), furl_ring(DRUM_S0+0.3, 1.9, 1.87),   # 3.8 x 2.8 mm
+                                  furl_ring(DRUM_S1-0.3, 1.9, 1.87), furl_ring(DRUM_S1, 1.5, 1.5)])
 G.boolean(drum, axis_solid("FurlerTab", [(DRUM_S0-3.4, FTAB_A, FURL_Y0, FURL_Y0+FTAB_H),
                                           (DRUM_S0+0.3, FTAB_A, FURL_Y0, FURL_Y0+FTAB_H)]), "UNION")
 body_rings = []
-NS = 60
-for k in range(NS+1):
-    s_ = DRUM_S1+(FURL_L-DRUM_S1)*k/NS
-    if s_ < 12.0:
-        a_ = 0.55+(BODY_A-0.55)*math.sin(0.5*math.pi*(s_-DRUM_S1)/(12.0-DRUM_S1))
+_ss = sorted(set([DRUM_S1+(BODY_S1-DRUM_S1)*k/8 for k in range(9)]+[BODY_S1+(BODY_S2-BODY_S1)*k/6 for k in range(7)]
+               + [BODY_S2+(FURL_L-4.0-BODY_S2)*k/44 for k in range(45)]+[FURL_L-4.0+0.5*k for k in range(9)]))
+for s_ in _ss:
+    if s_ < BODY_S1:
+        a_ = BODY_A0+(BODY_A-BODY_A0)*math.sin(0.5*math.pi*(s_-DRUM_S1)/(BODY_S1-DRUM_S1))
+    elif s_ <= BODY_S2:
+        a_ = BODY_A
     else:
-        a_ = BODY_A-(BODY_A-0.55)*((s_-12.0)/(FURL_L-12.0))**1.3
-    body_rings.append(furl_ring(s_, a_, 0.55+0.37*a_/BODY_A))
+        a_ = BODY_A-(BODY_A-BODY_A1)*(s_-BODY_S2)/(FURL_L-BODY_S2)
+    h_ = BODY_H1+(BODY_H-BODY_H1)*(a_-BODY_A1)/(BODY_A-BODY_A1)
+    a_ = min(a_, (HEAD_CLR+(-FURL_T[0])*(FURL_L-s_))/FURL_N[0])   # stay clear of the masthead cap (runs 5 mm down)
+    body_rings.append(furl_ring(s_, a_, h_/(1+FURL_F)))
 furler = rings_solid("FurlerBody", body_rings)
 hx0, hx1 = CAP_XA-HOOK_CLR-HOOK_STOCK, CAP_XF+HOOK_CLR+HOOK_STOCK
 hz1 = CAP_TOP+HOOK_CLR+HOOK_STOCK
-hook = [(hx1, HOOK_B[1]-0.4), (hx1, hz1-0.5)]
+hook = [(hx1, HOOK_B[1]-1.5), (hx1, hz1-0.5)]   # front leg runs 1.5 mm down into the body
 hook += [(hx1-0.5+0.5*math.cos(math.radians(a_)), hz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(15, 91, 15)]
 hook += [(hx0+0.5+0.5*math.cos(math.radians(a_)), hz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(90, 181, 15)]
 hook += [(hx0, CAP_TOP-HOOK_LEG), (hx0+HOOK_STOCK, CAP_TOP-HOOK_LEG), (hx0+HOOK_STOCK, CAP_TOP+HOOK_CLR),
-         (hx1-HOOK_STOCK, CAP_TOP+HOOK_CLR), (hx1-HOOK_STOCK, HOOK_B[1]-0.4)]
-G.boolean(furler, prism("FurlerHook", hook, "y", FURL_Y0, FURL_Y0+HOOK_STOCK), "UNION")
+         (hx1-HOOK_STOCK, CAP_TOP+HOOK_CLR), (hx1-HOOK_STOCK, HOOK_B[1]-1.5)]
+G.boolean(furler, prism("FurlerHook", hook, "y", FURL_Y0, FURL_Y0+HOOK_T), "UNION")
 furler.name = "Furler"; drum.name = "Furler_ink"
 log("furler length", round(FURL_L, 2), "axis", [round(v, 4) for v in FURL_T], "hook x", (round(hx0, 2), round(hx1, 2)),
     "hook top", round(hz1, 2), "cap", (round(CAP_XA, 2), round(CAP_XF, 2), round(CAP_TOP, 2)))
@@ -2108,7 +2121,7 @@ json.dump({"parts": tot, "canoe_cm3": vol*SX/1000, "LCB": (LCB-X_CENTER)*SX,
                    "tab_mm": [TAB_W, TAB_W, TAB_L], "sheet_eye": (fx(SHEET_EYE[0]), 0.0, SHEET_EYE[2])},
            "furler": {"display_only": True, "axis_foot": (fx(FURL_A[0]), 0.0, FURL_A[1]),
                       "axis_head": (fx(HOOK_B[0]), 0.0, HOOK_B[1]), "length_mm": round(FURL_L*1.0, 2),
-                      "body_max_width_mm": 2*BODY_A, "flat_face_y": FURL_Y0, "drum_s": [DRUM_S0, DRUM_S1],
+                      "body_max_width_mm": 2*BODY_A, "body_head_width_mm": 2*BODY_A1, "body_height_mm": [BODY_H, BODY_H1], "hook_stock_mm": [HOOK_STOCK, HOOK_T], "flat_face_y": FURL_Y0, "drum_s": [DRUM_S0, DRUM_S1],
                       "foot_tab": [2*FTAB_A, FTAB_H, 3.4], "stemhead_pocket": FPOCKET,
                       "hook_x": (fx(hx0), fx(hx1)), "hook_top_z": hz1, "hook_clearance": HOOK_CLR},
            "display_only_parts": ["Furler", "Furler_ink"],

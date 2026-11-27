@@ -19,7 +19,7 @@ COMPONENTS = {
                    Matrix.Identity(4), (107.0, 92.8)),
     # rev 12: the rev 11 printed railings were removed
     # display furler (stays ashore when sailing): flat face y=-0.6 down, turned along the free band
-    "Furler": ([("Furler", WHITE), ("Furler_ink", INK)], ("scanZ", R(90, "X"), 95.0, 118.0), (128.0, 158.7)),
+    "Furler": ([("Furler", WHITE), ("Furler_ink", INK)], ("scanZ", R(90, "X"), 95.0, 118.0), (128.0, 150.0)),  # rev16: thicker furler, re-centred in the free band
     "Fin_cap": ([("Fin_cap", BLUE)], Matrix.Identity(4), (31.0, 171.4)),
     "Ballast_cup": ([("Ballast_cup", BLUE)], Matrix.Identity(4), (95.0, 172.3)),
     "Rudder": ([("Rudder", BLUE), ("Rudder_ink", INK)], R(90, "Z") @ R(90, "X"), (163.0, 170.3)),

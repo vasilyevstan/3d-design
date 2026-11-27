@@ -67,16 +67,16 @@
    "vol_cm3": 0.367
   },
   "Furler": {
-   "verts": 1281,
-   "faces": 2558,
+   "verts": 1677,
+   "faces": 3350,
    "nonmanifold": 0,
-   "vol_cm3": 0.495
+   "vol_cm3": 1.306
   },
   "Furler_ink": {
-   "verts": 98,
-   "faces": 192,
+   "verts": 111,
+   "faces": 218,
    "nonmanifold": 0,
-   "vol_cm3": 0.01
+   "vol_cm3": 0.018
   },
   "Boom": {
    "verts": 1118,
@@ -146,7 +146,7 @@
  "ballast_cavity_cm3": 4.697749983930342,
  "lead_3mm_balls_64pct": 212,
  "lead_mass_g_64pct": 33.92,
- "total_parts_cm3": 45.953,
+ "total_parts_cm3": 46.772,
  "lugs": [
   [
    50.52762283228525,
@@ -338,7 +338,16 @@
    239.0
   ],
   "length_mm": 226.1,
-  "body_max_width_mm": 2.2,
+  "body_max_width_mm": 3.4,
+  "body_head_width_mm": 2.3,
+  "body_height_mm": [
+   2.4,
+   2.0
+  ],
+  "hook_stock_mm": [
+   1.5,
+   2.0
+  ],
   "flat_face_y": -0.6,
   "drum_s": [
    1.0,
@@ -356,10 +365,10 @@
    4.0
   ],
   "hook_x": [
-   20.241051296785937,
-   25.8276434843759
+   19.723774242379456,
+   26.344920538782382
   ],
-  "hook_top_z": 241.975,
+  "hook_top_z": 242.475,
   "hook_clearance": 0.375
  },
  "display_only_parts": [

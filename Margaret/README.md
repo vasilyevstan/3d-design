@@ -1,4 +1,4 @@
-# Margaret — 200 mm free-sailing yacht (v7l)
+# Margaret — 200 mm free-sailing yacht (v7m)
 
 A printable model in the style of a **Jeanneau Sun Odyssey 43**: a likeness, not a copy. She has a blue underwater hull, white topsides and deck, a navy boot stripe and trim, and caulked teak on the cockpit, side decks and foredeck. **Margaret** is on both bows and repeated on the port transom face, and a navy delta anchor sits stowed on the bow roller as a separate-looking fitting. Six **navy horn cleats** are printed into the deck. There are no railings: at 1:66 a stanchion would be 0.4 mm and a lifeline 0.1 mm, finer than a 0.4 mm nozzle can print.
 
@@ -68,7 +68,7 @@ The above-water shape (sheer, coachroof, deck plan, open stern) follows the SO43
 | Extra lift if pushed fully under (sealed hull) | 165 g |
 | Bulb capacity | ≈ 127 balls simulated ball-by-ball (74 needed) |
 
-The bulb is placed so that lead poured in level trims her flat. The fin joins the front third of the bulb, as on real bulb keels. v7j thickens the underwater hull from 0.85 to 1.2 mm (a test print of the blue half came out too thin). That adds 3.7 g of PLA, which replaces 23 balls of lead to keep the 64 g all-up mass; her centre of gravity rises 2.6 mm, so GM drops from 18.6 to 16.0 mm and the righting arm at 30° from 8.1 to 6.8 mm. She is still stiff for a light-air model: the full sail heels her 14° at 2 m/s instead of 12°. v7k only changes the joint clearances (see Assembly); it moves 0.07 g of PLA and one lead ball, and GM is 15.9 mm. v7l only opens the rudder bore to Ø2.5 (the printed Ø2.1 bore did not take the stock); mass, lead and float figures are unchanged.
+The bulb is placed so that lead poured in level trims her flat. The fin joins the front third of the bulb, as on real bulb keels. v7j thickens the underwater hull from 0.85 to 1.2 mm (a test print of the blue half came out too thin). That adds 3.7 g of PLA, which replaces 23 balls of lead to keep the 64 g all-up mass; her centre of gravity rises 2.6 mm, so GM drops from 18.6 to 16.0 mm and the righting arm at 30° from 8.1 to 6.8 mm. She is still stiff for a light-air model: the full sail heels her 14° at 2 m/s instead of 12°. v7k only changes the joint clearances (see Assembly); it moves 0.07 g of PLA and one lead ball, and GM is 15.9 mm. v7l only opens the rudder bore to Ø2.5 (the printed Ø2.1 bore did not take the stock); mass, lead and float figures are unchanged. v7m only thickens the display furler, which stays ashore, so nothing here changes.
 
 **These are predictions, not test results.** The physical check is simple: weigh the dry, rigged boat (without the furler), then add lead until boat + lead = **63.9 g**. She should float with the water just under the blue/white line.
 
@@ -77,15 +77,16 @@ The bulb is placed so that lead poured in level trims her flat. The fin joins th
 - **Settings:** Bambu Lab P2S, 0.4 mm nozzle, Bambu PLA Basic, **Textured PEI plate**. 0.16 mm layers, 2 walls, 7 % infill, supports from the build plate only, prime tower.
 - **Hull walls (v7j):** 1.2 mm below the waterline, rising smoothly to the 1.7 mm seam land; 0.85 mm topsides. The thickness is in the model, so no slicer change is needed: the G-code lays two wall lines with solid infill between them, and per layer it deposits 90–97 % of the cross-section area, so there are no gaps (`scripts/wall_fill.py`).
 - **AMS mapping:** 1 white `#F6F5EE`, 2 blue `#15499D`, 3 navy `#173347`, 4 teak/tan `#BF8A54`.
-- **Sliced result (v7l):** 13 h 11 min model time, 13 h 18 min total (235 layers), 212.3 g filament in total: white 80.8, blue 47.0, navy 55.6 (mostly purge), teak 28.9 g. About 320 colour changes; nothing outside the bed.
-- **Mass of the printed parts:** **50.9 g** summed from the G-code per object (excluding supports and purge): 50.3 g goes sailing, plus the 0.6 g display furler. The lower hull alone is 16.0 g (12.2 g in v7i).
+- **Sliced result (v7m):** 13 h 17 min model time, 13 h 24 min total (235 layers), 214.4 g filament in total: white 81.7, blue 46.3, navy 57.5 (mostly purge), teak 28.9 g. About 320 colour changes; nothing outside the bed.
+- **Mass of the printed parts:** **51.8 g** summed from the G-code per object (excluding supports and purge): 50.3 g goes sailing, plus the 1.5 g display furler. The lower hull alone is 16.0 g (12.2 g in v7i).
 - **Orientation, as laid out on the plate:**
   - Both hull halves print seam-face down. Supports inside them come out through the open seam.
   - The ballast cup prints opening up.
   - The fin with its bulb cap prints split face down.
   - The mast and its navy shroud frame print as one part, flat on the mast's aft face.
-  - The furler prints flat on its flat face. The boom, rudder and wheels print flat.
+  - The furler prints flat on its flat face: 2.8 mm tall, 17 layers with a solid core, 1.9–2.7 mm on the bed along its whole length. When the plate has cooled, flex the plate and lift the furler from the drum end, not by the hook. The boom, rudder and wheels print flat.
 - Don't scale or re-orient parts. The joints are sized for this slice.
+- **Upgrading a v7l print to v7m:** reprint only the **furler**. In v7l it was too thin to print well (11 layers, walls only, about 1 mm on the bed). Nothing else changed: the hull and all other parts are geometrically identical, and the new furler fits the existing stemhead pocket and masthead cap. In Bambu Studio, open `Margaret-P2S.3mf`, delete every object except the furler, and slice.
 - **Upgrading a v7j (or earlier) print to v7l:** reprint only the **lower hull** (1.2 mm bottom, tighter fin socket, Ø2.5 rudder bore). Reprinting the **ballast cup** is optional; it gives tighter posts. Keep the upper hull, fin, rudder and everything else: the upper hull's old Ø2.1 rudder bore is opened by the Ø2.4 drill pass in Assembly step 2. In Bambu Studio, open `Margaret-P2S.3mf`, delete the other objects from the plate, and slice.
 
 ## Assembly
@@ -119,7 +120,7 @@ Joint clearances in v7l, measured on the sliced toolpaths (`data/fits_gcode_v7l.
    - Lower the mast straight down: the D-shaped heel keys into the blind deck socket while the two shroud-frame foot tabs drop into the chainplate pockets near the deck edge (0.2 mm clearance per side).
    - The heel bottoms in its socket and carries the weight; the tabs stop 0.5 mm above the pocket floors and only brace the mast sideways. No glue is needed, so the mast lifts out for transport. A drop of CA in each pocket makes it permanent.
 7. **Boom.** Tie a thread loop through the boom's forward hole and round the mast, so the boom sits on the gooseneck saddle at 43 mm and swings freely (checked clear through ±45°).
-8. **Furled genoa (display only).** Drop the navy foot tab into the stemhead pocket on the bow, then hang the hook over the masthead cap (0.36 mm clearance). Lift it off before sailing.
+8. **Furled genoa (display only).** Drop the navy foot tab into the stemhead pocket on the bow, then hang the hook over the masthead cap (0.39 mm clearance). Lift it off before sailing. The white body butts onto the navy drum; if they ever part, a drop of CA glue rejoins them.
 9. **Cleats** are printed into the deck, so there is nothing to fit.
 
 ## Stern and decks
@@ -152,7 +153,9 @@ Joint clearances in v7l, measured on the sliced toolpaths (`data/fits_gcode_v7l.
 | **Display** | The same, plus the printed furled genoa | Paper full sail, or the **printed display sail** (`Margaret-display-sail.3mf`) |
 
 - **Scale honesty:** the shroud strips are 1.0 × 0.6 mm, about 66 mm thick at full size, which is what a 0.4 mm nozzle prints reliably. They read as rigging in navy, and they brace the mast sideways without any tensioning.
-- **Furler:** a 226 mm white furled genoa on a navy drum, with a D-shaped section 2.2 mm wide. Its foot tab sits in the stemhead pocket (0.2 mm clearance) and the hook hangs over the masthead cap.
+- **Furler:** a 226 mm white furled genoa on a navy drum (3.8 × 2.8 mm). Its D-shaped section is 2.6 mm wide at the drum, 3.4 mm at the belly and tapers to 2.3 mm at the head; it prints 2.0–2.4 mm tall. The hook is 1.5 × 2.0 mm. Its foot tab sits in the stemhead pocket (0.2 mm clearance) and the hook hangs over the masthead cap.
+
+![Furled genoa at the masthead and the stemhead: v7l (left) and v7m (right)](views/details/furler.png)
 
 **Sail markings (paper and printed):**
 - The sail number is **MGT 43** (code over number), in 6.8 mm capitals: the racing-rules minimum of 450 mm for a boat over 11 m, at 1:66. Two navy waves near the head are Margaret's insignia. Two reef rows show cringle patches and reef points.
@@ -253,7 +256,7 @@ All scripts are in `scripts/` and expect Blender 5.2 and Bambu Studio on macOS. 
 
 The design has been modelled and checked digitally:
 - all parts are manifold, with no tiny colour islands
-- clearance and swing checks pass, with **0 mm³** overlap between the cup and the cap; the furler hook clears the masthead by 0.36 mm and the shroud feet clear their pockets by 0.21 mm
+- clearance and swing checks pass, with **0 mm³** overlap between the cup and the cap; the furler hook clears the masthead by 0.39 mm and the shroud feet clear their pockets by 0.21 mm
 - the plate has been sliced, and the per-part G-code mass was fed back into the float calculation
 - the G-code was checked layer by layer to prove both names print legibly
 - every joint (fin socket, rudder bore, bulb posts, wheel bores) was measured on the sliced toolpaths, not only in the model; small holes still print smaller than their toolpaths show, so the rudder bore now has 0.25 mm of running clearance per side
@@ -261,4 +264,4 @@ The design has been modelled and checked digitally:
 - the stand's on/off path, clearances, overhangs, forward hold, tipping angles and neck stress were computed from the same geometry
 - all of the above was challenged by several independent model reviewers (see `REVIEW.md`).
 
-**Test prints so far** (v7i/v7j hull halves) showed two problems, both fixed: the blue bottom was too thin (1.2 mm since v7j) and the Ø2.1 rudder bore did not take the stock (Ø2.5 since v7l, plus the drill pass for halves already printed). **She has not yet been leak-tested or sailed.** The ball count, trim, heel, fit and tipping figures are calculations. Confirm them in the tank and on a test print before gluing the bulb shut.
+**Test prints so far** (v7i/v7j hull halves) showed two problems, both fixed: the blue bottom was too thin (1.2 mm since v7j) and the Ø2.1 rudder bore did not take the stock (Ø2.5 since v7l, plus the drill pass for halves already printed). The v7l furler was also too thin to print; v7m thickens it. **She has not yet been leak-tested or sailed.** The ball count, trim, heel, fit and tipping figures are calculations. Confirm them in the tank and on a test print before gluing the bulb shut.

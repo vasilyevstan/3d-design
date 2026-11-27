@@ -900,3 +900,65 @@ stock for trim, and a hand-drill pass to rescue the halves already printed.
 - **Stand:** the outer hull is unchanged, so the v7k stand checks still apply; renders refreshed.
 - **For the parts in hand, no reprint:** glue with 2 mm rods, Ø2.4 drill pass, scrape the stock's bed ridge if it
   binds, then PTFE tape.
+
+## Step 16 — the furled genoa was too thin to print (v7m)
+
+**User:** "the front sail mast is too thin for the print". That is the printed display furled genoa (the furler).
+
+**What was wrong (v7l, measured).** The furler is 226 mm long and prints flat on the cut face of its D section.
+- **Model:** the body was 1.1–2.2 mm wide and 1.3–1.6 mm tall. The section was cut at three quarters of its depth, so
+  the face on the bed was only 0.66 × the width. The hook was 1.0 × 1.0 mm.
+- **Toolpaths:** 11 layers of outer and inner walls only, with no infill. The first layer touched the bed over
+  0.92–1.33 mm, and the upper 120 mm was only 1.1–1.7 mm wide. That is a hair of plastic that lifts, breaks off the
+  plate, and snaps at the hook.
+
+**Brief** (`review16/BRIEF.md` in the session): cut the section at half depth, so the bed face is 0.87 × the width.
+Make the body about 2–3 mm wide and up to 2.1 mm tall, and the hook 1.3 × 1.7 mm. Keep the tab and the stemhead
+pocket. Re-centre the furler in the free band of the plate.
+
+**Challenge/defend, round 1**
+
+| Reviewer | Verdict | Corrections taken |
+|---|---|---|
+| GPT-6.2-sol | **CHALLENGE** | A 20-point ring loses 19 % of the bed face, so use 24 points. A wider head would hit the masthead cap, so freeze the forestay axis and the hook's inner faces. Gate on height in mm, not on layer count. Remove the part by flexing the plate |
+| Opus 5.5 | **CHALLENGE** | Same head clash. Give it a 3.3–3.4 mm belly low down and about 2 mm at the head, so it reads as a furled sail and not a second mast. No brim needed. Weak point: the joint between the white body and the navy drum (a white core through the drum was suggested) |
+| Grok 4.7 | **CHALLENGE** | Same head clash. Grow the hook outward only, to 1.6 × 2.2 mm. Body 3.4 × 2.4 mm, start 2.6 mm, at least 2 mm wide everywhere below the head |
+
+**Decisions (v7m).** Only the furler changes.
+- **Section:** cut at half depth with 24 points, so the bed face is 0.87 × the width.
+- **Body:** 2.6 mm wide at the drum, rising to a 3.4 mm belly from s = 12 to s = 45, then tapering to 2.3 mm at the head.
+  Its print height is 2.4 mm at the belly and 2.0 mm at the head.
+- **Head neck:** the body is clamped over its last few millimetres to keep ≥ 0.5 mm from the masthead cap; it reads as
+  the halyard swivel.
+- **Drum:** 3.8 × 2.8 mm, still ≥ 0.5 mm above the stemhead.
+- **Hook:** 1.5 mm in-plane × 2.0 mm thick, grown outward only. Its inner faces stay 0.375 mm off the cap, and the
+  forestay axis is frozen at v7l, so **the stemhead pocket and the hull are unchanged**.
+- **Tab:** 1.1 × 1.1 × 3.4 mm, unchanged.
+- **Plate:** the furler is re-centred at y = 150.
+- **White core through the drum: not adopted.** It would show a white stripe on the navy drum. The butt joint
+  (2.6 × 2.1 mm) is far larger than in v7l, and a drop of CA rejoins it if it ever parts.
+
+**As built (v7m)**
+- **Checks:** no overlaps with the hull, mast or drum. The hook clears the mast by 0.388 mm, and the drum and tab clear
+  the hull by 0.2 mm. All other `check_v7.py` results are identical to v7l.
+- **Other parts:** all 13 other parts are geometrically identical to v7l (triangle sets compared). Hydro and stability
+  are identical (the furler stays ashore). Name gates pass: the bow has navy on 19 of 19 layers, and the transom passes.
+- **Toolpaths:** 17 layers with a solid infill core (4.3 m of solid infill; v7l had none).
+  - Bed contact is 1.85–2.74 mm along the whole length.
+  - The widest layer is 3.40 mm at the belly, 2.56 mm at s ≈ 190, and 2.38 mm at the head.
+  - The hook is 1.59 mm × 12 layers.
+- **Mass:** the furler weighs 1.53 g (0.58 g in v7l).
+- **Plate:** 13 h 17 min model time (13 h 24 min total); 214.4 g filament; 235 layers.
+
+**Challenge/defend, round 2 (as built): all GO**
+
+| Reviewer | Verdict | Notes |
+|---|---|---|
+| GPT-6.2-sol | **GO** | The drum and body form a butt joint, not an overlap: check the seam on the first print |
+| Opus 5.5 | **GO** | Steepest overhang about 32°. The hook stock is now the thinnest load path. Optional: a navy UV strip on the top 3 layers if it looks too fat, and a 0.3 mm inner radius on the hook |
+| Grok 4.7 | **GO** | Lift it from the drum end, not the hook. The head (2.3 × 2.0 mm) matches the mast top (2.2 × 1.7 mm), so leave it |
+
+The optional notes are recorded but not adopted, because there is no failure and no request behind them.
+**To upgrade a v7l print, reprint only the furler.**
+
+![Furled genoa at the masthead and the stemhead: v7l (left) and v7m (right)](views/details/furler.png)
