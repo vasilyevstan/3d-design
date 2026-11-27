@@ -1,0 +1,62 @@
+{
+ "rudder_x": -77.75708666052142,
+ "rudder_tube": {
+  "hull_underside_z": -3.28,
+  "probe_top_z": 9.55,
+  "samples_in_air": 8,
+  "examples": [
+   [
+    1.45,
+    0,
+    2.33
+   ],
+   [
+    1.45,
+    8,
+    2.35
+   ],
+   [
+    1.45,
+    8,
+    2.65
+   ],
+   [
+    1.95,
+    6,
+    -1.23
+   ],
+   [
+    1.95,
+    7,
+    -1.15
+   ],
+   [
+    1.95,
+    8,
+    -1.13
+   ],
+   [
+    1.95,
+    9,
+    -1.15
+   ],
+   [
+    1.95,
+    10,
+    -1.23
+   ]
+  ]
+ },
+ "rudder_bore_top_hit": null,
+ "mast": {
+  "heel_x": [
+   21.66,
+   25.39
+  ],
+  "collar_top_z": 23.2,
+  "gooseneck_top_z": null,
+  "seating_gauge_collar_to_saddle_top_mm": 19.8,
+  "heel_z": -3.0,
+  "socket_floor_z": -3.3
+ }
+}

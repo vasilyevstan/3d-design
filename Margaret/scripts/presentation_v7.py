@@ -34,7 +34,7 @@ sheet = Image.new("RGB", (1800, H), "#edf1ee")
 d = ImageDraw.Draw(sheet)
 d.rectangle((0, 0, 1800, HEAD), fill=navy)
 d.text((38, 19), "Margaret", font=font(55, True), fill="#f5f4e9")
-d.text((42, 89), "SUN ODYSSEY 43-STYLE   /   200 MM FREE-SAILING MODEL   /   ONE BAMBU P2S PLATE",
+d.text((42, 89), "SUN ODYSSEY 43-STYLE   /   200 MM FREE-SAILING MODEL   /   BAMBU P2S, FOUR PLATES",
        font=font(19), fill="#c5d5d7")
 d.text((1760, 57), "DESIGN VIEWS  /  " + TAG, anchor="rm", font=font(20, True), fill=sand)
 items = [("Starboard bow quarter", "view-1.png"), ("Port profile", "view-2.png"),
@@ -268,7 +268,7 @@ fit = ["1. Laminate with MATTE clear tape on both faces (keeps the grey seams)."
        "    the mast. Keep loops off the spreader roots (dashed marks).",
        "5. Tack: lash round the mast just above the boom.",
        "6. Clew: tie down to the matching boom hole; snug, not tight.",
-       "7. Sheet: tie a thread to the boom sheet hole, run it down through",
+       "7. Sheet: tie a thread to boom hole 4 (from aft), run it down through",
        "    the coachroof sheet eye, set the boom ~15 deg off centre, tie off.",
        "The printed shroud frame holds the mast; the paper only drives.",
        "",
@@ -429,12 +429,20 @@ for z in ties:
 for p in (head, tack, clew, sh_b, sh_e):
     dot(p)
 ad.line((sh_b, sh_e), fill=red, width=3)
+# boom holes numbered from aft (rev 17: holes 3 and 4 are only 3.7 mm apart)
+for n, (k, dx) in enumerate([("clew", 0), ("clew medium", 0), ("clew start", 9), ("mainsheet", -9),
+                             ("gooseneck loop", 0)], 1):
+    q = px(bh[k], rg["boom_top_z"] + 4.2)
+    q = (q[0] + dx, q[1])
+    ad.rectangle((q[0] - 10, q[1] - 13, q[0] + 10, q[1] + 13), fill=(255, 255, 255))
+    ad.text((q[0] - 6, q[1] - 12), str(n), font=font(20, True), fill=navy)
 callouts = [
     (head, "1  HEAD", "full sail: masthead hole. start/medium: just above the upper spreader"),
     (px(sl["luff_x"] + 0.5, ties[len(ties) // 2]), "2  LUFF", "%d thread loops round the mast, every 20 mm" % len(ties)),
-    (tack, "3  TACK", "lash the tack hole round the mast at the gooseneck"),
-    (clew, "4  CLEW", "tie down to the boom hole for that sail size (marked on the template)"),
-    (sh_e, "5  SHEET", "boom sheet hole -> coachroof eye; tie off ~15 deg out"),
+    (tack, "3  BOOM + TACK", "boom: knot on top of hole 5, legs out under the boom, two tight\n"
+                             "turns round the mast on the saddle. tack: round the mast above"),
+    (clew, "4  CLEW", "boom hole 1 (full), 2 (medium) or 3 (start), counted from aft"),
+    (sh_e, "5  SHEET", "boom hole 4 -> coachroof eye; tie off ~15 deg out"),
 ]
 canvas = Image.new("RGB", (1900, 1500), "#edf1ee")
 art_c = art.crop((150, 40, 1080, 1480))

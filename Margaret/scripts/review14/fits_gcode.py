@@ -28,32 +28,38 @@ def add(x0, y0, x1, y1, e):
     w = e*A/L/h+h*(1-math.pi/4)
     mx, my = 0.5*(x0+x1), 0.5*(y0+y1)
     for k, (cx, cy, hb, z0, z1) in R.items():
-        if not (z0 < z <= z1+1e-6): continue
+        if k not in ACTIVE or not (z0 < z <= z1+1e-6): continue
         if k == "stock":
             if stock_x[0] < mx < stock_x[1] and abs(my-stock_y) < 2.0: seg[k].append((z, h, x0, y0, x1, y1, w, feat))
         elif abs(mx-cx) < hb and abs(my-cy) < hb: seg[k].append((z, h, x0, y0, x1, y1, w, feat))
-for line in open(f"{D}/plate/x/Metadata/plate_1.gcode"):
-    if line[0] == ";":
-        if line.startswith("; Z_HEIGHT:"): z = float(line.split(":")[1])
-        elif line.startswith("; LAYER_HEIGHT:"): h = float(line.split(":")[1])
-        elif line.startswith("; FEATURE:"): feat = line.split(":", 1)[1].strip()
-        continue
-    c = line[:3]
-    if c not in ("G1 ", "G0 ", "G2 ", "G3 "): continue
-    v = dict(num.findall(line.split(";")[0]))
-    nx = float(v.get("X", x)); ny = float(v.get("Y", y)); e = float(v.get("E", 0))
-    if c in ("G2 ", "G3 ") and "I" in v:
-        ccx, ccy = x+float(v["I"]), y+float(v.get("J", 0)); r = math.hypot(x-ccx, y-ccy)
-        a0 = math.atan2(y-ccy, x-ccx); a1 = math.atan2(ny-ccy, nx-ccx)
-        if c == "G2 ":
-            if a1 >= a0: a1 -= 2*math.pi
-        elif a1 <= a0: a1 += 2*math.pi
-        n = max(2, int(abs(a1-a0)*r/0.1)); pts = [(ccx+r*math.cos(a0+(a1-a0)*i/n), ccy+r*math.sin(a0+(a1-a0)*i/n)) for i in range(n+1)]
-        if e > 0 and not feat.startswith("Support"):
-            for (p, q) in zip(pts, pts[1:]): add(p[0], p[1], q[0], q[1], e/n)
-    elif e > 0 and ("X" in v or "Y" in v) and not feat.startswith("Support"):
-        add(x, y, nx, ny, e)
-    x, y = nx, ny
+# rev 17: multi-plate 3MF -- read every region from the G-code of the plate its object is on
+OWNER = {"bore_lower": "Hull_lower", "bore_upper": "Hull_upper", "stock": "Rudder", "socket": "Hull_lower", "tenon": "Fin_cap"}
+OWNER.update({k: ("Ballast_cup" if k.startswith("post") else "Fin_cap") for k in R if k.startswith(("post", "hole"))})
+for PL in sorted({lay[o].get("plate", 1) for o in OWNER.values()}):
+  ACTIVE = {k for k, o in OWNER.items() if lay[o].get("plate", 1) == PL}
+  x = y = 0.0; z = h = None; feat = ""
+  for line in open(f"{D}/plate/x/Metadata/plate_{PL}.gcode"):
+      if line[0] == ";":
+          if line.startswith("; Z_HEIGHT:"): z = float(line.split(":")[1])
+          elif line.startswith("; LAYER_HEIGHT:"): h = float(line.split(":")[1])
+          elif line.startswith("; FEATURE:"): feat = line.split(":", 1)[1].strip()
+          continue
+      c = line[:3]
+      if c not in ("G1 ", "G0 ", "G2 ", "G3 "): continue
+      v = dict(num.findall(line.split(";")[0]))
+      nx = float(v.get("X", x)); ny = float(v.get("Y", y)); e = float(v.get("E", 0))
+      if c in ("G2 ", "G3 ") and "I" in v:
+          ccx, ccy = x+float(v["I"]), y+float(v.get("J", 0)); r = math.hypot(x-ccx, y-ccy)
+          a0 = math.atan2(y-ccy, x-ccx); a1 = math.atan2(ny-ccy, nx-ccx)
+          if c == "G2 ":
+              if a1 >= a0: a1 -= 2*math.pi
+          elif a1 <= a0: a1 += 2*math.pi
+          n = max(2, int(abs(a1-a0)*r/0.1)); pts = [(ccx+r*math.cos(a0+(a1-a0)*i/n), ccy+r*math.sin(a0+(a1-a0)*i/n)) for i in range(n+1)]
+          if e > 0 and not feat.startswith("Support"):
+              for (p, q) in zip(pts, pts[1:]): add(p[0], p[1], q[0], q[1], e/n)
+      elif e > 0 and ("X" in v or "Y" in v) and not feat.startswith("Support"):
+          add(x, y, nx, ny, e)
+      x, y = nx, ny
 
 def samples(rows):
     out = []

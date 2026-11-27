@@ -3,7 +3,7 @@
 # teak side decks/foredeck with sprung caulking, bow roller, taller mast.
 # Headless:  Blender -b --factory-startup --python-exit-code 1 -P build_v7.py
 import sys, os, json, math, bisect, time, bpy, bmesh
-from mathutils import Vector
+from mathutils import Matrix, Vector
 D = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, D)
 import importlib, hullgen as G
@@ -510,12 +510,13 @@ def padeye(name, x, y, z, along="x", hole_r=0.55):
 CLEAT_FLANGE = (1.5, 0.8, 0.32, 0.4)             # half-length, half-width, height above deck, plan radius
 
 
-def cleat(name, x, y, z, g=0.0):
+def cleat(name, x, y, z, g=0.0, a=0.0):
     """Fore-aft horn cleat (rev 11): 4.2 long, 1.2 wide, top 2.72 above the deck (17 layers); a straight pedestal of
     +-0.75 up to 0.88 (a visible waist) and horns whose undersides rise at 45 deg to 0.3-0.5 mm tips, so there is
     daylight under each horn and no
     supports when the upper hull prints deck-up. Sits on a 3.0 x 1.6 x 0.32 flange buried 0.25 mm. `g` grows the
-    whole fitting (the navy ink tool copy, as for the anchor)."""
+    whole fitting (the navy ink tool copy, as for the anchor). Rev 17: `a` yaws the cleat (deg, +ccw from above) about
+    its centre so it lies parallel to the local toe rail."""
     prof = [(-0.75, -0.25), (0.75, -0.25), (0.75, 0.88), (1.95, 2.08), (2.1, 2.20), (2.1, 2.50), (1.8, 2.68),
             (0.6, 2.72), (-0.6, 2.72), (-1.8, 2.68), (-2.1, 2.50), (-2.1, 2.20), (-1.95, 2.08), (-0.75, 0.88)]
     if g:
@@ -531,6 +532,9 @@ def cleat(name, x, y, z, g=0.0):
     ob = prism(name, [(x+s, z+zz) for s, zz in prof], "y", y-0.6-g, y+0.6+g)
     fl, fw, fh, fr = CLEAT_FLANGE
     G.boolean(ob, pad(name+"Flange", x-fl-g, x+fl+g, y-fw-g, y+fw+g, z-0.25-g, z+fh+g, fr+g, 0.12), "UNION")
+    if a:
+        ob.data.transform(Matrix.Translation((x, y, 0)) @ Matrix.Rotation(math.radians(a), 4, "Z") @
+                          Matrix.Translation((-x, -y, 0)))
     return ob
 
 
@@ -776,7 +780,7 @@ def roof_z(x, y):
 # ---------------------------------------------------------------- rig
 MAST_HEEL, MAST_TOP = -3.0, 240.0
 MAST_XA = X_MAST-1.9          # flat aft face = print face; D-shaped heel keys the socket
-GOOSE_Z = 43.0                # top of the gooseneck saddle; boom sits on it
+GOOSE_Z = 43.0                # top of the gooseneck saddle; the boom lashing's turns rest on it (the boom is aft of it)
 
 
 MAST_D0, MAST_W0, MAST_D1, MAST_W1 = 3.6, 2.6, 2.2, 1.7
@@ -888,8 +892,7 @@ SH_X, SH_TOP = 90.0, ZB+1.5                    # stemhead block: the furler axis
 add.append(pad("Stemhead", SH_X-1.6, SH_X+1.8, -1.7, 1.7, deck_z(SH_X, 0.0)-0.5, SH_TOP, 0.8, 0.3))
 _dt, _wt = mast_dw(MAST_TOP)
 CAP_TOP, CAP_XA, CAP_XF = MAST_TOP+0.6, MAST_XA, MAST_XA+_dt+0.45
-HOOK_STOCK, HOOK_CLR, HOOK_LEG = 1.5, 0.375, 1.2  # rev10 r2: measured min ~0.35 (reviewers: >=0.25, <=0.45)
-HOOK_T = 2.0                                    # rev16: hook 1.5 x 2.0 (was 1.0 x 1.0), grown outward only
+HOOK_CLR = 0.375                                # sets HOOK_B only (the rev10-16 U-hook is gone in rev18)
 HOOK_B = (CAP_XF+HOOK_CLR+0.5, CAP_TOP-1.6)     # furler axis end, kept at v7l so the stemhead pocket is unchanged
 FURL_A = (SH_X, SH_TOP)
 _d = (HOOK_B[0]-FURL_A[0], HOOK_B[1]-FURL_A[1])
@@ -899,6 +902,18 @@ FURL_N = (FURL_T[1], -FURL_T[0])               # in-plane normal (points forward
 FURL_Y0 = -0.6                                 # flat (print-bed) face of the furler, y = const
 FTAB_A, FTAB_H, FURL_DRUM_S = 0.55, 1.1, 1.0   # foot tab half-width / thickness; drum bottom 1 mm above the block
 FPOCKET = (FTAB_A+0.2, FURL_Y0-0.2, FURL_Y0+FTAB_H+0.2, 4.0)   # seat half-width, y0, y1, depth along the axis
+FTAB_L = 4.2                                   # rev18: tab below the drum (was 3.4): 3.2 mm in the pocket, 0.8 off its floor
+# rev18: keyed masthead tang. The open U-hook let the head slide off sideways (the foot tab allows ~+-18 mm at the
+# head); a flat J-tang on the furler head now drops into a slot in the masthead cap. Cheeks hold it sideways, a low
+# front lip holds it fore and aft (a nudge or a bow-down tilt can no longer walk it out); lift the head ~1.6 mm to
+# fit or remove. Gravity slides the leaning furler down the stay and swings it aft onto the slot floor.
+TANG_T, TANG_CLR, TANG_C = 1.0, 0.25, 0.2      # tang thickness in y (bed face; 0.2+5x0.16 layers); side / other clearance
+SLOT_Y = (FURL_Y0-TANG_CLR, FURL_Y0+TANG_T+TANG_CLR)
+SLOT_YM = 0.5*(SLOT_Y[0]+SLOT_Y[1])
+CAP_HW = 0.5*(SLOT_Y[1]-SLOT_Y[0])+1.0         # cap centred on the slot, 1.0 mm cheeks (was +-1.2 around the mast)
+SLOT_X0, SLOT_Z0 = CAP_XA+0.8, CAP_TOP-2.8     # slot: 0.8 mm aft wall, floor 2.8 below the cap top
+LIP_X, LIP_TOP, LIP_CH = CAP_XF-0.6, CAP_TOP-1.2, 0.4   # front lip 0.6 thick, 1.6 high, 0.4 chamfer on its aft top
+HEAD_GAP = 0.6                                 # head body to cap front: room for the mainsail head lashing
 
 
 def funnel(name, cx, cy, seat, mouth, z_floor, z_top, flare=0.6):
@@ -997,9 +1012,12 @@ def anchor(name, g=0.0):
 
 
 add.append(anchor("Anchor"))
-CLEATS = [(79.0, 9.0), (79.0, -9.0), (-30.0, 25.0), (-30.0, -25.0), (-78.6, 23.5), (-78.6, -23.5)]
-for i, (x, y) in enumerate(CLEATS):
-    add.append(cleat("Cleat%d" % i, x, y, deck_z(x, y)))
+# rev 17: bow (mooring), spring (max beam) and quarter (stern lines) cleats on the deck edge, horns parallel to the
+# toe rail, flange 0.42-0.44 mm inside its inner face (measured deck half-beam minus 0.85); +yaw = ccw seen from above
+CLEATS = [(75.0, 15.34, -26.0), (75.0, -15.34, 26.0), (-6.0, 29.54, 0.0), (-6.0, -29.54, 0.0),
+          (-80.0, 26.06, 8.0), (-80.0, -26.06, -8.0)]   # (x prescale, y, yaw deg)
+for i, (x, y, a) in enumerate(CLEATS):
+    add.append(cleat("Cleat%d" % i, x, y, deck_z(x, y), 0.0, a))
 WINCHES = [(-46.0, 20.0, 18.5), (-46.0, -20.0, 18.5),
            (-30.5, 12.0, roof_z(-30.5, 12.0)), (-30.5, -12.0, roof_z(-30.5, -12.0))]
 for i, (x, y, z) in enumerate(WINCHES):
@@ -1271,7 +1289,8 @@ keep.append(rbox("PlatformKeep", -110.0, PLAT_XF+0.9, -45.0, 45.0, PLAT_Z-1.0, 8
 for s in (1, -1):
     keep.append(rbox("BenchKeep%d" % s, -64.5, -38.9, *((8.7, 18.8) if s > 0 else (-18.8, -8.7)),
                      BENCH_Z-0.9, 80, 1.2))
-keep.append(prism("MastTube", mast_section(MAST_D0, MAST_W0, 1.15), "z", -30, 40))
+MAST_CLR = 0.25
+keep.append(prism("MastTube", mast_section(MAST_D0, MAST_W0, MAST_CLR+1.0), "z", -30, 40))   # 1.0 mm tube wall
 for cx_, cy_, cz_, ctop_ in CHAINPLATES:           # solid bosses under the chainplate pockets
     keep.append(rbox("ChainBoss", cx_-1.8, cx_+1.8, cy_-1.8, cy_+1.8, ctop_-CHAIN_DEPTH-0.9, 80, 0.8))
 keep.append(rbox("KeelBox", X_FIN-10.4, X_FIN+10.4, -3.0, 3.0, -30, -5.6, 1.0))
@@ -1296,7 +1315,10 @@ shell = outer
 G.boolean(shell, cav, "DIFFERENCE")
 stats(shell)
 
-bores = [prism("MastBore", mast_section(MAST_D0, MAST_W0, 0.15), "z", MAST_HEEL-0.3, 40),
+# rev 17: 0.25 mm/side (0.15 measured ~0.16/side as sliced over ~30 mm of engagement through a glued seam: too tight)
+# plus a 0.45 mm/side relief 0.3 mm either side of the seam (both halves print seam-down) against elephant foot and
+# glue squeeze-out - cut after the colour split: in this batch the exact solver returned an empty Lower_blue
+bores = [prism("MastBore", mast_section(MAST_D0, MAST_W0, MAST_CLR), "z", MAST_HEEL-0.3, 40),
          rbox("FinSlot", X_FIN-9.1, X_FIN+9.1, -1.7, 1.7, -30, -6.8, 0.3),
          # free-running r1.25 both halves (a printed r1.05 grip did not fit on the real print); seam-face mouths chamfered
          # against elephant foot like the lug holes; trim and retention come from tape wound on the stock
@@ -1324,7 +1346,12 @@ lw = dup(shell, "Lower_white"); G.boolean(lw, half_space("cw", 0.8, 1.7), "INTER
 li = dup(shell, "Lower_ink"); G.boolean(li, half_space("ci", 1.7, SEAM), "INTERSECT")
 upper = shell; upper.name = "Upper"
 G.boolean(upper, half_space("hs", SEAM, 100), "INTERSECT")
+for _o in (li, upper):
+    G.boolean(_o, prism("MastMouth", mast_section(MAST_D0, MAST_W0, MAST_CLR+0.2), "z", SEAM-0.3, SEAM+0.3), "DIFFERENCE")
 stats(lower); stats(upper)
+for _o in (lb, lw, li, lower, upper):           # rev 17 gate: the exact solver can silently return an empty band
+    if not stats(_o)["faces"]:
+        raise SystemExit("EMPTY PART %s after the seam/colour split" % _o.name)
 
 parts = {}
 bpy.data.objects.remove(lower)
@@ -1391,8 +1418,8 @@ for s_ in (1, -1):
     G.boolean(tool, rbox("Instrument%d" % s_, BINNACLE_AFT-0.3, BINNACLE_AFT+3.7, s_*WHEEL_Y-2.2, s_*WHEEL_Y+2.2,
                          WHEEL_Z+1.7, WHEEL_Z+4.0, 0.3), "UNION")
 G.boolean(tool, anchor("AnchorInk", 0.03), "UNION")
-for i, (x, y) in enumerate(CLEATS):              # rev 11: navy cleats read against the white deck and teak
-    G.boolean(tool, cleat("CleatInk%d" % i, x, y, deck_z(x, y), 0.03), "UNION")
+for i, (x, y, a) in enumerate(CLEATS):           # rev 11: navy cleats read against the white deck and teak
+    G.boolean(tool, cleat("CleatInk%d" % i, x, y, deck_z(x, y), 0.03, a), "UNION")
 bool_many(tool, RAIL_INK, "UNION")
 # repeat the name on the port (+y) upper transom face, reading left-to-right from astern, inlaid 0.8 mm.
 # Slicer coupons (coupon/): a 0.6 mm inlay of these 0.5-0.6 mm strokes is near-square in every layer, so Arachne's
@@ -1476,9 +1503,12 @@ excl = [prism("TeakExclCR", cr_poly, "z", -10.0, 60.0),
         rbox("TeakExclLid", LID[0]-0.6, LID[1]+0.6, LID[2]-0.6, LID[3]+0.6, -10.0, 60.0, 1.6)]
 for cx_, cy_, cz_, ctop_ in CHAINPLATES:
     excl.append(rbox("TeakExclChain", cx_-1.9, cx_+1.9, cy_-1.7, cy_+1.7, -10.0, 60.0, 1.0))
-for x, y in CLEATS:
-    excl.append(rbox("TeakExclCleat", x-CLEAT_FLANGE[0]-0.1, x+CLEAT_FLANGE[0]+0.1, y-CLEAT_FLANGE[1]-0.1,
-                      y+CLEAT_FLANGE[1]+0.1, -10.0, 60.0, CLEAT_FLANGE[3]+0.1))
+for x, y, a in CLEATS:                           # rev 17: the flange outline + 0.1, yawed with the cleat
+    ex_ = rbox("TeakExclCleat", x-CLEAT_FLANGE[0]-0.1, x+CLEAT_FLANGE[0]+0.1, y-CLEAT_FLANGE[1]-0.1,
+               y+CLEAT_FLANGE[1]+0.1, -10.0, 60.0, CLEAT_FLANGE[3]+0.1)
+    ex_.data.transform(Matrix.Translation((x, y, 0)) @ Matrix.Rotation(math.radians(a), 4, "Z") @
+                       Matrix.Translation((-x, -y, 0)))
+    excl.append(ex_)
 bool_many(deck_teak, excl, "DIFFERENCE")
 TEAK_ZONES.append(deck_teak)
 ttool = TEAK_ZONES[0]; bool_many(ttool, TEAK_ZONES[1:], "UNION")
@@ -1680,7 +1710,14 @@ mast_rings = [[(x, y, MAST_HEEL) for x, y in mast_section(*mast_dw(MAST_HEEL), -
 mast_rings += [[(x, y, z) for x, y in mast_section(*mast_dw(z))] for z in MZ[1:]]
 mast = rings_solid("MastSpar", mast_rings)
 dt, wt = mast_dw(MAST_TOP)
-G.boolean(mast, pad("MastCap", MAST_XA, MAST_XA+dt+0.45, -(wt/2+0.35), wt/2+0.35, MAST_TOP-5.0, MAST_TOP+0.6, 0.45, 0.35), "UNION")
+G.boolean(mast, pad("MastCap", MAST_XA, MAST_XA+dt+0.45, SLOT_YM-CAP_HW, SLOT_YM+CAP_HW, MAST_TOP-5.0, MAST_TOP+0.6, 0.45, 0.25),
+          "UNION")
+G.boolean(mast, prism("TangSlot", [(SLOT_X0, SLOT_Z0), (LIP_X, SLOT_Z0), (LIP_X, LIP_TOP-LIP_CH), (LIP_X+LIP_CH, LIP_TOP),
+                                   (CAP_XF+1.0, LIP_TOP), (CAP_XF+1.0, CAP_TOP+1.0), (SLOT_X0, CAP_TOP+1.0)],
+                      "y", SLOT_Y[0], SLOT_Y[1]), "DIFFERENCE")
+G.boolean(mast, prism_x("SlotLeadIn", [(SLOT_Y[0], CAP_TOP-0.3), (SLOT_Y[0]-0.31, CAP_TOP+0.01), (SLOT_Y[0]-0.31, CAP_TOP+1.0),
+                                       (SLOT_Y[1]+0.31, CAP_TOP+1.0), (SLOT_Y[1]+0.31, CAP_TOP+0.01), (SLOT_Y[1], CAP_TOP-0.3)],
+                        SLOT_X0, CAP_XF+1.0), "DIFFERENCE")      # 0.3 mm lead-in on the cheek tops
 G.boolean(mast, rbox("Gooseneck", MAST_XA, MAST_XA+d43+0.8, -(w43/2+1.2), w43/2+1.2, GOOSE_Z-1.4, GOOSE_Z, 0.6), "UNION")
 spar_only = dup(mast, "SparOnly")
 # printed shroud frame (navy, part "Shrouds"): cap shrouds hounds -> spreader tips -> chainplate, lowers from below
@@ -1741,7 +1778,7 @@ for i, (zsp, half) in enumerate(SPREADERS):
     dep, h0, h1 = SPREADER_SEC[i]
     poly = [(-half, zsp-h1/2), (0.0, zsp-h0/2), (half, zsp-h1/2), (half, zsp+h1/2), (0.0, zsp+h0/2), (-half, zsp+h1/2)]
     G.boolean(mast, prism_x("Spreader%d" % i, poly, MAST_XA, MAST_XA+dep), "UNION")
-MASTHEAD_HOLE_Z = MAST_TOP-2.2
+MASTHEAD_HOLE_Z = MAST_TOP-3.6                  # rev18: 1.4 mm lower, under the tang slot floor (was MAST_TOP-2.2)
 G.boolean(mast, rod_x("StayHole", MAST_XA-1, MAST_XA+5, 0, MASTHEAD_HOLE_Z, 0.42, 16), "DIFFERENCE")
 _cut = dup(shrouds, "ShroudCut")
 for v in _cut.data.vertices:                    # drop the cutter's print face below the mast's to avoid coplanar faces
@@ -1752,7 +1789,7 @@ mast.name = "Mast"; shrouds.name = "Shrouds"
 log("shroud feet", [(round(y, 2), round(z, 2)) for _, y, z in SHROUD_FEET], "chainplates", CHAINPLATES)
 
 # printed furled genoa on a furler (display only): white D-section body on the stay axis, navy drum + foot tab
-# that drops into the stemhead pocket, and an inverted-U hook that hangs over the masthead cap.
+# that drops into the stemhead pocket, and a flat tang that drops into the masthead slot (rev18).
 
 
 FURL_F = 0.5                                   # rev16: ellipse centre f*c above the bed face (was 0.75): bed face 0.87 x width
@@ -1775,10 +1812,10 @@ DRUM_S0, DRUM_S1 = FURL_DRUM_S, FURL_DRUM_S+1.6
 BODY_A0, BODY_A, BODY_A1 = 1.3, 1.7, 1.15     # half-widths: drum top, belly (s 12-45), head: 2.6 / 3.4 / 2.3 mm
 BODY_S1, BODY_S2 = 12.0, 45.0
 BODY_H, BODY_H1 = 2.4, 2.0                     # print height at the belly and at the head
-HEAD_CLR = HOOK_B[0]-CAP_XF-HOOK_CLR                  # last ~2 mm narrow into the hook leg: aft edge >= HOOK_CLR from the cap front
+HEAD_CLR = HOOK_B[0]-CAP_XF-HEAD_GAP                  # last ~3 mm narrow: aft edge >= HEAD_GAP from the cap front
 drum = rings_solid("FurlerDrum", [furl_ring(DRUM_S0, 1.5, 1.5), furl_ring(DRUM_S0+0.3, 1.9, 1.87),   # 3.8 x 2.8 mm
                                   furl_ring(DRUM_S1-0.3, 1.9, 1.87), furl_ring(DRUM_S1, 1.5, 1.5)])
-G.boolean(drum, axis_solid("FurlerTab", [(DRUM_S0-3.4, FTAB_A, FURL_Y0, FURL_Y0+FTAB_H),
+G.boolean(drum, axis_solid("FurlerTab", [(DRUM_S0-FTAB_L, FTAB_A, FURL_Y0, FURL_Y0+FTAB_H),
                                           (DRUM_S0+0.3, FTAB_A, FURL_Y0, FURL_Y0+FTAB_H)]), "UNION")
 body_rings = []
 _ss = sorted(set([DRUM_S1+(BODY_S1-DRUM_S1)*k/8 for k in range(9)]+[BODY_S1+(BODY_S2-BODY_S1)*k/6 for k in range(7)]
@@ -1794,17 +1831,22 @@ for s_ in _ss:
     a_ = min(a_, (HEAD_CLR+(-FURL_T[0])*(FURL_L-s_))/FURL_N[0])   # stay clear of the masthead cap (runs 5 mm down)
     body_rings.append(furl_ring(s_, a_, h_/(1+FURL_F)))
 furler = rings_solid("FurlerBody", body_rings)
-hx0, hx1 = CAP_XA-HOOK_CLR-HOOK_STOCK, CAP_XF+HOOK_CLR+HOOK_STOCK
-hz1 = CAP_TOP+HOOK_CLR+HOOK_STOCK
-hook = [(hx1, HOOK_B[1]-1.5), (hx1, hz1-0.5)]   # front leg runs 1.5 mm down into the body
-hook += [(hx1-0.5+0.5*math.cos(math.radians(a_)), hz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(15, 91, 15)]
-hook += [(hx0+0.5+0.5*math.cos(math.radians(a_)), hz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(90, 181, 15)]
-hook += [(hx0, CAP_TOP-HOOK_LEG), (hx0+HOOK_STOCK, CAP_TOP-HOOK_LEG), (hx0+HOOK_STOCK, CAP_TOP+HOOK_CLR),
-         (hx1-HOOK_STOCK, CAP_TOP+HOOK_CLR), (hx1-HOOK_STOCK, HOOK_B[1]-1.5)]
-G.boolean(furler, prism("FurlerHook", hook, "y", FURL_Y0, FURL_Y0+HOOK_T), "UNION")
+# rev18: flat J-tang from the head: a bridge over the lip and a leg down behind it (design pose: TANG_C off the aft
+# wall, the floor, the lip and its top; TANG_CLR each side)
+tx0, tz0, tz1 = SLOT_X0+TANG_C, SLOT_Z0+TANG_C, CAP_TOP+0.4
+lx1, zb, nx = LIP_X-TANG_C, LIP_TOP+TANG_C, CAP_XF+HEAD_GAP    # leg front, bridge underside, front part aft face
+tx1 = HOOK_B[0]+0.7                             # bottom front corner, inside the body
+tx2 = tx1+FURL_T[0]/FURL_T[1]*(tz1-tz0)         # front edge parallel to the stay
+tang = [(tx0+0.25, tz0), (lx1, tz0),            # leg (0.25 mm chamfer aft only: its square front locks on the lip)
+        (lx1, zb-0.3), (lx1+0.3, zb), (nx, zb), (nx, tz0), (tx1, tz0)]   # 0.3 mm root fillet, parallel to the lip chamfer
+tang += [(tx2-0.5+0.5*math.cos(math.radians(a_)), tz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(0, 91, 15)]
+tang += [(tx0+0.5+0.5*math.cos(math.radians(a_)), tz1-0.5+0.5*math.sin(math.radians(a_))) for a_ in range(90, 181, 15)]
+tang += [(tx0, tz0+0.25)]
+G.boolean(furler, prism("FurlerTang", tang, "y", FURL_Y0, FURL_Y0+TANG_T), "UNION")
 furler.name = "Furler"; drum.name = "Furler_ink"
-log("furler length", round(FURL_L, 2), "axis", [round(v, 4) for v in FURL_T], "hook x", (round(hx0, 2), round(hx1, 2)),
-    "hook top", round(hz1, 2), "cap", (round(CAP_XA, 2), round(CAP_XF, 2), round(CAP_TOP, 2)))
+log("furler length", round(FURL_L, 2), "axis", [round(v, 4) for v in FURL_T], "tang x", (round(tx0, 2), round(tx1, 2)),
+    "tang z", (round(tz0, 2), round(tz1, 2)), "cap", (round(CAP_XA, 2), round(CAP_XF, 2), round(CAP_TOP, 2)),
+    "slot", (round(SLOT_X0, 2), round(SLOT_Z0, 2), SLOT_Y), "lip", (round(LIP_X, 2), round(LIP_TOP, 2)), "leg", round(lx1-tx0, 2))
 log("mast section heel", mast_dw(0.0), "gooseneck", (round(d43, 2), round(w43, 2)), "top", (round(dt, 2), round(wt, 2)))
 
 BOOM_Z0, BOOM_H, BOOM_W = GOOSE_Z+0.05, 2.6, 1.9
@@ -2121,9 +2163,14 @@ json.dump({"parts": tot, "canoe_cm3": vol*SX/1000, "LCB": (LCB-X_CENTER)*SX,
                    "tab_mm": [TAB_W, TAB_W, TAB_L], "sheet_eye": (fx(SHEET_EYE[0]), 0.0, SHEET_EYE[2])},
            "furler": {"display_only": True, "axis_foot": (fx(FURL_A[0]), 0.0, FURL_A[1]),
                       "axis_head": (fx(HOOK_B[0]), 0.0, HOOK_B[1]), "length_mm": round(FURL_L*1.0, 2),
-                      "body_max_width_mm": 2*BODY_A, "body_head_width_mm": 2*BODY_A1, "body_height_mm": [BODY_H, BODY_H1], "hook_stock_mm": [HOOK_STOCK, HOOK_T], "flat_face_y": FURL_Y0, "drum_s": [DRUM_S0, DRUM_S1],
-                      "foot_tab": [2*FTAB_A, FTAB_H, 3.4], "stemhead_pocket": FPOCKET,
-                      "hook_x": (fx(hx0), fx(hx1)), "hook_top_z": hz1, "hook_clearance": HOOK_CLR},
+                      "body_max_width_mm": 2*BODY_A, "body_head_width_mm": 2*BODY_A1, "body_height_mm": [BODY_H, BODY_H1], "flat_face_y": FURL_Y0, "drum_s": [DRUM_S0, DRUM_S1],
+                      "foot_tab": [2*FTAB_A, FTAB_H, FTAB_L], "stemhead_pocket": FPOCKET,
+                      "tang": {"x": (fx(tx0), fx(tx1)), "z": (tz0, tz1), "t_mm": TANG_T, "clearance": TANG_CLR,
+                               "leg_x": (fx(tx0), fx(lx1)), "bridge_z0": zb},
+                      "slot": {"x0": fx(SLOT_X0), "x_front": fx(CAP_XF), "z0": SLOT_Z0, "top_z": CAP_TOP, "y": SLOT_Y,
+                               "cap_width_mm": 2*CAP_HW, "cap_y": (SLOT_YM-CAP_HW, SLOT_YM+CAP_HW),
+                               "aft_wall_mm": SLOT_X0-CAP_XA, "head_gap_mm": HEAD_GAP,
+                               "lip": {"x0": fx(LIP_X), "top_z": LIP_TOP, "t_mm": CAP_XF-LIP_X, "chamfer": LIP_CH}}},
            "display_only_parts": ["Furler", "Furler_ink"],
            "wheel": {"x": fx(WHEEL_X), "y": WHEEL_Y, "z": WHEEL_Z, "r": WHEEL_R},
            "rudder_x": fx(X_RUD)}, open(os.path.join(OUT, "stats.json"), "w"), indent=1)
@@ -2189,6 +2236,17 @@ sail["printable"] = False
 sail.data.materials.append(material("Paper sail preview", (0.96, 0.94, 0.84, 1)))
 
 stay_paths = {"Preview_Mainsheet": [(fx(TRAV_X), 0.0, BOOM_Z0), (fx(SHEET_EYE[0]), 0.0, SHEET_EYE[2])]}
+# rev 17: the gooseneck lashing - stopper knot on the boom top, down through the boom's forward hole, both legs out under
+# the boom nose and level forward to two tight turns round the mast resting on the saddle top. The legs leave from the
+# underside, so a drop of the boom nose stretches them (they carry it); a route from the boom top down to the saddle
+# would only pull the nose down (round-2 review).
+GX_, LZ_ = fx(BOOM_HOLES["gooseneck loop"]), GOOSE_Z+0.12      # 0.24 thread resting on the saddle top
+LB_, KT_ = BOOM_Z0-0.12, BOOM_Z0+BOOM_H+0.12                    # leg under the boom; knot on the boom top
+stay_paths["Preview_GooseneckLashing"] = [
+    (GX_, 0.0, KT_), (GX_, 0.0, LB_), (fx(BOOM_FWD), w43/2-0.2, LB_), (fx(MAST_XA+0.4), w43/2+0.25, LZ_),
+    (fx(MAST_XA+d43*0.6), w43/2+0.15, LZ_), (fx(MAST_XA+d43+0.25), 0.0, LZ_), (fx(MAST_XA+d43*0.6), -(w43/2+0.15), LZ_),
+    (fx(MAST_XA+0.4), -(w43/2+0.25), LZ_), (fx(BOOM_FWD), -(w43/2-0.2), LB_), (GX_, 0.0, LB_), (GX_, 0.0, KT_)]
+stay_paths["Preview_GooseneckKnot"] = [(GX_-0.22, 0.0, KT_+0.05), (GX_+0.22, 0.0, KT_+0.05)]
 build_stats.update(build_stats_extra)
 build_stats["anchor"] = {"toe_u": round(ANCHOR_U0, 2), "crown_front_x_prescale": ANCH_X1, "cheek_end_x_prescale": CHEEK_X1,
                          "roller": ROLLER, "shackle": SHACKLE, "fluke_shadow_gap_mm": FL_OT,
@@ -2244,3 +2302,6 @@ for name, loc, power, size in (
 
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "Margaret.blend"))
 log("DONE", {k: (v["vol_cm3"], v["nonmanifold"]) for k, v in tot.items()})
+_empty = [k for k, v in tot.items() if not v["vol_cm3"]]
+if _empty:
+    raise SystemExit("EMPTY EXPORTED PARTS %s" % _empty)

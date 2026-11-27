@@ -18,6 +18,9 @@ m["printer_settings_id"]=m["name"]
 p["print_settings_id"]=p["name"]
 p.update(wall_generator="arachne",wall_loops="2",sparse_infill_density="7%",enable_support="1",support_type="normal(auto)",support_on_build_plate_only="1",support_threshold_angle="38",brim_type="no_brim",enable_prime_tower="1",prime_tower_width="32",
          wipe_tower_x=["216"],wipe_tower_y=["24"],curr_bed_type="Textured PEI Plate")
+# rev 17: a multi-plate project needs one prime-tower position per plate
+n=len(json.loads((w/"plate.json").read_text())["plates"]) if (w/"plate.json").exists() else 1
+p.update(wipe_tower_x=["216"]*n,wipe_tower_y=["24"]*n)
 for n,d in [("machine",m),("process",p)]: (w/(n+".json")).write_text(json.dumps(d))
 for i,col in enumerate(["#F6F5EE","#15499D","#173347","#BF8A54"],1):
     d=dict(f,filament_colour=[col],default_filament_colour=[col],filament_settings_id=[f["name"]])

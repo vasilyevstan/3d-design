@@ -962,3 +962,185 @@ The optional notes are recorded but not adopted, because there is no failure and
 **To upgrade a v7l print, reprint only the furler.**
 
 ![Furled genoa at the masthead and the stemhead: v7l (left) and v7m (right)](views/details/furler.png)
+
+## Step 17 — cleats at the deck edge, the mast that did not go home, one four-plate project (v7n)
+
+**User:** put the cleats in the correct places; run the model past several models to dispute its correctness,
+proportions and seaworthiness; put every part in one 3MF split by plates (1 upper hull; 2 lower hull, keel and rudder;
+3 masts and wheels; the rest grouped by colour); the keel and ballast show white; "I could not find the model for the
+boom and its connection to the body"; "I inserted the mast, but the rigging does not reach its fixing points on the
+body".
+
+**What was wrong (v7m, measured)**
+- **White fin and ballast cup.** In the v7m 3MF every object was called `assemble_N` and carried its filament only on
+  its parts, not on the object. Bambu Studio shows a one-part object with no object filament as filament 1 (white), and
+  would print it white if re-sliced in the app. The shipped G-code itself printed them blue; the project did not.
+- **Mast did not go home.** The lower hull prints seam-face down, so its blind mast socket (5.8 mm deep) was a cavity
+  under a bridged roof, and the slicer filled it with a 2.95 × 1.82 mm support column from z 0.2 to 5.64. With that
+  column left in, the heel stops at the seam, about 5.8 mm high, and the shroud-frame feet end about 3.8 mm above
+  their chainplates: the user's symptom. The bore was also tight: 0.15 mm per side in the model, about 0.16 as sliced,
+  over 30 mm of engagement through a glued seam.
+- **Boom.** It was on the plate all along (white, 71.6 × 2.5 × 2.6 mm), but named `assemble_9`. It connects with a
+  thread lashing at the gooseneck; README step 7 wrongly said it "sits on the saddle" (the boom nose ends 0.36 mm aft
+  of the saddle, so the saddle never carried it).
+- **Cleats.** The bow pair stood 9 mm off the centreline of the foredeck, the middle pair 24 mm aft of the widest
+  point, and the middle and stern pairs 3–5 mm in from the deck edge, all fore-aft. The real boat has them at the edge.
+
+**Brief** (`review17/BRIEF.md` in the session): cleats at bow, spring and quarter stations just inside the toe rail;
+mast bore 0.25 mm per side with support blockers; boom options (keep the thread lashing, name and render it, or a
+printed jaw); the four-plate split with object-level filament; and an open dispute of likeness, proportions and
+seaworthiness (GM, AVS, CE/CLR, trim, leak paths).
+
+**Challenge/defend, round 1**
+
+| Reviewer | Verdict | Corrections taken |
+|---|---|---|
+| GPT-6.2-sol | **NO-GO as written** | Keep blockers and a seam chamfer; widen the bore and check the socket roof bridges; give a seating gauge; old prints: clear the column with a 2 mm bit by hand, not past the socket floor. Make the lashing bear on the saddle. Verify colour per object *and* per part after re-slicing. Its own cleat pose (76, ±16.2) collides with the toe rail and was not used |
+| Opus 5.5 | **GO with corrections** | Home means the shroud feet on the chainplate blocks and the tabs 0.2 mm above the pocket floors (README said 0.5). Rotate the teak cut-out with each cleat (5.9 mm² of white wedges at the bow otherwise). The lashing must be tight; the saddle only stops the turns sliding. Prove a v7n upper mates with a printed v7m lower. Glue the rudder-tube seam ring and bubble-test it. Add a wind table to 3 m/s; state the deliberate proportion changes |
+| Grok 4.7 | **GO** | Gauge 19.8 mm; drill with 2 mm only (the D opening is 2.91 mm wide). The author's cleat poses are right. Name boom hole 4 from aft as the mainsheet. The rudder-tube mouth wets only at 155–159° of heel, not 65–70°. A CE lead of 2–7 % LWL is normal. Don't restyle her toward true scale: the 55.5 mm draft and 81 % rig are why she stands up |
+
+**Decisions (v7n)**
+- **Plates:** one Bambu Studio project, four plates, all sliced: 1 upper hull; 2 lower hull, fin with bulb cap, ballast
+  cup, rudder; 3 mast with shroud frame, boom, furler, wheels; 4 stand and printed display sail (the old separate
+  stand and display-sail projects are removed). The CLI assembles the plates; `patch3mf.py` then gives every object its
+  real name, its own filament and its per-object settings, and a second CLI pass slices all plates (each plate needs
+  its own wipe-tower position).
+- **Mast bore:** 0.25 mm per side in both halves, a 0.45 mm per side relief 0.3 mm either side of the seam (elephant
+  foot, glue squeeze-out), a 1.0 mm tube wall, and support blockers over the bore in both halves.
+- **Cleats:** bow pair (75, ±15.34) turned 26°, spring pair at the widest point (−6, ±29.54), quarter pair (−80, ±26.06)
+  turned 8° (pre-scale coordinates), each 0.42–0.44 mm inside the toe rail; the teak cut-out is the flange outline +
+  0.1 mm, rotated with the cleat.
+- **Boom:** keep the thread lashing (a printed jaw would bind on the D-section mast). It is named, rendered in a
+  close-up with a preview thread, and the rigging sheet numbers the five holes from aft.
+- **Not changed:** helm balance (CE 4 mm ahead of CLR with the full sail; Opus reads the same numbers as mild weather
+  helm, Grok as normal), the deliberate draft and rig height, and the hull outside the mast socket.
+
+**Bugs found on the way, fixed and gated**
+- The first v7n build exported an **empty lower hull**. The seam-local relief cutter, batched with the other bores,
+  made the exact boolean solver return empty colour bands. The relief is now cut after the colour split, and the build
+  stops if any half or exported part is empty.
+- `gcode_mass.py` assigned the first object of plate 2 to tool 1 because its tool regex missed the indented `T1` in
+  the start G-code. Fixed (`^\s*T(\d+)\s*$`); totals were unchanged, and fin and cup now read 100 % blue.
+
+**As built (v7n), checked on the G-code**
+- **Colour:** every object has its object-level filament in the re-sliced project; per-object G-code: fin cap and
+  ballast cup 100 % blue, stand 100 % navy.
+- **Mast bore:** the only material inside either bore is a loose first-layer strand at z 0.2 (21.8 mm on plate 1,
+  23.3 mm on plate 2); no column (`support_probe.json`). Every bore layer is 4.25 × 3.11 mm against a 3.72 × 2.59 mm
+  heel: 0.26 mm per side (`mast_fit_v7n.txt`).
+- **Seating gauge:** collar top (z 23.2) to saddle top (z 43.0) is 19.8 mm with the heel 0.3 mm above the socket
+  floor, 19.5 mm with it on the floor. Over about 20.3 mm means something blocks the heel. Under the socket floor is the
+  solid mast step, 8.7 mm down to the hull skin, so a drill that slightly overshoots does no harm.
+- **Compatibility:** v7m and v7n hulls were ray-cast every 0.1 mm (`column_compat.json`). All lower parts, and the
+  upper below z 6.5, are identical outside the mast zone (x 19–28, |y| < 4); Lower_ink differs in 22 of 128,630
+  columns by ≤ 0.07 mm (re-meshing). A v7n upper mates with a printed v7m lower unless they are already glued.
+- **Unchanged parts:** Mast, Shrouds, Boom, Furler, Rudder, Fin_cap, Ballast_cup and both wheels are byte-identical to
+  v7m. Joint fits on the toolpaths are identical to v7m (`fits_gcode_v7n.json`).
+- **Rudder tube:** a continuous wall from the hull skin to the cockpit sole, with one local 0.45–0.5 mm thin spot at
+  z −1.1, just below the waterline (`probe17.json`); hence the glued seam ring and the mandatory bubble test.
+- **Names:** transom 17 of 17 layers, bow 19 of 19, `transom_gates.py` PASS.
+- **Mass and float:** 50.1 g of PLA sails (+1.8 g extras), lead 12.0 g = 75 balls, all-up 63.9 g; GM 16.0 mm,
+  AVS 132°, trim 0.08° bow down, deck edge immerses at 31°.
+- **Print:** plates 1–4 take 7 h 08, 2 h 48, 0 h 51 and 1 h 12 (totals as Bambu Studio shows them); the boat is
+  10 h 47 and 181 g of filament for 51.7 g of parts.
+
+**Challenge/defend, round 2 (as built)**
+
+| Reviewer | Verdict | Notes |
+|---|---|---|
+| GPT-6.2-sol | **NO-GO as documented** | Blocking: the lashing preview ran from the boom top down to the turns on the saddle, so a load on the boom nose slackens it. The legs must leave from the underside of the boom, with a stopper above. Also: give the gauge as 19.5–19.8 mm; give drill stops from a named face; a glued hull cannot take an upper-only reprint; one wind limit everywhere; no sail above 3 m/s; separate 51.7 g of parts from 181 g of filament; make the bubble test mandatory |
+| Opus 5.5 | **GO** | Gauge 19.5 mm home, up to 19.8 fine, over ~20.3 blocked. Glued hull: stop 26.5 mm below the collar top (the seam is 20.7 mm below it). Scrape the elephant-foot lip on old sockets. Number boom holes 3 and 4 clearly (3.6 mm apart). Use Bambu's total times and list grams per plate. The views sheet still said one plate. Reprint scope: plate 1 only, unless the fin and cup came out white |
+| Grok 4.7 | **GO** | Same drill depths; name hole 4 on the sail card; CE lead is 2.3 % LWL; state the 81.5 % luff (188/231). Its "masthead 240/268 = 89.5 %" mixes the sail-plan I with air draft and was not used |
+
+**Round-2 decisions**
+- **Lashing (GPT, adopted):** a stopper knot on top of hole 5, the legs down through the hole, forward **under** the
+  boom nose, two tight turns round the mast on the saddle top, back under and up through the hole. The boom's moment
+  balance needs an upward reaction at the nose; legs leaving the underside tighten when the nose drops, so the boom
+  holds level and is drawn against the mast. The preview, the close-up and README step 7 show this.
+- **Drill stops:** 5.8 mm below the seam face on a loose lower half; 26.5 mm below the collar top on a glued hull.
+  GPT's and Grok's "don't break the 0.3 mm floor" was checked against the model: below the floor is solid plastic, so
+  the warning was replaced with "stop there; a small overshoot does no harm".
+- **Wind:** the full sail stays "only below about 1.5 m/s" everywhere (14° at 2 m/s is too close to the 31° deck edge
+  in gusts); the table gains a 3 m/s column; no sail is prescribed above 3 m/s. Opus's "full main to 2 m/s" was not
+  adopted.
+- **Sheets:** the views sheet reads "four plates"; the rigging sheet numbers the boom holes 1–5 from aft; the PDF fit
+  step names hole 4; `plate_times.py` reports Bambu's total times; README gives a per-plate table with filament and
+  finished grams.
+- **Reprint scope:** from v7m, plate 1 only; the fin and cup (plate 2) only if they printed white; the lower hull only if
+  the halves are already glued and the owner wants the new cleats.
+
+![Cleats on the deck plan](views/details/deck-cleats.png)
+
+![Boom lashing at the gooseneck](views/details/gooseneck.png)
+
+## Step 18 — the furled genoa that would not stay on the mast (v7o)
+
+**User:** "how is head sail connected to the main mast? glue? does not seem to fit" → "no, the head sail and the mast do
+not hook, maybe glued" → "okay it hooks into the sail, but not to the mast and then it will be wobbly".
+
+**What was wrong (v7m/v7n, measured on the STLs, `review18/hook_path.py`)**
+- The furler's head was an inverted-U hook over the masthead cap: a tunnel open at both sides. Nothing held it
+  sideways, and the foot tab allows about ±4.7° of tilt, so the head could swing about **±18 mm**.
+- Fitting it down the stay collides; only a sideways slide works.
+- With the mast standing **2 mm or more** high, no pose fits at all. The user's v7m print had the slicer's support
+  column in the mast socket, which held the mast about 5.8 mm high, so the hook very likely could not reach.
+
+**Brief** (`review18/BRIEF.md`): a keyed tang on the furler head in a slot in the masthead cap, as a forestay tang
+sits in a masthead crane; hull plates unchanged, only plate 3 (51 min) reprinted. Rejected: glue only (the mast goes in
+vertically and the foot tab along the 16° stay, so a glued furler binds the mast, and it must come off for sailing),
+a closed cup over the cap (same 16° conflict), a fork (needs a tine below the print-bed face), a cross pin (slides off
+sideways like the hook).
+
+**Challenge/defend, round 1**
+
+| Reviewer | Verdict | Corrections taken |
+|---|---|---|
+| GPT-6.2-sol | **Adopt with changes** | Enter from the front; centre the cap on the slot; lead-ins on the cheek tops |
+| Opus 5.5 | **Adopt with changes** | Chamfer on the tang, 0.3 mm slot lead-in; aft wall sized on whole layers; keep 0.2 mm per side; keep the furler head ≥ 0.6 mm in front of the cap so the mainsail head can still be tied through the masthead hole (knot aft, no turns over the cap); cap edge round ≤ 0.3 mm |
+| Grok 4.7 | **Adopt with changes** | An open front holds the head fore-aft only by about **0.2 gf** of gravity moment: a 1.5 mm nudge or a 16° bow-down tilt walks it out. Add a **front lip** (≤ 1.2 mm below the cap top, 0.4 mm chamfer on its inner top edge); 1.0 mm cheeks; size the tang on the real layer stack (0.2 + 5 × 0.16); verify the drop path, the mast standing high, the sliced slot width and the lip bridge |
+
+**The lip dispute.** GPT and Opus wanted an open-front slot (simpler, swing-in fitting); Grok wanted a lip. An
+open-front version was built and checked first: it fits, but only gravity holds it fore-aft, and the user's complaint
+was "wobbly". **Grok's lip was adopted.**
+
+**Iterations (all built and measured)**
+1. Open-front slot: cheeks 0.9 / 0.9 mm, 0.2 mm per side; front entry clear. Rejected: gravity-held only.
+2. J-tang + lip, first try: lip top 1.2 mm above the slot floor, chamfers on both bottom corners of the leg. Drop-in
+   clear, but a **0.7 mm** lift released it: the two chamfers formed a ramp. Rejected.
+3. J-tang + lip, final: lip top 1.2 mm **below the cap top** (1.6 mm high), the leg's front-bottom chamfer removed so
+   its square front locks on the lip. Built as v7o.
+
+**As built (v7o)**
+- **Mast cap:** 2.65 × 3.5 mm, z 235.0–240.6. Slot 1.5 mm wide, cheeks 1.0 / 1.0 mm, aft wall 0.8 mm, floor 2.8 mm
+  below the cap top. Lip 0.6 mm thick, 1.6 mm high, 0.4 mm chamfer on its aft top edge; the slot is open forward above
+  it, with a 0.3 mm lead-in on the cheek tops. The masthead tie hole moves down 1.4 mm (z 236.4) to stay under the
+  slot floor.
+- **Furler:** the hook is replaced by a J-tang 1.0 mm thick (the print-bed face, 6 layers): a 0.85 mm leg drops
+  behind the lip; the bridge over the lip joins the head 0.6 mm in front of the cap. Foot tab 4.2 mm, 3.2 mm in the
+  stemhead pocket (was 2.4). Furler axis, stemhead pocket and all hull parts unchanged (STLs byte-identical to v7n).
+
+**Evidence (`tang_fit.json`, 0.02 mm raster through the slot; `slot_gcode.json`, plate-3 toolpaths)**
+- Seated: overlap 0; gaps 0.18 down, 0.20 aft, 0.22 forward to the lip; 0.25 mm each side.
+- Fitting: lowered straight down from 2.0 mm above, clear at every 0.1 mm.
+- Holding: no forward motion is possible until the head is lifted **1.1 mm**.
+- Let go 1.8 mm up and 0.3 mm forward, gravity alone seats it on the floor against the lip (captive).
+- Mast standing high: fits at 0.5–3.0 mm; the foot tab keeps 2.7 / 2.2 / 1.6 / 1.1 / 0.6 / 0.1 mm in its pocket, so
+  about 2 mm is the practical limit and a seated mast is well inside it.
+- As sliced: slot **1.51 mm** on every layer, cheeks 0.99 mm, aft wall 5 layers (0.84 mm), lip 4 solid bridge layers
+  over the 1.5 mm gap, slot open above the lip; tang 6 layers (1.0 mm), leg 0.86 mm.
+- Mass: mast 2.37 → 2.38 g, furler 1.53 → 1.49 g; lead, GM and trim unchanged. Plates 1, 2 and 4 slice exactly as in
+  v7n (joint fits on the toolpaths identical); names PASS; fin and cup 100 % blue.
+
+**Challenge/defend, round 2 (as built)**
+
+| Reviewer | Verdict | Notes |
+|---|---|---|
+| GPT-6.2-sol | **Adopt** | No geometry or slicer change. Keep the 0.5 mm total side play (not a press fit). The README must say lift the head *vertically*: pulling along the stay moves the tang ~0.48 mm aft into 0.20 mm of clearance and can jam it |
+| Opus 5.5 | **Adopt as built** | Re-ran the G-code check independently (same numbers). The lip answers "wobbly". Seat the mast fully (≤ 1 mm high) before fitting; if the leg binds, one file stroke on the lip's aft face |
+| Grok 4.7 | **Adopt** | No change. The square lock face sits below the 45° chamfer, so the leg cannot cam out. Removal needs 1.1 mm of lift, not 1.6. Don't tighten the end gaps or deepen the lip; treat +2.0 mm as the mast-height limit |
+
+**Round-2 decisions:** no geometry change. README Assembly step 8 rewritten: seat the mast, tie the sail head first
+(knot aft), foot tab into the pocket, lower the head straight down from about 1.5 mm; to remove, lift straight up
+about 1.5 mm (at least 1.1), then forward. Upgrade: reprint plate 3 only.
+
+![The furler's head tang in the masthead slot: seated, lifted, removed](views/details/masthead-joint.png)

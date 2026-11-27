@@ -1,40 +1,40 @@
 {
  "parts": {
   "Lower_blue": {
-   "verts": 34529,
-   "faces": 69058,
+   "verts": 34507,
+   "faces": 69014,
    "nonmanifold": 0,
-   "vol_cm3": 11.6
+   "vol_cm3": 11.617
   },
   "Lower_white": {
-   "verts": 6550,
-   "faces": 13116,
+   "verts": 6553,
+   "faces": 13122,
    "nonmanifold": 0,
-   "vol_cm3": 0.882
+   "vol_cm3": 0.883
   },
   "Lower_ink": {
-   "verts": 5336,
-   "faces": 10688,
+   "verts": 5398,
+   "faces": 10812,
    "nonmanifold": 0,
    "vol_cm3": 0.858
   },
   "Upper_white": {
-   "verts": 62267,
-   "faces": 124570,
+   "verts": 62107,
+   "faces": 124250,
    "nonmanifold": 0,
-   "vol_cm3": 20.479
+   "vol_cm3": 20.483
   },
   "Upper_ink": {
-   "verts": 40129,
-   "faces": 79914,
+   "verts": 40224,
+   "faces": 80136,
    "nonmanifold": 0,
-   "vol_cm3": 0.896
+   "vol_cm3": 0.9
   },
   "Upper_teak": {
-   "verts": 34927,
-   "faces": 69610,
+   "verts": 35047,
+   "faces": 69858,
    "nonmanifold": 0,
-   "vol_cm3": 2.227
+   "vol_cm3": 2.229
   },
   "Window_ink": {
    "verts": 3533,
@@ -55,10 +55,10 @@
    "vol_cm3": 2.196
   },
   "Mast": {
-   "verts": 1070,
-   "faces": 2140,
+   "verts": 1096,
+   "faces": 2192,
    "nonmanifold": 0,
-   "vol_cm3": 1.684
+   "vol_cm3": 1.695
   },
   "Shrouds": {
    "verts": 841,
@@ -67,16 +67,16 @@
    "vol_cm3": 0.367
   },
   "Furler": {
-   "verts": 1677,
-   "faces": 3350,
+   "verts": 1672,
+   "faces": 3340,
    "nonmanifold": 0,
-   "vol_cm3": 1.306
+   "vol_cm3": 1.277
   },
   "Furler_ink": {
    "verts": 111,
    "faces": 218,
    "nonmanifold": 0,
-   "vol_cm3": 0.018
+   "vol_cm3": 0.019
   },
   "Boom": {
    "verts": 1118,
@@ -146,7 +146,7 @@
  "ballast_cavity_cm3": 4.697749983930342,
  "lead_3mm_balls_64pct": 212,
  "lead_mass_g_64pct": 33.92,
- "total_parts_cm3": 46.772,
+ "total_parts_cm3": 46.783,
  "lugs": [
   [
    50.52762283228525,
@@ -200,7 +200,7 @@
    "clew medium": -36.89219936240962,
    "clew": -49.048210140961864
   },
-  "masthead_hole_z": 237.8,
+  "masthead_hole_z": 236.4,
   "hounds_z": 231.5,
   "spreaders": [
    [
@@ -344,10 +344,6 @@
    2.4,
    2.0
   ],
-  "hook_stock_mm": [
-   1.5,
-   2.0
-  ],
   "flat_face_y": -0.6,
   "drum_s": [
    1.0,
@@ -356,7 +352,7 @@
   "foot_tab": [
    1.1,
    1.1,
-   3.4
+   4.2
   ],
   "stemhead_pocket": [
    0.75,
@@ -364,12 +360,46 @@
    0.7000000000000002,
    4.0
   ],
-  "hook_x": [
-   19.723774242379456,
-   26.344920538782382
-  ],
-  "hook_top_z": 242.475,
-  "hook_clearance": 0.375
+  "tang": {
+   "x": [
+    22.69811730521671,
+    26.034554306138492
+   ],
+   "z": [
+    237.99999999999997,
+    241.0
+   ],
+   "t_mm": 1.0,
+   "clearance": 0.25,
+   "leg_x": [
+    22.69811730521671,
+    23.57748829770772
+   ],
+   "bridge_z0": 239.6
+  },
+  "slot": {
+   "x0": 22.491206483454118,
+   "x_front": 24.405131584758088,
+   "z0": 237.79999999999998,
+   "top_z": 240.6,
+   "y": [
+    -0.85,
+    0.65
+   ],
+   "cap_width_mm": 3.5,
+   "cap_y": [
+    -1.85,
+    1.65
+   ],
+   "aft_wall_mm": 0.8000000000000007,
+   "head_gap_mm": 0.6,
+   "lip": {
+    "x0": 23.78439911947031,
+    "top_z": 239.4,
+    "t_mm": 0.6000000000000014,
+    "chamfer": 0.4
+   }
+  }
  },
  "display_only_parts": [
   "Furler",
@@ -463,28 +493,34 @@
  "cleats": {
   "xy_prescale": [
    [
-    79.0,
-    9.0
+    75.0,
+    15.34,
+    -26.0
    ],
    [
-    79.0,
-    -9.0
+    75.0,
+    -15.34,
+    26.0
    ],
    [
-    -30.0,
-    25.0
+    -6.0,
+    29.54,
+    0.0
    ],
    [
-    -30.0,
-    -25.0
+    -6.0,
+    -29.54,
+    0.0
    ],
    [
-    -78.6,
-    23.5
+    -80.0,
+    26.06,
+    8.0
    ],
    [
-    -78.6,
-    -23.5
+    -80.0,
+    -26.06,
+    -8.0
    ]
   ],
   "flange": [

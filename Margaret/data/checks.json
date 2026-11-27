@@ -40,17 +40,17 @@
   "hull_overlaps": {},
   "mast_overlaps": {},
   "drum_overlaps": {},
-  "hook_min_gap_to_mast_mm": 0.388,
-  "hook_at": [
-   24.79,
-   0.07,
-   236.78
+  "tang_min_gap_to_mast_mm": 0.2,
+  "tang_at": [
+   22.96,
+   0.4,
+   238.0
   ],
   "drum_tab_min_gap_to_hull_mm": 0.2,
   "foot_at": [
-   89.98,
+   91.3,
    -0.6,
-   19.21
+   18.75
   ]
  },
  "islands": {
@@ -60,7 +60,7 @@
    "tiny_count": 0
   },
   "Upper_ink": {
-   "components": 104,
+   "components": 96,
    "tiny": [],
    "tiny_count": 0
   },
@@ -175,11 +175,11 @@
  ],
  "mast_vs_hull_overlaps": {},
  "mast_heel_min_gap": {
-  "gap": 0.149,
+  "gap": 0.249,
   "part": "Lower_blue",
   "at": [
    24.31,
-   1.28,
+   -1.28,
    -2.65
   ]
  },

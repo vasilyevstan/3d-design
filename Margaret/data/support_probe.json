@@ -1,0 +1,50 @@
+{
+ "Hull_upper": {
+  "plate": 1,
+  "inside_bore_mm_by_feature": {
+   "Support": 21.8,
+   "Outer wall": 51.2
+  },
+  "support_mm": {
+   "Support": 21.8
+  },
+  "first_z_with_material_inside": 0.2,
+  "first_layers": {
+   "0.2": {
+    "Support": 21.8
+   },
+   "0.52": {
+    "Outer wall": 0.4
+   },
+   "0.68": {
+    "Outer wall": 0.4
+   }
+  }
+ },
+ "Hull_lower": {
+  "plate": 2,
+  "inside_bore_mm_by_feature": {
+   "Support": 23.3,
+   "Outer wall": 15.3,
+   "Bridge": 59.7,
+   "Internal solid infill": 414.0,
+   "Top surface": 41.8,
+   "Inner wall": 5.5
+  },
+  "support_mm": {
+   "Support": 23.3
+  },
+  "first_z_with_material_inside": 0.2,
+  "first_layers": {
+   "0.2": {
+    "Support": 23.3
+   },
+   "0.52": {
+    "Outer wall": 0.4
+   },
+   "0.68": {
+    "Outer wall": 0.4
+   }
+  }
+ }
+}

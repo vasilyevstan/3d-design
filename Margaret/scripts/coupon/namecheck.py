@@ -22,7 +22,7 @@ for k, m in sel.items():
 paths = {k: [] for k in box}; per = {k: {} for k in box}; tool = None; z = 0; X = Y = None
 for line in open(V+"/plate/x/Metadata/plate_1.gcode", errors="ignore"):
     if line.startswith("; Z_HEIGHT:"): z = round(float(line.split(":")[1]), 2)
-    elif re.match(r"^T\d+\s*$", line): tool = int(line[1:])
+    elif re.match(r"^\s*T\d+\s*$", line): tool = int(line.strip()[1:])   # rev 17: indented start-G-code T too
     elif line.startswith(("G1", "G0")):
         mx = re.search(r" X([-\d.]+)", line); my = re.search(r" Y([-\d.]+)", line); me = re.search(r" E([-\d.]+)", line)
         nX = float(mx.group(1)) if mx else X; nY = float(my.group(1)) if my else Y
